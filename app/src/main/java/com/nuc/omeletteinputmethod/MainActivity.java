@@ -8,25 +8,48 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
     private final int REQUEST_DIALOG_PERMISSION = 1010;
+    private final String TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         if (!canDrawOverlays(this)){
-            Log.i("MainActivity", "onCreate: 现在状态是："+canDrawOverlays(this));
+            if(AllLogShow.Debug)Log.i(TAG, "onCreate: 现在状态是："+canDrawOverlays(this));
             requestSettingCanDrawOverlays();
         }
+        if (!getDefaultInputMethodPkgName(this).equals("com.nuc.omeletteinputmethod")){
 
+            Toast.makeText(MainActivity.this, "请将输入法设置为默认输入法或首选输入法", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS));
+        }
+
+        startActivity(new Intent(Settings.ACTION_SETTINGS));
     }
 
+    //获取默认输入法包名：
+    private String getDefaultInputMethodPkgName(Context context) {
+        String mDefaultInputMethodPkg = null;
 
+        String mDefaultInputMethodCls = Settings.Secure.getString(
+                context.getContentResolver(),
+                Settings.Secure.DEFAULT_INPUT_METHOD);
+        //输入法类名信息
+        Log.d(TAG, "mDefaultInputMethodCls=" + mDefaultInputMethodCls);
+        if (!TextUtils.isEmpty(mDefaultInputMethodCls)) {
+            //输入法包名
+            mDefaultInputMethodPkg = mDefaultInputMethodCls.split("/")[0];
+            Log.d(TAG, "mDefaultInputMethodPkg=" + mDefaultInputMethodPkg);
+        }
+        return mDefaultInputMethodPkg;
+    }
     //判断是否拥有悬浮窗权限
     public boolean canDrawOverlays(Context context) {
         try {
