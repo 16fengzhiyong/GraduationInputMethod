@@ -1,4 +1,4 @@
-package com.nuc.graduationinputmethod;
+package com.nuc.omeletteinputmethod;
 
 import org.junit.Test;
 

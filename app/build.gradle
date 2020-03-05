@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
-        applicationId "com.nuc.graduationinputmethod"
+        applicationId "com.nuc.omeletteinputmethod"
         minSdkVersion 22
         targetSdkVersion 29
         versionCode 1

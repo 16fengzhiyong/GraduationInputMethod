@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">GraduationInputMethod</string>
+    <string name="app_name">煎蛋输入法</string>
+    <string name="english_ime_name">OmeletteInputMethod</string>
+    <string name="Chinese_ime_name">煎蛋输入法</string>
+    <string name="tips"> A </string>
+    <string name="subtype_en_US">TestDemo(EN)</string>
+    <string name="HelloWorld">欢迎使用煎蛋输入法，这仅仅是个开始</string>
 </resources>

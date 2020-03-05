@@ -1,4 +1,4 @@
-package com.nuc.graduationinputmethod;
+package com.nuc.omeletteinputmethod;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.nuc.graduationinputmethod", appContext.getPackageName());
+        assertEquals("com.nuc.omeletteinputmethod", appContext.getPackageName());
     }
 }
