@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.nuc.omeletteinputmethod.R;
-import com.nuc.omeletteinputmethod.kernel.Util.KeyboardUtil;
+import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 public class OmeletteIME extends InputMethodService {
 

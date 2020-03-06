@@ -1,4 +1,4 @@
-package com.nuc.omeletteinputmethod.kernel.Util;
+package com.nuc.omeletteinputmethod.kernel.util;
 
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
