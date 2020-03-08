@@ -6,16 +6,35 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.SettingsActivity;
 import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 public class OmeletteIME extends InputMethodService {
+    /**
+     * 屏幕宽度
+     */
+    private int mScreenWidth;
+    /**
+     * 屏幕高度
+     */
+    private int mScreenHeight;
 
-	@Override
+    /**
+     * 状态栏高度
+     */
+    private int mStatusBarHeight;
+
+    private KeyboardSwisher keyboardSwisher;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        keyboardSwisher = new KeyboardSwisher(this);
+    }
+
+    @Override
 	public View onCreateInputView() {
-		View mkeyView = LayoutInflater.from(this).inflate(
-				R.layout.layout_keyboardview, null);
-		new KeyboardUtil(this, (KeyboardView) mkeyView.findViewById(R.id.keyboardView));
-		return mkeyView;
+		return keyboardSwisher.choseKeyboard();
 	}
 	
 	@Override

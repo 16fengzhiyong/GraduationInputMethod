@@ -11,15 +11,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="com.nuc.omeletteinputmethod.MainActivity">
+
+        </activity>
+        <activity android:name="com.nuc.omeletteinputmethod.FirstActivity">
+        </activity>
+        <activity android:name="com.nuc.omeletteinputmethod.SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.nuc.omeletteinputmethod.FirstActivity">
-        </activity>
-        <activity android:name="com.nuc.omeletteinputmethod.SettingsActivity" />
 
         <service android:name="com.nuc.omeletteinputmethod.kernel.OmeletteIME"
             android:label="@string/english_ime_name"

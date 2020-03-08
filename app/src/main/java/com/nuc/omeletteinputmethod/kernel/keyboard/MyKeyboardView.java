@@ -6,20 +6,20 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
-public class KeyboardView extends View implements View.OnClickListener {
-    public KeyboardView(Context context) {
+public class MyKeyboardView extends View implements View.OnClickListener {
+    public MyKeyboardView(Context context) {
         super(context);
     }
 
-    public KeyboardView(Context context, @Nullable AttributeSet attrs) {
+    public MyKeyboardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public KeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public MyKeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public KeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public MyKeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

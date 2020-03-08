@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="keyboard_chose_array">
+        <item>个人编写版</item>
+        <item>系统接口板</item>
+    </string-array>
+</resources>

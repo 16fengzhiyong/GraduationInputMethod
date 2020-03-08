@@ -10,17 +10,27 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
     private final int REQUEST_DIALOG_PERMISSION = 1010;
     private final String TAG = "MainActivity";
+    private TextView tosetting;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        tosetting = findViewById(R.id.tosetting);
+        tosetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
         if (!canDrawOverlays(this)){
             if(AllLogShow.Debug)Log.i(TAG, "onCreate: 现在状态是："+canDrawOverlays(this));
             requestSettingCanDrawOverlays();
