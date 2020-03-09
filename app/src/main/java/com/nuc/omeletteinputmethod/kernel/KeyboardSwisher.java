@@ -22,6 +22,7 @@ public class KeyboardSwisher {
             mkeyView = LayoutInflater.from(omeletteIME).inflate(
                     R.layout.layout_keyboardview, null);
             new KeyboardUtil(omeletteIME, (KeyboardView) mkeyView.findViewById(R.id.keyboardView));
+            omeletteIME.setCandidatesViewShown(true);
         }else {
             mkeyView = LayoutInflater.from(omeletteIME).inflate(
                     R.layout.layout_input_test, null);
@@ -32,6 +33,7 @@ public class KeyboardSwisher {
                     Log.i("KeyboardSwisher", "onClick: ");
                     SettingsActivity.showMyselfkeyboard = false;
                     omeletteIME.onCreateInputView();
+                    omeletteIME.setCandidatesViewShown(true);
                 }
             });
         }

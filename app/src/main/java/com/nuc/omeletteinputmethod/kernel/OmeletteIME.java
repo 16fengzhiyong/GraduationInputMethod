@@ -4,6 +4,7 @@ import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.KeyboardView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.SettingsActivity;
@@ -39,7 +40,8 @@ public class OmeletteIME extends InputMethodService {
 	
 	@Override
 	public View onCreateCandidatesView() {
-		return null;
+		View mkeyView = RelativeLayout.inflate(OmeletteIME.this,R.layout.input_waiting_layout, null);
+		return mkeyView;
 	}
 	
 	public void commitText(String data) {
