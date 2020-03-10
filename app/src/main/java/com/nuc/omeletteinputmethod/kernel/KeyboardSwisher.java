@@ -4,6 +4,7 @@ import android.inputmethodservice.KeyboardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.nuc.omeletteinputmethod.R;
@@ -38,5 +39,10 @@ public class KeyboardSwisher {
             });
         }
         return mkeyView;
+    }
+    public View choseCandidatesView(){
+        View candidatesView;
+        candidatesView = RelativeLayout.inflate(omeletteIME,R.layout.input_waiting_layout, null);
+        return candidatesView;
     }
 }

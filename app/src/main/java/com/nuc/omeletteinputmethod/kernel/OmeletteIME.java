@@ -40,8 +40,7 @@ public class OmeletteIME extends InputMethodService {
 	
 	@Override
 	public View onCreateCandidatesView() {
-		View mkeyView = RelativeLayout.inflate(OmeletteIME.this,R.layout.input_waiting_layout, null);
-		return mkeyView;
+		return keyboardSwisher.choseCandidatesView();
 	}
 	
 	public void commitText(String data) {
