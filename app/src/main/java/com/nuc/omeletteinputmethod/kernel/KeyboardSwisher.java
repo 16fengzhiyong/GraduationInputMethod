@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.SettingsActivity;
+import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboard;
 import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 public class KeyboardSwisher {
@@ -31,10 +32,11 @@ public class KeyboardSwisher {
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.i("KeyboardSwisher", "onClick: ");
-                    SettingsActivity.showMyselfkeyboard = false;
-                    omeletteIME.onCreateInputView();
-                    omeletteIME.setCandidatesViewShown(true);
+//                    Log.i("KeyboardSwisher", "onClick: ");
+//                    SettingsActivity.showMyselfkeyboard = false;
+//                    omeletteIME.onCreateInputView();
+//                    omeletteIME.setCandidatesViewShown(true);
+                    MyKeyboard myKeyboard = new MyKeyboard(omeletteIME,R.xml.nomal_qwerty);
                 }
             });
         }

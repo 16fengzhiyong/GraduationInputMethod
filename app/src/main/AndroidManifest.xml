@@ -3,6 +3,7 @@
     package="com.nuc.omeletteinputmethod">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/jiandan"
@@ -10,12 +11,13 @@
         android:roundIcon="@drawable/jiandan"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.nuc.omeletteinputmethod.MainActivity">
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/test" />
 
-        </activity>
-        <activity android:name="com.nuc.omeletteinputmethod.FirstActivity">
-        </activity>
-        <activity android:name="com.nuc.omeletteinputmethod.SettingsActivity">
+        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".FirstActivity"></activity>
+        <activity android:name=".SettingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,15 +25,17 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.nuc.omeletteinputmethod.kernel.OmeletteIME"
-            android:label="@string/english_ime_name"
+        <service
+            android:name=".kernel.OmeletteIME"
+            android:label="@string/Chinese_ime_name"
             android:permission="android.permission.BIND_INPUT_METHOD">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
+
             <meta-data
                 android:name="android.view.im"
-                android:resource="@xml/method"/>
+                android:resource="@xml/method" />
         </service>
     </application>
 

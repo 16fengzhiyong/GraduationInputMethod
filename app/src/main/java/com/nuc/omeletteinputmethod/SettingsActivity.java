@@ -26,6 +26,7 @@ public class SettingsActivity extends Activity {
         Spinner spinner = findViewById(R.id.switch_keyboard);
         spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
         spinner.setAdapter(adapter);
+
     }
     //使用数组形式操作
     class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
