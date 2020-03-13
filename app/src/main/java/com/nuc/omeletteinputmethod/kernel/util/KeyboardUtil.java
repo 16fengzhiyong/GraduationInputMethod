@@ -1,13 +1,17 @@
 package com.nuc.omeletteinputmethod.kernel.util;
 
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.util.TypedValue;
+import android.view.WindowManager;
 
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
+
+import java.lang.reflect.Field;
 
 public class KeyboardUtil {
 
@@ -82,5 +86,37 @@ public class KeyboardUtil {
 			return Math.round(a.getFraction(index, base, base, defValue));
 		}
 		return defValue;
+	}
+	private static int viewHeight;
+	private static int viewWidth;
+
+	public static int getStatusBarHeight(Context context) {
+		Class<?> c = null;
+		Object obj = null;
+		Field field = null;
+		int x = 0, statusBarHeight = 0;
+		try {
+			c = Class.forName("com.android.internal.R$dimen");
+			obj = c.newInstance();
+			field = c.getField("status_bar_height");
+			x = Integer.parseInt(field.get(obj).toString());
+			statusBarHeight = context.getResources().getDimensionPixelSize(x);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		float scale = context.getResources().getDisplayMetrics().density;
+		return (int) (statusBarHeight * scale + 0.5f);
+	}
+
+	public static int getViewHeight(Context context) {
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		viewHeight = wm.getDefaultDisplay().getHeight()+getStatusBarHeight(context);
+		return viewHeight;
+	}
+
+	public static int getViewWidth(Context context) {
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		viewWidth = wm.getDefaultDisplay().getWidth();
+		return viewWidth;
 	}
 }

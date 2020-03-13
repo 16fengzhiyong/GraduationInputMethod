@@ -11,6 +11,9 @@ import android.util.Xml;
 
 import androidx.annotation.XmlRes;
 
+import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
+import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
+
 import java.util.ArrayList;
 
 public class MyKeyboard {
@@ -19,6 +22,8 @@ public class MyKeyboard {
     private static final String TAG_ROW = "Row";
     private static final String TAG_KEY = "Key";
     private static final String TAG = "MyKeyboard";
+    private int keyboardWidth;
+    private int keyboardHeight;
     private ArrayList<KeyboardRow> rows = new ArrayList<>();
     private ArrayList<Key> mKeys = new ArrayList<>();
 
@@ -39,6 +44,7 @@ public class MyKeyboard {
         int row = 0;
         int x = 0;
         int y = 0;
+        float Bfx = 0;
         Key key = null;
         KeyboardRow currentRow = null;
         Resources res = context.getResources();
@@ -51,59 +57,43 @@ public class MyKeyboard {
                     String tag = parser.getName();
                     if (TAG_ROW.equals(tag)) {
                         inRow = true;
-                        x = x + 1;
+                        x = 0;
                         currentRow = createRowFromXml(res, parser);
                         rows.add(currentRow);
-                        Log.i(TAG, "loadKeyboard: TAG_ROW x :" + x);
-//                        skipRow = currentRow.mode != 0 && currentRow.mode != mKeyboardMode;
-//                        if (skipRow) {
-//                            skipToEndOfRow(parser);
-//                            inRow = false;
-//                        }
+                        y = currentRow.getRowHeight() + y;
+                        Log.i(TAG, "loadKeyboard: TAG_ROW y :" + y);
                     } else if (TAG_KEY.equals(tag)) {
                         inKey = true;
-                        y = y + 1;
-                        key = createKeyFromXml(res, currentRow, x, y, parser);
+                        key = createKeyFromXml(res, currentRow, row, parser);
                         mKeys.add(key);
-                        Log.i(TAG, "loadKeyboard: TAG_KEY y :" + y);
-//                        if (key.codes[0] == KEYCODE_SHIFT) {
-//                            // Find available shift key slot and put this shift key in it
-//                            for (int i = 0; i < mShiftKeys.length; i++) {
-//                                if (mShiftKeys[i] == null) {
-//                                    mShiftKeys[i] = key;
-//                                    mShiftKeyIndices[i] = mKeys.size()-1;
-//                                    break;
-//                                }
-//                            }
-//                            mModifierKeys.add(key);
-//                        } else if (key.codes[0] == KEYCODE_ALT) {
-//                            mModifierKeys.add(key);
-//                        }
-//                        currentRow.mKeys.add(key);
+                        Bfx = key.getLength() + Bfx;
+                        Log.i(TAG, "loadKeyboard: TAG_KEY Bfx :" + Bfx);
+                        if (Bfx<100){
+                            keyboardWidth = (int) (Bfx* KeyboardUtil.getViewWidth(context)/100);
+                        }else keyboardWidth = KeyboardUtil.getViewWidth(context);
+                        Log.i(TAG, "loadKeyboard: TAG_KEY keyboardWidth :" + keyboardWidth);
+                        Log.i(TAG, "loadKeyboard: TAG_KEY keyboardHeight :" + KeyboardUtil.getViewHeight(context));
                     } else if (TAG_KEYBOARD.equals(tag)) {
                         parseKeyboardAttributes(res, parser);
                     }
                 } else if (event == XmlResourceParser.END_TAG) {
-//                    if (inKey) {
-//                        inKey = false;
-//                        x += key.gap + key.width;
-//                        if (x > mTotalWidth) {
-//                            mTotalWidth = x;
-//                        }
-//                    } else if (inRow) {
-//                        inRow = false;
-//                        y += currentRow.verticalGap;
-//                        y += currentRow.defaultHeight;
-//                        row++;
-//                    } else {
-//                        // TODO: error or extend?
-//                    }
+                    if (inKey) {
+                        Log.i("loadKeyboard", "loadKeyboard: inKey");
+                        inKey = false;
+                    } else if (inRow) {
+                        inRow = false;
+                        row++;
+                        Log.i("loadKeyboard", "loadKeyboard: inRow" + row);
+                    } else {
+                        // TODO: error or extend?
+                    }
                 }
             }
         } catch (Exception e) {
             Log.e(TAG, "Parse error:" + e);
             e.printStackTrace();
         }
+        keyboardHeight = y+ 50;
     }
     /**
      * 解析到<Row>时传递到KeyboardRow
@@ -116,33 +106,37 @@ public class MyKeyboard {
      * 解析到<Key>时传递到 Key
      * {@link Key}
      */
-    protected Key createKeyFromXml(Resources res, KeyboardRow parent, int x, int y,
-                                   XmlResourceParser parser) {
+    protected Key createKeyFromXml(Resources res, KeyboardRow parent, int x, int y,XmlResourceParser parser) {
         return new Key(res, parent, x, y, parser);
     }
-
+    /**
+     * 解析到<Key>时传递到 Key
+     * {@link Key}
+     * @param row 行数
+     */
+    protected Key createKeyFromXml(Resources res, KeyboardRow parent, int row, XmlResourceParser parser) {
+        return new Key(res, parent,row, parser);
+    }
     /**
      * 解析<Keyboard></Keyboard>属性
      */
     private void parseKeyboardAttributes(Resources res, XmlResourceParser parser) {
-//        TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser),
-//                com.android.internal.R.styleable.Keyboard);
-//
-//        mDefaultWidth = getDimensionOrFraction(a,
-//                com.android.internal.R.styleable.Keyboard_keyWidth,
-//                mDisplayWidth, mDisplayWidth / 10);
-//        mDefaultHeight = getDimensionOrFraction(a,
-//                com.android.internal.R.styleable.Keyboard_keyHeight,
-//                mDisplayHeight, 50);
-//        mDefaultHorizontalGap = getDimensionOrFraction(a,
-//                com.android.internal.R.styleable.Keyboard_horizontalGap,
-//                mDisplayWidth, 0);
-//        mDefaultVerticalGap = getDimensionOrFraction(a,
-//                com.android.internal.R.styleable.Keyboard_verticalGap,
-//                mDisplayHeight, 0);
-//        mProximityThreshold = (int) (mDefaultWidth * SEARCH_DISTANCE);
-//        mProximityThreshold = mProximityThreshold * mProximityThreshold; // Square it for comparison
-//        a.recycle();
+    }
+
+    public ArrayList<KeyboardRow> getRows() {
+        return rows;
+    }
+
+    public ArrayList<Key> getmKeys() {
+        return mKeys;
+    }
+
+    public int getKeyboardWidth() {
+        return keyboardWidth;
+    }
+
+    public int getKeyboardHeight() {
+        return keyboardHeight;
     }
 }
 

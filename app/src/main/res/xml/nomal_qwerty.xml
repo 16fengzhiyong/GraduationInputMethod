@@ -1,169 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyKeyboard xmlns:omelette="http://schemas.android.com/apk/res-auto">
-<!--    <Row >-->
-<!--        <Key-->
-<!--            omelette:keySpec="q"-->
-<!--            omelette:length="10%p"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="w"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="e"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="r"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="t"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="y"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="u"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="i"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="o"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="p"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--    </Row>-->
-<!--    <Row >-->
-<!--        <Key-->
-<!--            keySpec="q"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="w"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="e"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="r"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="t"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="y"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="u"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="i"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="o"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="p"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--    </Row>-->
-<!--    <Row >-->
-<!--        <Key-->
-<!--            keySpec="q"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="w"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="e"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="r"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="t"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="y"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="u"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="i"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="o"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--        <Key-->
-<!--            keySpec="p"-->
-<!--            key_length = "10%"-->
-<!--            />-->
-<!--    </Row>-->
-<!--    <Key-->
-<!--        keySpec="q"-->
-<!--        key_length = "10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="w"-->
-<!--        key_length="10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="e"-->
-<!--        key_length = "10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="r"-->
-<!--        key_length = "10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="t"-->
-<!--        key_length = "10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="y"-->
-<!--        key_length = "10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="u"-->
-<!--        key_length = "10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="i"-->
-<!--        key_length = "10%"-->
-<!--        />-->
-<!--    <Key-->
-<!--        keySpec="o"-->
-<!--        key_length = "10%"-->
-<!--        />-->
+    <Row >
+        <Key
+            omelette:keySpec="q"
+            omelette:length="10%p"
+            />
+        <Key
+            omelette:keySpec="w"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="e"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="r"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="t"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="y"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="u"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="i"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="o"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="p"
+            omelette:length = "10%"
+            />
+    </Row>
+    <Row >
+        <Key
+            omelette:keySpec="q"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="w"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="e"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="r"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="t"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="y"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="u"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="i"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="o"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="p"
+            omelette:length = "10%"
+            />
+    </Row>
+    <Row >
+        <Key
+            omelette:keySpec="q"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="w"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="e"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="r"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="t"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="y"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="u"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="i"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="o"
+            omelette:length = "10%"
+            />
+        <Key
+            omelette:keySpec="p"
+            omelette:length = "10%"
+            />
+    </Row>
+    <Key
+        omelette:keySpec="q"
+        omelette:length = "10%"
+        />
+    <Key
+        omelette:keySpec="w"
+        omelette:length="10%"
+        />
+    <Key
+        omelette:keySpec="e"
+        omelette:length = "10%"
+        />
+    <Key
+        omelette:keySpec="r"
+        omelette:length = "10%"
+        />
+    <Key
+        omelette:keySpec="t"
+        omelette:length = "10%"
+        />
+    <Key
+        omelette:keySpec="y"
+        omelette:length = "10%"
+        />
+    <Key
+        omelette:keySpec="u"
+        omelette:length = "10%"
+        />
+    <Key
+        omelette:keySpec="i"
+        omelette:length = "10%"
+        />
+    <Key
+        omelette:keySpec="o"
+        omelette:length = "10%"
+        />
     <Key
         omelette:keySpec="p"
-        omelette:length="12dp"
+        omelette:length="10.5%"
         />
 </MyKeyboard>

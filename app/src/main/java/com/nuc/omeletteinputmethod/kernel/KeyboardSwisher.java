@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.SettingsActivity;
 import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboard;
+import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboardView;
 import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 public class KeyboardSwisher {
@@ -39,7 +40,15 @@ public class KeyboardSwisher {
                     MyKeyboard myKeyboard = new MyKeyboard(omeletteIME,R.xml.nomal_qwerty);
                 }
             });
+
         }
+        MyKeyboardView myKeyboardView;
+        //mkeyView = new MyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
+        mkeyView = LayoutInflater.from(omeletteIME).inflate(
+                R.layout.mytestkeyboardlayout, null);
+        myKeyboardView = mkeyView.findViewById(R.id.test_mykeyboardview);
+        myKeyboardView.SetMyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
+        omeletteIME.setCandidatesViewShown(true);
         return mkeyView;
     }
     public View choseCandidatesView(){

@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MyKeyboard">
-
+        <!-- 键盘的高度 -->
+        <attr name="keyboard_height" format="dimension|fraction" />
+        <!-- 键盘的宽度 -->
+        <attr name="keyboard_width" format="dimension|fraction" />
+    </declare-styleable>
+    <declare-styleable name="KeyboardRow">
+        <!-- 行的高度 -->
+        <attr name="row_height" format="dimension|fraction" />
     </declare-styleable>
     <declare-styleable name="MyKeyboard_Key">
         <!-- {@link com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardTextsTable.class}
-             对应其中字符串，获取后解析  -->
-        <attr name="altCode" format="string" />
+             对应其code，获取后解析  -->
+        <attr name="altCode" format="integer" />
         <!-- 更多按键，长按时显示
             {@link com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardTextsTable.class}-->
         <attr name="moreKeys" format="string" />
@@ -18,7 +25,7 @@
         <attr name="padding_top" format="dimension" />
         <attr name="padding_bottom" format="dimension" />
         <!--   键的宽和高   -->
-        <attr name="length" format="dimension" />
+        <attr name="length" format="fraction" />
         <attr name="height" format="dimension" />
     </declare-styleable>
 </resources>
