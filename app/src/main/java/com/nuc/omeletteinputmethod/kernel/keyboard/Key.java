@@ -3,6 +3,8 @@ package com.nuc.omeletteinputmethod.kernel.keyboard;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 import android.util.Xml;
 
@@ -11,6 +13,7 @@ import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 
 public class Key {
+    private RectF rect;
     private float gap = 0;
     private int rowsNumber ;
     private int altCode;
@@ -84,5 +87,13 @@ public class Key {
 
     public float getGap() {
         return gap;
+    }
+
+    public RectF getRect() {
+        return rect;
+    }
+
+    public void setRect(RectF rect) {
+        this.rect = rect;
     }
 }

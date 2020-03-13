@@ -26,6 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MyKeyboardView extends View {
+    Canvas canvas;
     KeyboardBuider keyboardBuider ;
     MyKeyboard myKeyboard;
     //定义一个paint
@@ -98,6 +99,8 @@ public class MyKeyboardView extends View {
         int length=getWidth()/MOHUFANWEI;
         final int indexX=(int)(Y/length);
         final int indexY=(int)(X/length);
+        final float keyX=X;
+        final float keyY=Y;
         if (event.getAction() == MotionEvent.ACTION_DOWN
                 && event.getPointerCount() == 1) {
             //长按计时器
@@ -108,6 +111,7 @@ public class MyKeyboardView extends View {
                     //长按逻辑触发，isClick置为false，手指移开后，不触发点击事件
                     isCick=false;
                     doLongPress(indexX,indexY);
+
                 }
             };
             isCick=true;
@@ -121,6 +125,7 @@ public class MyKeyboardView extends View {
             if(isCick==true)
             {
                 doClick(indexX,indexY);
+                foundKey(keyX,keyY);
             }
             //取消计时
             timerTask.cancel();
@@ -147,6 +152,7 @@ public class MyKeyboardView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        this.canvas = canvas;
         drawKeyboard(canvas);
 //        drawNomal(canvas);
 //        drawTest(canvas);
@@ -198,8 +204,7 @@ public class MyKeyboardView extends View {
             row = rows.get(beginRownumber);
             RectF rect = new RectF(drawX+(key.getGap()/2*myKeyboard.getKeyboardWidth()/100), drawY, drawX+(key.getLength()*myKeyboard.getKeyboardWidth()/100)+
                     (key.getGap()/2*myKeyboard.getKeyboardWidth()/100), drawY+row.getRowHeight());
-
-
+            key.setRect(rect);
             canvas.drawRoundRect(rect, 20, 20, mPaint);
             //mPaint.setTypeface();
             Paint paint = new Paint();
@@ -348,5 +353,20 @@ public class MyKeyboardView extends View {
     private void doClick(int x,int y)
     {
         Log.i("onTouchEvent","点击了"+x+"   "+y);
+        foundKey(x,y);
+    }
+    private String foundKey(float x,float y){
+        for (Key key : mKeys){
+            if (x>key.getRect().left&&x<key.getRect().right&&y>key.getRect().top&&y<key.getRect().bottom){
+                Toast.makeText((OmeletteIME)context,"您点击了"+key.getKeySpec(),Toast.LENGTH_SHORT).show();
+                mPaint =new Paint();
+                mPaint.setColor(Color.YELLOW);
+                canvas.drawRoundRect(key.getRect(), 20, 20, mPaint);
+                Log.i("onTouchEvent","点击了"+key.getKeySpec());
+
+                return key.getKeySpec();
+            }
+        }
+        return null;
     }
 }
