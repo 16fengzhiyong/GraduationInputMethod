@@ -19,11 +19,8 @@
         <attr name="moreKeys" format="string" />
         <!-- 需要在键盘上显示的键 -->
         <attr name="keySpec" format="string" />
-        <!--  上下左右距离百分比   -->
-        <attr name="padding_left" format="dimension" />
-        <attr name="padding_right" format="dimension" />
-        <attr name="padding_top" format="dimension" />
-        <attr name="padding_bottom" format="dimension" />
+        <!--  左右距离百分比   -->
+        <attr name="padding" format="dimension|fraction" />
         <!--   键的宽和高   -->
         <attr name="length" format="fraction" />
         <attr name="height" format="dimension" />

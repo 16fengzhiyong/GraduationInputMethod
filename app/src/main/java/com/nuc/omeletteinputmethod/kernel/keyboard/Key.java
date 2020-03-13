@@ -11,7 +11,7 @@ import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 
 public class Key {
-    private float gap;
+    private float gap = 0;
     private int rowsNumber ;
     private int altCode;
     private String moreKeys;
@@ -41,10 +41,7 @@ public class Key {
         Log.i("loadKeyboard", "Key: length = " +length);
         height = a.getFraction(R.styleable.MyKeyboard_Key_height,
                 100, 5, (float)5);
-        paddingLeft = a.getFraction(R.styleable.MyKeyboard_Key_padding_left,
-                0, 0, 0);
-        paddingRight = a.getFraction(R.styleable.MyKeyboard_Key_padding_right,
-                0, 0, 0);
+        gap = a.getFraction(R.styleable.MyKeyboard_Key_padding,100,5,0);
         keySpec = a.getString(R.styleable.MyKeyboard_Key_keySpec);
         moreKeys = a.getString(R.styleable.MyKeyboard_Key_moreKeys);
         a.recycle();
@@ -83,5 +80,9 @@ public class Key {
 
     public float getHeight() {
         return height;
+    }
+
+    public float getGap() {
+        return gap;
     }
 }

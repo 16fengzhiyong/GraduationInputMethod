@@ -11,46 +11,76 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 
-public class MyKeyboardView extends View implements View.OnClickListener {
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MyKeyboardView extends View {
     KeyboardBuider keyboardBuider ;
     MyKeyboard myKeyboard;
     //定义一个paint
     private Paint mPaint;
+    Context context;
+    private ArrayList<KeyboardRow> rows = new ArrayList<>();
+    private ArrayList<Key> mKeys = new ArrayList<>();
+
+
+
     public MyKeyboardView(Context context) {
         super(context);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里1");
+        this.context = context;
     }
 
     public MyKeyboardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里11");
+        this.context = context;
     }
 
     public MyKeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里111");
+        this.context = context;
     }
 
     public MyKeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里1111");
+        this.context = context;
     }
     public void SetMyKeyboardView(Context context,int xmlLayoutResId) {
+        this.context = context;
         keyboardBuider = new KeyboardBuider((OmeletteIME) context,xmlLayoutResId);
         myKeyboard = keyboardBuider.getKeyboard();
-        measure(myKeyboard.getKeyboardWidth(),myKeyboard.getKeyboardHeight());
-        setMeasuredDimension(myKeyboard.getKeyboardWidth(),myKeyboard.getKeyboardHeight());
+        rows = myKeyboard.getRows();
+        mKeys = myKeyboard.getmKeys();
+//        measure(myKeyboard.getKeyboardWidth(),myKeyboard.getKeyboardHeight());
+//        setMeasuredDimension(myKeyboard.getKeyboardWidth(),myKeyboard.getKeyboardHeight());
     }
-    @Override
-    public void onClick(View v) {
+    //计时器，计时点击时长
+    Timer timer;
+    TimerTask timerTask;
 
-    }
+    boolean isCick=true;//判断是否进行点击
+    private static final int LONGPRESSTIME = 300;//长按超过0.3秒，触发长按事件
+
+    //记录上次点击的位置，用来进行移动的模糊处理
+    int lastX=0;
+    int lastY=0;
+
+    //此处可以视为将View划分为10行10列的方格，在方格内移动看作没有移动。
+    private static final int MOHUFANWEI=10;
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -61,12 +91,66 @@ public class MyKeyboardView extends View implements View.OnClickListener {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float X = event.getX();
+        float Y = event.getY();
+        //手指移动的模糊范围，手指移动超出该范围则取消事件处理
+        int length=getWidth()/MOHUFANWEI;
+        final int indexX=(int)(Y/length);
+        final int indexY=(int)(X/length);
+        if (event.getAction() == MotionEvent.ACTION_DOWN
+                && event.getPointerCount() == 1) {
+            //长按计时器
+            timer=new Timer();
+            timerTask=new TimerTask() {
+                @Override
+                public void run() {
+                    //长按逻辑触发，isClick置为false，手指移开后，不触发点击事件
+                    isCick=false;
+                    doLongPress(indexX,indexY);
+                }
+            };
+            isCick=true;
+            timer.schedule(timerTask,LONGPRESSTIME,1000*60*60*24);
+        }
+
+        if(event.getAction() == MotionEvent.ACTION_UP
+                && event.getPointerCount() == 1)
+        {
+            //没有触发长按逻辑，进行点击事件
+            if(isCick==true)
+            {
+                doClick(indexX,indexY);
+            }
+            //取消计时
+            timerTask.cancel();
+            timer.cancel();
+        }
+
+        //出现移动，取消点击和长按事件
+        if(event.getAction() == MotionEvent.ACTION_MOVE)
+        {
+            //如果在一定范围内移动，不处理移动事件
+            if(lastX==indexX&&lastY==indexY)
+            {
+                return true;
+            }
+            isCick=false;
+            timerTask.cancel();
+            timer.cancel();
+        }
+        //一旦触发事件，即改变上次触发事件的坐标
+        lastY=indexY;
+        lastX=indexX;
+        return true;
+    }
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        drawKeyboard(canvas);
 //        drawNomal(canvas);
 //        drawTest(canvas);
-        mPaint =new Paint();
+//        mPaint =new Paint();
 //        //设置Path路径
 //        mPaint.setStyle(Paint.Style.STROKE);
 //        mPaint.setColor(Color.GREEN);
@@ -82,14 +166,51 @@ public class MyKeyboardView extends View implements View.OnClickListener {
 //        canvas.drawTextOnPath("这里是键盘绘制区", path, 260, 250, mPaint);
 //        path.close();
 //        canvas.drawPath(path, mPaint);
+//         绘制画布背景
+//        canvas.drawColor(Color.GRAY);
+//        mPaint.setColor(Color.WHITE);
+//        RectF rect = new RectF(100, 700, 200, 770);
+//        // 画圆角矩形
+//        canvas.drawRoundRect(rect, 20, 20, mPaint);
+    }
+
+    /**
+     * 绘制键盘以0.0为起点
+     * @param canvas
+     */
+    private void drawKeyboard(Canvas canvas){
+        mPaint =new Paint();
         // 绘制画布背景
         canvas.drawColor(Color.GRAY);
         mPaint.setColor(Color.WHITE);
-        RectF rect = new RectF(100, 700, 200, 770);
-        // 画圆角矩形
-        canvas.drawRoundRect(rect, 20, 20, mPaint);
-    }
+        KeyboardRow row;
+        int drawX = 0;
+        int drawY = 0;
+        int beginRownumber = 0;
+        for (Key key : mKeys){
 
+            if (key.getRowsNumber()!=beginRownumber){
+                beginRownumber = key.getRowsNumber();
+                row = rows.get(beginRownumber);
+                drawY = drawY+row.getRowHeight();
+                drawX = 0;
+            }
+            row = rows.get(beginRownumber);
+            RectF rect = new RectF(drawX+(key.getGap()/2*myKeyboard.getKeyboardWidth()/100), drawY, drawX+(key.getLength()*myKeyboard.getKeyboardWidth()/100)+
+                    (key.getGap()/2*myKeyboard.getKeyboardWidth()/100), drawY+row.getRowHeight());
+
+
+            canvas.drawRoundRect(rect, 20, 20, mPaint);
+            //mPaint.setTypeface();
+            Paint paint = new Paint();
+            paint.setTextSize(50);
+            paint.setColor(Color.BLACK);
+            paint.setTextAlign(Paint.Align.CENTER);//对其方式
+            canvas.drawText(key.getKeySpec(),drawX+(key.getLength()*myKeyboard.getKeyboardWidth()/200)+
+                    (key.getGap()/2*myKeyboard.getKeyboardWidth()/100),drawY+row.getRowHeight()/2,paint);
+            drawX = (int) (drawX+(key.getLength()*myKeyboard.getKeyboardWidth()/100)+(key.getGap()*myKeyboard.getKeyboardWidth()/100));
+        }
+    }
     /**
      * 常规绘制  以(0,0)作为坐标原点参考点
      * @param canvas
@@ -219,4 +340,13 @@ public class MyKeyboardView extends View implements View.OnClickListener {
         canvas.drawRect(new Rect(0, 0, 400, 400), mPaint);
     }
 
+    private void doLongPress(int x,int y)
+    {
+        Log.i("onTouchEvent","长按了"+x+"   "+y);
+    }
+
+    private void doClick(int x,int y)
+    {
+        Log.i("onTouchEvent","点击了"+x+"   "+y);
+    }
 }

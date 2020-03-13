@@ -3,43 +3,48 @@
     <Row >
         <Key
             omelette:keySpec="q"
-            omelette:length="10%p"
+            omelette:length="10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="w"
             omelette:length = "10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="e"
             omelette:length = "10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="r"
             omelette:length = "10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="t"
             omelette:length = "10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="y"
             omelette:length = "10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="u"
             omelette:length = "10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="i"
             omelette:length = "10%"
+            omelette:padding="1%"
             />
         <Key
             omelette:keySpec="o"
             omelette:length = "10%"
-            />
-        <Key
-            omelette:keySpec="p"
-            omelette:length = "10%"
+            omelette:padding="1%"
             />
     </Row>
     <Row >
@@ -126,44 +131,4 @@
             omelette:length = "10%"
             />
     </Row>
-    <Key
-        omelette:keySpec="q"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="w"
-        omelette:length="10%"
-        />
-    <Key
-        omelette:keySpec="e"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="r"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="t"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="y"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="u"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="i"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="o"
-        omelette:length = "10%"
-        />
-    <Key
-        omelette:keySpec="p"
-        omelette:length="10.5%"
-        />
 </MyKeyboard>

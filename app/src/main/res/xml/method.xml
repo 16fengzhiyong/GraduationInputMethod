@@ -6,7 +6,7 @@
         android:supportsSwitchingToNextInputMethod="true">
     <subtype
         android:label="@string/subtype_en_US"
-        android:imeSubtypeLocale="en_US"
+        android:imeSubtypeLocale="煎蛋输入法"
         android:imeSubtypeMode="keyboard" />
 
 </input-method>
