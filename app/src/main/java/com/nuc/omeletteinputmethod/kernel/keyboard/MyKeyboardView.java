@@ -194,7 +194,6 @@ public class MyKeyboardView extends View {
         int drawY = 0;
         int beginRownumber = 0;
         for (Key key : mKeys){
-
             if (key.getRowsNumber()!=beginRownumber){
                 beginRownumber = key.getRowsNumber();
                 row = rows.get(beginRownumber);
