@@ -1,20 +1,13 @@
 package com.nuc.omeletteinputmethod.kernel;
 
-import android.inputmethodservice.KeyboardView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.nuc.omeletteinputmethod.R;
-import com.nuc.omeletteinputmethod.SettingsActivity;
 import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardBuider;
-import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardState;
-import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboard;
+import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardHeadListener;
 import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboardView;
-import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 public class KeyboardSwisher {
     OmeletteIME omeletteIME;
@@ -65,7 +58,21 @@ public class KeyboardSwisher {
 //                finalMkeyView.findViewById(R.id.id_linear_setting_view).setVisibility(View.VISIBLE);
 //            }
 //        });
-        return setWaitView(mkeyView);
+        MyKeyboardView myKeyboardView;
+        mkeyView = LayoutInflater.from(omeletteIME).inflate(
+                R.layout.mytestkeyboardlayout, null);
+        myKeyboardView = mkeyView.findViewById(R.id.test_mykeyboardview);
+        myKeyboardView.SetMyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
+        ///omeletteIME.setCandidatesViewShown(true);
+
+        KeyboardHeadListener keyboardHeadListener = new KeyboardHeadListener(omeletteIME,mkeyView,myKeyboardView);
+        mkeyView.findViewById(R.id.linearLayout_candidates_setting).setOnClickListener(keyboardHeadListener);
+        mkeyView.findViewById(R.id.id_linear_hide_keyboard).setOnClickListener(keyboardHeadListener);
+        mkeyView.findViewById(R.id.id_linear_pinyin_input).setOnClickListener(keyboardHeadListener);
+        mkeyView.findViewById(R.id.id_linear_english_input).setOnClickListener(keyboardHeadListener);
+        mkeyView.findViewById(R.id.id_linear_arrows_input).setOnClickListener(keyboardHeadListener);
+        return mkeyView;
+//        return setWaitView(mkeyView);
     }
 
     public View setWaitView(View mkeyView){
@@ -73,27 +80,12 @@ public class KeyboardSwisher {
         //mkeyView = new MyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
         mkeyView = LayoutInflater.from(omeletteIME).inflate(
                 R.layout.mytestkeyboardlayout, null);
-
         myKeyboardView = mkeyView.findViewById(R.id.test_mykeyboardview);
         myKeyboardView.SetMyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
         ///omeletteIME.setCandidatesViewShown(true);
-        LinearLayout setting = mkeyView.findViewById(R.id.linearLayout_candidates_setting);
-        final View finalMkeyView = mkeyView;
-        setting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (KeyboardState.SETTING_KEYBOARD==KeyboardState.getInstance().getWitchKeyboardNow()){
-                    myKeyboardView.setVisibility(View.VISIBLE);
-                    finalMkeyView.findViewById(R.id.id_linear_setting_view).setVisibility(View.GONE);
-                    KeyboardState.getInstance().setWitchKeyboardNow(KeyboardState.ENGLISH_26_KEY_KEYBOARD);
-                }else {
-                    myKeyboardView.setVisibility(View.GONE);
-                    finalMkeyView.findViewById(R.id.id_linear_setting_view).setVisibility(View.VISIBLE);
-                    KeyboardState.getInstance().setWitchKeyboardNow(KeyboardState.SETTING_KEYBOARD);
-                }
 
-            }
-        });
+        KeyboardHeadListener keyboardHeadListener = new KeyboardHeadListener(omeletteIME,mkeyView,myKeyboardView);
+        mkeyView.setOnClickListener(keyboardHeadListener);
         return mkeyView;
     }
     public View choseCandidatesView(){

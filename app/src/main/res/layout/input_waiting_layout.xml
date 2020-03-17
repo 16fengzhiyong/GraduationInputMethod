@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#ECEFF1"
     android:layout_width="match_parent"
     android:layout_height="50dp">
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        >
 <!--        设置-->
         <LinearLayout
             android:id="@+id/linearLayout_candidates_setting"
@@ -25,6 +27,7 @@
         </LinearLayout>
 <!--        拼音-->
         <LinearLayout
+            android:id="@+id/id_linear_pinyin_input"
             android:layout_weight="1"
             android:orientation="horizontal"
             android:gravity="center"
@@ -46,6 +49,7 @@
         </LinearLayout>
 <!--        英语-->
         <LinearLayout
+            android:id="@+id/id_linear_english_input"
             android:layout_weight="1"
             android:orientation="horizontal"
             android:layout_width="0dp"
@@ -67,11 +71,13 @@
         </LinearLayout>
 <!--        上下左右-->
         <LinearLayout
+            android:id="@+id/id_linear_arrows_input"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:gravity="center"
             android:layout_height="40dp">
             <ImageView
+                android:id="@+id/id_img_arrows_input"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:layout_gravity="center"
@@ -80,6 +86,7 @@
         </LinearLayout>
 <!--        收起键盘-->
         <LinearLayout
+            android:id="@+id/id_linear_hide_keyboard"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:gravity="center"

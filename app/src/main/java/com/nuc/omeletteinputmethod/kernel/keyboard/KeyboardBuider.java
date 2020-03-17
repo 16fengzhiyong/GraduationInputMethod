@@ -21,12 +21,12 @@ public class KeyboardBuider {
         this.xmlLayoutResId = xmlLayoutResId;
         keyboard = new MyKeyboard(omeletteIME, xmlLayoutResId);
 
-
     }
 
     public MyKeyboard getKeyboard() {
         return keyboard;
     }
+
 
 
 
