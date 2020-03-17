@@ -1,13 +1,18 @@
 package com.nuc.omeletteinputmethod.kernel;
 
+import android.inputmethodservice.KeyboardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.SettingsActivity;
 import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardBuider;
 import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardHeadListener;
+import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboard;
 import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboardView;
+import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 public class KeyboardSwisher {
     OmeletteIME omeletteIME;
@@ -21,43 +26,28 @@ public class KeyboardSwisher {
     }
     public View choseKeyboard(){
         View mkeyView = null;
-//        if (SettingsActivity.showMyselfkeyboard ==false){
-//            mkeyView = LayoutInflater.from(omeletteIME).inflate(
-//                    R.layout.layout_keyboardview, null);
-//            new KeyboardUtil(omeletteIME, (KeyboardView) mkeyView.findViewById(R.id.keyboardView));
-//            omeletteIME.setCandidatesViewShown(true);
-//        }else {
-//            mkeyView = LayoutInflater.from(omeletteIME).inflate(
-//                    R.layout.layout_input_test, null);
-//            TextView textView = mkeyView.findViewById(R.id.change_kk_test);
-//            textView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
+        if (SettingsActivity.showMyselfkeyboard ==false){
+            mkeyView = LayoutInflater.from(omeletteIME).inflate(
+                    R.layout.layout_keyboardview, null);
+            new KeyboardUtil(omeletteIME, (KeyboardView) mkeyView.findViewById(R.id.keyboardView));
+            //omeletteIME.setCandidatesViewShown(true);
+        }else {
+            mkeyView = LayoutInflater.from(omeletteIME).inflate(
+                    R.layout.layout_input_test, null);
+            TextView textView = mkeyView.findViewById(R.id.change_kk_test);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 //                    Log.i("KeyboardSwisher", "onClick: ");
 //                    SettingsActivity.showMyselfkeyboard = false;
 //                    omeletteIME.onCreateInputView();
 //                    omeletteIME.setCandidatesViewShown(true);
-//                    MyKeyboard myKeyboard = new MyKeyboard(omeletteIME,R.xml.nomal_qwerty);
-//                }
-//            });
-//
-//        }
-//        final MyKeyboardView myKeyboardView;
-//        //mkeyView = new MyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
-//        mkeyView = LayoutInflater.from(omeletteIME).inflate(
-//                R.layout.mytestkeyboardlayout, null);
-//
-//        myKeyboardView = mkeyView.findViewById(R.id.test_mykeyboardview);
-//        myKeyboardView.SetMyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
-//        LinearLayout setting = mkeyView.findViewById(R.id.linearLayout_candidates_setting);
-//        final View finalMkeyView = mkeyView;
-//        setting.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                myKeyboardView.setVisibility(View.GONE);
-//                finalMkeyView.findViewById(R.id.id_linear_setting_view).setVisibility(View.VISIBLE);
-//            }
-//        });
+                    MyKeyboard myKeyboard = new MyKeyboard(omeletteIME,R.xml.nomal_qwerty);
+                }
+            });
+        }
+        //将此部分移到KeyboardBuider中 同时在里面实现 键盘切换方法
+        // 实现方向转化方法
         MyKeyboardView myKeyboardView;
         mkeyView = LayoutInflater.from(omeletteIME).inflate(
                 R.layout.mytestkeyboardlayout, null);
@@ -83,7 +73,6 @@ public class KeyboardSwisher {
         myKeyboardView = mkeyView.findViewById(R.id.test_mykeyboardview);
         myKeyboardView.SetMyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
         ///omeletteIME.setCandidatesViewShown(true);
-
         KeyboardHeadListener keyboardHeadListener = new KeyboardHeadListener(omeletteIME,mkeyView,myKeyboardView);
         mkeyView.setOnClickListener(keyboardHeadListener);
         return mkeyView;

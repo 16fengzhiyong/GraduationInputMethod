@@ -23,7 +23,7 @@ public class Key {
     private float paddingRight;
     private float length;
     private float height;
-
+    private float startingPosition;
     public Key(Resources res, KeyboardRow parent, int x, int y, XmlResourceParser parser) {
         TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser), R.styleable.MyKeyboard_Key);
 //        Log.i("loadKeyboard", "Key: a = "+a.toString());

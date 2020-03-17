@@ -3,132 +3,137 @@
     <Row >
         <Key
             omelette:keySpec="q"
-            omelette:length="10%"
-            omelette:padding="1%"
+            omelette:length="7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="w"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="e"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="r"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="t"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="y"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="u"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="i"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
             omelette:keySpec="o"
-            omelette:length = "10%"
-            omelette:padding="1%"
+            omelette:length = "7%"
+            omelette:padding="2%"
+            />
+        <Key
+            omelette:keySpec="p"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
     </Row>
     <Row >
         <Key
-            omelette:keySpec="q"
-            omelette:length = "10%"
+            omelette:keySpec="a"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="w"
-            omelette:length = "10%"
+            omelette:keySpec="s"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="e"
-            omelette:length = "10%"
+            omelette:keySpec="d"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="r"
-            omelette:length = "10%"
+            omelette:keySpec="f"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="t"
-            omelette:length = "10%"
+            omelette:keySpec="g"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="y"
-            omelette:length = "10%"
+            omelette:keySpec="h"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="u"
-            omelette:length = "10%"
+            omelette:keySpec="j"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="i"
-            omelette:length = "10%"
+            omelette:keySpec="k"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="o"
-            omelette:length = "10%"
-            />
-        <Key
-            omelette:keySpec="p"
-            omelette:length = "10%"
+            omelette:keySpec="l"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
     </Row>
-    <Row >
+    <Row  >
         <Key
-            omelette:keySpec="q"
-            omelette:length = "10%"
+            omelette:keySpec="z"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="w"
-            omelette:length = "10%"
+            omelette:keySpec="x"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="e"
-            omelette:length = "10%"
+            omelette:keySpec="c"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="r"
-            omelette:length = "10%"
+            omelette:keySpec="v"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="t"
-            omelette:length = "10%"
+            omelette:keySpec="b"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="y"
-            omelette:length = "10%"
+            omelette:keySpec="n"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
         <Key
-            omelette:keySpec="u"
-            omelette:length = "10%"
-            />
-        <Key
-            omelette:keySpec="i"
-            omelette:length = "10%"
-            />
-        <Key
-            omelette:keySpec="o"
-            omelette:length = "10%"
-            />
-        <Key
-            omelette:keySpec="p"
-            omelette:length = "10%"
+            omelette:keySpec="m"
+            omelette:length = "7%"
+            omelette:padding="2%"
             />
     </Row>
 </MyKeyboard>

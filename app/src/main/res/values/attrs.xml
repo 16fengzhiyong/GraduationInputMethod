@@ -6,11 +6,13 @@
         <!-- 键盘的宽度 -->
         <attr name="keyboard_width" format="dimension|fraction" />
     </declare-styleable>
-    <declare-styleable name="KeyboardRow">
+    <declare-styleable name="MyKeyboardRow">
         <!-- 行的高度 -->
-        <attr name="row_height" format="dimension|fraction" />
+        <attr name="rowHeight" format="dimension|fraction" />
+        <attr name="rowVerticalGap" format="dimension|fraction" />
     </declare-styleable>
     <declare-styleable name="MyKeyboard_Key">
+        <attr name="startingPosition" format="fraction"/>
         <!-- {@link com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardTextsTable.class}
              对应其code，获取后解析  -->
         <attr name="altCode" format="integer" />
