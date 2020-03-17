@@ -12,6 +12,14 @@
         <attr name="rowVerticalGap" format="dimension|fraction" />
     </declare-styleable>
     <declare-styleable name="MyKeyboard_Key">
+        <attr name="keyStyle">
+            <enum name="nomal" value="0"/>
+            <enum name="special" value="1"/>
+            <enum name="symbols" value="2"/>
+        </attr>
+        <attr name="ifimagekey" format="boolean"/>
+        <attr name="imgresource" format="reference"/>
+        <!--  开始的位置-->
         <attr name="startingPosition" format="fraction"/>
         <!-- {@link com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardTextsTable.class}
              对应其code，获取后解析  -->

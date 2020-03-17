@@ -2,6 +2,7 @@
 <MyKeyboard xmlns:omelette="http://schemas.android.com/apk/res-auto">
     <Row >
         <Key
+            omelette:startingPosition = "2%"
             omelette:keySpec="q"
             omelette:length="7%"
             omelette:padding="2%"
@@ -54,6 +55,7 @@
     </Row>
     <Row >
         <Key
+            omelette:startingPosition="7%"
             omelette:keySpec="a"
             omelette:length = "7%"
             omelette:padding="2%"
@@ -101,6 +103,13 @@
     </Row>
     <Row  >
         <Key
+            omelette:startingPosition = "2%"
+            omelette:keySpec="大小写"
+            omelette:length = "7%"
+            omelette:padding="2%"
+            />
+        <Key
+
             omelette:keySpec="z"
             omelette:length = "7%"
             omelette:padding="2%"
@@ -135,5 +144,15 @@
             omelette:length = "7%"
             omelette:padding="2%"
             />
+        <Key
+            omelette:ifimagekey = "true"
+            omelette:keyStyle = "special"
+            omelette:keySpec="删除"
+            omelette:imgresource = "@drawable/keyboard_backspace_my"
+            omelette:length = "7%"
+            omelette:padding="2%"
+            omelette:altCode ="-1"
+            />
     </Row>
+
 </MyKeyboard>

@@ -24,6 +24,9 @@ public class Key {
     private float length;
     private float height;
     private float startingPosition;
+    private int keyStyle;
+    private boolean ifimagekey;
+    private int imgresource;
     public Key(Resources res, KeyboardRow parent, int x, int y, XmlResourceParser parser) {
         TypedArray a = res.obtainAttributes(Xml.asAttributeSet(parser), R.styleable.MyKeyboard_Key);
 //        Log.i("loadKeyboard", "Key: a = "+a.toString());
@@ -45,9 +48,37 @@ public class Key {
         height = a.getFraction(R.styleable.MyKeyboard_Key_height,
                 100, 5, (float)5);
         gap = a.getFraction(R.styleable.MyKeyboard_Key_padding,100,5,0);
+        startingPosition = a.getFraction(R.styleable.MyKeyboard_Key_startingPosition,100,5,0);
         keySpec = a.getString(R.styleable.MyKeyboard_Key_keySpec);
         moreKeys = a.getString(R.styleable.MyKeyboard_Key_moreKeys);
+        keyStyle = a.getInt(R.styleable.MyKeyboard_Key_keyStyle,0);
+        altCode = a.getInteger(R.styleable.MyKeyboard_Key_altCode,0);
+        ifimagekey = a.getBoolean(R.styleable.MyKeyboard_Key_ifimagekey,false);
+        if (ifimagekey){
+            imgresource = a.getResourceId(R.styleable.MyKeyboard_Key_imgresource,0);
+        }
         a.recycle();
+    }
+
+
+    public boolean isIfimagekey() {
+        return ifimagekey;
+    }
+
+    public int getImgresource() {
+        return imgresource;
+    }
+
+    public void setKeySpec(String keySpec) {
+        this.keySpec = keySpec;
+    }
+
+    public int getKeyStyle() {
+        return keyStyle;
+    }
+
+    public void setKeyStyle(int keyStyle) {
+        this.keyStyle = keyStyle;
     }
 
     public void setAltCode(int altCode){
@@ -95,5 +126,13 @@ public class Key {
 
     public void setRect(RectF rect) {
         this.rect = rect;
+    }
+
+    public float getStartingPosition() {
+        return startingPosition;
+    }
+
+    public void setStartingPosition(float startingPosition) {
+        this.startingPosition = startingPosition;
     }
 }

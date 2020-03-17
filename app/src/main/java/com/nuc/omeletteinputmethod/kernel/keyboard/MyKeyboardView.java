@@ -39,13 +39,13 @@ public class MyKeyboardView extends View {
     MyKeyboard myKeyboard;
     //定义一个paint
     private Paint mPaint;
-    OmeletteIME context;
+    OmeletteIME omeletteIME;
 
-    final Handler handler = new Handler(){
+    final Handler handler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            if (msg.what == 0x11){
+            if (msg.what == 0x11) {
                 invalidate();
             }
         }
@@ -58,29 +58,29 @@ public class MyKeyboardView extends View {
     public MyKeyboardView(Context context) {
         super(context);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里1");
-        this.context = (OmeletteIME) context;
+        this.omeletteIME = (OmeletteIME) context;
     }
 
     public MyKeyboardView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里11");
-        this.context = (OmeletteIME) context;
+        this.omeletteIME = (OmeletteIME) context;
     }
 
     public MyKeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里111");
-        this.context = (OmeletteIME) context;
+        this.omeletteIME = (OmeletteIME) context;
     }
 
     public MyKeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里1111");
-        this.context = (OmeletteIME) context;
+        this.omeletteIME = (OmeletteIME) context;
     }
 
     public void SetMyKeyboardView(Context context, int xmlLayoutResId) {
-        this.context = (OmeletteIME) context;
+        this.omeletteIME = (OmeletteIME) context;
         keyboardBuider = new KeyboardBuider((OmeletteIME) context, xmlLayoutResId);
         myKeyboard = keyboardBuider.getKeyboard();
         rows = myKeyboard.getRows();
@@ -115,8 +115,8 @@ public class MyKeyboardView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (KeyboardState.getInstance().getWitchKeyboardNow()){
-            case KeyboardState.ARROWS_KEYBOARD :
+        switch (KeyboardState.getInstance().getWitchKeyboardNow()) {
+            case KeyboardState.ARROWS_KEYBOARD:
                 Log.i("onTouchEvent", "onTouchEvent: ARROWS_KEYBOARD");
                 break;
             case KeyboardState.ENGLISH_26_KEY_KEYBOARD:
@@ -126,8 +126,8 @@ public class MyKeyboardView extends View {
         }
         return true;
     }
-    
-    private boolean englishKeyboardEvent(MotionEvent event){
+
+    private boolean englishKeyboardEvent(MotionEvent event) {
         float X = event.getX();
         float Y = event.getY();
         //手指移动的模糊范围，手指移动超出该范围则取消事件处理
@@ -167,7 +167,7 @@ public class MyKeyboardView extends View {
             Log.i("MyKeyboardView", "onTouchEvent: ACTION_UP ");
             Message message = Message.obtain();
             message.what = 0x11;
-            handler.sendMessageDelayed(message,50);
+            handler.sendMessageDelayed(message, 50);
 
 
         }
@@ -187,103 +187,107 @@ public class MyKeyboardView extends View {
         lastX = indexX;
         return true;
     }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Log.i("MyKeyboardView", "onDraw: ");
         this.canvas = canvas;
-        switch (KeyboardState.getInstance().getWitchKeyboardNow()){
-            case KeyboardState.ARROWS_KEYBOARD :
+        switch (KeyboardState.getInstance().getWitchKeyboardNow()) {
+            case KeyboardState.ARROWS_KEYBOARD:
                 drawArrowsKeyboard(canvas);
                 break;
             case KeyboardState.ENGLISH_26_KEY_KEYBOARD:
                 drawKeyboard(canvas);
                 break;
-                default:
-                    drawKeyboard(canvas);
-                    KeyboardState.getInstance().setWitchKeyboardNow(KeyboardState.ENGLISH_26_KEY_KEYBOARD);
-                    break;
+            default:
+                drawKeyboard(canvas);
+                KeyboardState.getInstance().setWitchKeyboardNow(KeyboardState.ENGLISH_26_KEY_KEYBOARD);
+                break;
         }
     }
 
     @SuppressLint("ResourceAsColor")
-    private void drawArrowsKeyboard(Canvas canvas){
-        mPaint =new Paint();
-        canvas.drawColor(Color.parseColor("#ECEFF1"));;
+    private void drawArrowsKeyboard(Canvas canvas) {
+        mPaint = new Paint();
+        canvas.drawColor(Color.parseColor("#ECEFF1"));
+        ;
         //canvas.drawColor(R.color.keyboardBackround);
         mPaint.setColor(Color.WHITE);
         Resources r = this.getContext().getResources();
 
-        Bitmap bmp= BitmapFactory.decodeResource(r, R.drawable.arrows_up);
-        Rect rect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-        Rect rect2 = new Rect(300,100,400,200);
-        canvas.drawBitmap(bmp,rect,rect2,mPaint);
-        bmp= BitmapFactory.decodeResource(r, R.drawable.arrows_down);
-        
-        rect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-        rect2 = new Rect(300,400,400,500);
-        canvas.drawBitmap(bmp,rect,rect2,mPaint);
-         bmp= BitmapFactory.decodeResource(r, R.drawable.arrows_right);
-        
-        rect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-        rect2 = new Rect(450,250,550,350);
-        canvas.drawBitmap(bmp,rect,rect2,mPaint);
-        bmp= BitmapFactory.decodeResource(r, R.drawable.arrows_left);
-        
-        rect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-        rect2 = new Rect(150,250,250,350);
-        canvas.drawBitmap(bmp,rect,rect2,mPaint);
-        bmp= BitmapFactory.decodeResource(r, R.drawable.arrows_ok);
-        
-        rect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-        rect2 = new Rect(300,250,400,350);
-        canvas.drawBitmap(bmp,rect,rect2,mPaint);
-        bmp= BitmapFactory.decodeResource(r, R.drawable.arrows_left_go);
-        
-        rect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-        rect2 = new Rect(130,500,230,600);
-        canvas.drawBitmap(bmp,rect,rect2,mPaint);
-        bmp= BitmapFactory.decodeResource(r, R.drawable.arrows_right_go);
-        
-        rect = new Rect(0,0,bmp.getWidth(),bmp.getHeight());
-        rect2 = new Rect(470,500,570,600);
-        canvas.drawBitmap(bmp,rect,rect2,mPaint);
+        Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_up);
+        Rect rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        Rect rect2 = new Rect(300, 100, 400, 200);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_down);
+
+        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        rect2 = new Rect(300, 400, 400, 500);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right);
+
+        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        rect2 = new Rect(450, 250, 550, 350);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_left);
+
+        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        rect2 = new Rect(150, 250, 250, 350);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_ok);
+
+        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        rect2 = new Rect(300, 250, 400, 350);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_left_go);
+
+        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        rect2 = new Rect(130, 500, 230, 600);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right_go);
+
+        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        rect2 = new Rect(470, 500, 570, 600);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp.recycle();//回收内存
 
 
-        RectF rectf = new RectF(600,100,760,200);
+        RectF rectf = new RectF(600, 100, 760, 200);
         canvas.drawRoundRect(rectf, 20, 20, mPaint);
         Paint paint = new Paint();
         paint.setTextSize(50);
         paint.setColor(Color.BLACK);
         paint.setTextAlign(Paint.Align.CENTER);//对其方式
-        canvas.drawText("复制",680,165,paint);
+        canvas.drawText("复制", 680, 165, paint);
 
-        rectf = new RectF(800,100,960,200);
+        rectf = new RectF(800, 100, 960, 200);
         canvas.drawRoundRect(rectf, 20, 20, mPaint);
-        canvas.drawText("粘贴",880,165,paint);
+        canvas.drawText("粘贴", 880, 165, paint);
     }
+
     /**
      * 绘制键盘以0.0为起点
      *
      * @param canvas
      */
     private void drawKeyboard(Canvas canvas) {
+        Resources r = this.getContext().getResources();
         mPaint = new Paint();
         // 绘制画布背景
         canvas.drawColor(Color.parseColor("#ECEFF1"));
         mPaint.setColor(Color.WHITE);
         KeyboardRow row;
-        int drawX = 0;
-        int drawY = 0;
+        float drawX = 0;
+        float drawY = 0;
         int beginRownumber = -1;
         for (Key key : mKeys) {
 
             if (key.getRowsNumber() != beginRownumber) {
-                if (beginRownumber == -1){
-                    row = rows.get(beginRownumber+1);
+                if (beginRownumber == -1) {
+                    row = rows.get(beginRownumber + 1);
                     drawY = drawY + row.getRowVerticalGap();
-                }else {
+                } else {
                     row = rows.get(beginRownumber);
                     drawY = drawY + row.getRowHeight() + row.getRowVerticalGap();
                 }
@@ -291,8 +295,14 @@ public class MyKeyboardView extends View {
                 drawX = 0;
             }
             row = rows.get(beginRownumber);
-            RectF rect = new RectF(drawX + (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100), drawY, drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100) +
-                    (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100), drawY + row.getRowHeight());
+            if (key.getStartingPosition() != 0) {
+                drawX = key.getStartingPosition() * myKeyboard.getKeyboardWidth() / 100;
+            }
+
+            RectF rect = new RectF(drawX + (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100), drawY,
+                    drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100) +
+                            (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100),
+                    drawY + row.getRowHeight());
             key.setRect(rect);
             canvas.drawRoundRect(rect, 20, 20, mPaint);
             //mPaint.setTypeface();
@@ -300,7 +310,7 @@ public class MyKeyboardView extends View {
             paint.setTextSize(50);
             paint.setColor(Color.BLACK);
             paint.setTextAlign(Paint.Align.CENTER);//对其方式
-            if (keyClick&&clickKey==key) {
+            if (keyClick && clickKey == key) {
                 Log.i("MyKeyboardView", "drawKeyboard: 绘制点击键");
                 mPaint = new Paint();
                 mPaint.setColor(Color.YELLOW);
@@ -310,9 +320,22 @@ public class MyKeyboardView extends View {
 
                 Log.i("onTouchEvent", "修改了" + clickKey.getKeySpec());
             }
-            canvas.drawText(key.getKeySpec(), drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 200) +
-                    (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100), drawY + row.getRowHeight() / 2, paint);
+            if (key.isIfimagekey()) {
+
+                Bitmap bmp = BitmapFactory.decodeResource(r, key.getImgresource());
+                Rect rect1 = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+                Rect rect2 = new Rect((int) (drawX + (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100))
+                        , (int) drawY + row.getRowHeight() / 2
+                        , (int) (drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 200) +
+                        (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100))
+                        , (int) (drawY + row.getRowHeight()));
+                canvas.drawBitmap(bmp, rect1, rect2, mPaint);
+            } else {
+                canvas.drawText(key.getKeySpec(), drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 200) +
+                        (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100), drawY + row.getRowHeight() / 2, paint);
+            }
             drawX = (int) (drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100) + (key.getGap() * myKeyboard.getKeyboardWidth() / 100));
+
 
         }
 
@@ -457,19 +480,38 @@ public class MyKeyboardView extends View {
         Log.i("onTouchEvent", "点击了" + x + "   " + y);
         //foundKey(x, y);
     }
+
     private String foundKey(float x, float y) {
         for (Key key : mKeys) {
             if (x > key.getRect().left && x < key.getRect().right && y > key.getRect().top && y < key.getRect().bottom) {
-                Toast.makeText((OmeletteIME) context, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(omeletteIME, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
                 clickKey = key;
                 keyClick = true;
                 Message message = Message.obtain();
                 message.what = 0x11;
                 handler.sendMessage(message);
-                context.commitText(key.getKeySpec());
+                dealKeyEvent(key);
+
+
                 return key.getKeySpec();
             }
         }
         return null;
+    }
+
+    private void dealKeyEvent(Key key) {
+        switch (key.getAltCode()) {
+            case 0:
+                omeletteIME.commitText(key.getKeySpec());
+                break;
+            case -1:
+                omeletteIME.deleteText();
+                break;
+            case -5:
+                break;
+            default:
+                omeletteIME.commitText(key.getKeySpec());
+                break;
+        }
     }
 }
