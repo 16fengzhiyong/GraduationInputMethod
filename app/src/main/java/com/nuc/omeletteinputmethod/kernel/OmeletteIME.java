@@ -1,7 +1,10 @@
 package com.nuc.omeletteinputmethod.kernel;
 
+import android.content.Intent;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.KeyboardView;
+import android.net.Uri;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -11,6 +14,7 @@ import com.nuc.omeletteinputmethod.SettingsActivity;
 import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 public class OmeletteIME extends InputMethodService {
+	public static boolean canShowWindow = false;
     /**
      * 屏幕宽度
      */
@@ -55,4 +59,6 @@ public class OmeletteIME extends InputMethodService {
 	public void hideInputMethod() {
 		hideWindow();
 	}
+
+
 }

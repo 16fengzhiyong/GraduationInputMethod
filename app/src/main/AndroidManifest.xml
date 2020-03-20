@@ -37,6 +37,7 @@
                 android:name="android.view.im"
                 android:resource="@xml/method" />
         </service>
+        <service android:name=".floatwindow.FloatingImageDisplayService" />
     </application>
 
 </manifest>
