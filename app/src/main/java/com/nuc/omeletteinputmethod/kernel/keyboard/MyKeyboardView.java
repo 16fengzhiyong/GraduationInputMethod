@@ -25,6 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.SettingsActivity;
+import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
+import com.nuc.omeletteinputmethod.entityclass.OneSinograEntity;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 
 import org.w3c.dom.Text;
@@ -33,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 public class MyKeyboardView extends View {
     Canvas canvas;
     KeyboardBuider keyboardBuider;
@@ -40,6 +44,9 @@ public class MyKeyboardView extends View {
     //定义一个paint
     private Paint mPaint;
     OmeletteIME omeletteIME;
+    String nowPinYin = "";
+    String allCandidates = null;
+    ArrayList<CandidatesEntity> candidatesEntityArrayList = new ArrayList<>();
 
     final Handler handler = new Handler() {
         @Override
@@ -110,7 +117,7 @@ public class MyKeyboardView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         Log.i("loadKeyboard", "onMeasure: widthMeasureSpec =" + widthMeasureSpec);
         Log.i("loadKeyboard", "onMeasure: heightMeasureSpec =" + heightMeasureSpec);
-        //setMeasuredDimension(myKeyboard.getKeyboardWidth(),myKeyboard.getKeyboardHeight());
+        setMeasuredDimension(myKeyboard.getKeyboardWidth(),myKeyboard.getKeyboardHeight()+60);
     }
 
     @Override
@@ -146,6 +153,7 @@ public class MyKeyboardView extends View {
                     //长按逻辑触发，isClick置为false，手指移开后，不触发点击事件
                     ifOnClick = false;
                     doLongPress(indexX, indexY);
+                    omeletteIME.deleteText();
                 }
             };
             ifOnClick = true;
@@ -218,42 +226,42 @@ public class MyKeyboardView extends View {
 
         Bitmap bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_up);
         Rect rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        Rect rect2 = new Rect(300, 100, 400, 200);
+        Rect rect2 = new Rect(300, 50, 400, 150);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_down);
 
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        rect2 = new Rect(300, 400, 400, 500);
+        rect2 = new Rect(300, 350, 400, 450);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right);
 
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        rect2 = new Rect(450, 250, 550, 350);
+        rect2 = new Rect(450, 200, 550, 300);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_left);
 
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        rect2 = new Rect(150, 250, 250, 350);
+        rect2 = new Rect(150, 200, 250, 300);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_ok);
 
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        rect2 = new Rect(300, 250, 400, 350);
+        rect2 = new Rect(300, 200, 400, 300);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_left_go);
 
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        rect2 = new Rect(130, 500, 230, 600);
+        rect2 = new Rect(130, 420, 230, 520);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right_go);
 
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        rect2 = new Rect(470, 500, 570, 600);
+        rect2 = new Rect(470, 420, 570, 520);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp.recycle();//回收内存
 
 
-        RectF rectf = new RectF(600, 100, 760, 200);
+        RectF rectf = new RectF(600, 50, 760, 150);
         canvas.drawRoundRect(rectf, 20, 20, mPaint);
         Paint paint = new Paint();
         paint.setTextSize(50);
@@ -261,7 +269,7 @@ public class MyKeyboardView extends View {
         paint.setTextAlign(Paint.Align.CENTER);//对其方式
         canvas.drawText("复制", 680, 165, paint);
 
-        rectf = new RectF(800, 100, 960, 200);
+        rectf = new RectF(800, 50, 960, 150);
         canvas.drawRoundRect(rectf, 20, 20, mPaint);
         canvas.drawText("粘贴", 880, 165, paint);
     }
@@ -484,7 +492,7 @@ public class MyKeyboardView extends View {
     private String foundKey(float x, float y) {
         for (Key key : mKeys) {
             if (x > key.getRect().left && x < key.getRect().right && y > key.getRect().top && y < key.getRect().bottom) {
-                Toast.makeText(omeletteIME, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(omeletteIME, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
                 clickKey = key;
                 keyClick = true;
                 Message message = Message.obtain();
@@ -498,20 +506,76 @@ public class MyKeyboardView extends View {
         }
         return null;
     }
+    public void clearAndHideInputView(){
+        Log.i("clickAndInput", "clickAndInput: 现在拼音为空了");
+        candidatesEntityArrayList.clear();
+        omeletteIME.getKeyboardSwisher().showCandidatesView(candidatesEntityArrayList,nowPinYin);
+        omeletteIME.getKeyboardSwisher().hideCandidatesView();
+        nowPinYin = "";
+    }
+    public void clickAndInput(Key key,int altCode){
+        //omeletteIME.commitText(key.getKeySpec());
+        if (0 ==altCode){
+            nowPinYin = nowPinYin + key.getKeySpec();
+        }
+        if (nowPinYin == ""||nowPinYin == null||nowPinYin.length()<=0){
+            clearAndHideInputView();
+            return;
+        }
 
+        Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +nowPinYin);
+        for (OneSinograEntity oneSinograEntity :omeletteIME.getOneSinograEntityArrayList()){
+            if (oneSinograEntity.getPinyin().equals(nowPinYin)){
+                allCandidates = oneSinograEntity.getNeirong();
+            }
+            Log.i("dealKeyEvent", "遍历拼音 " +oneSinograEntity.getPinyin());
+            Log.i("dealKeyEvent", "遍历拼音对应内容 " + oneSinograEntity.getNeirong());
+
+        }
+        allCandidates= allCandidates.replace("\"", "");
+        Log.i("dealKeyEvent", "dealKeyEvent: allCandidates " +allCandidates);
+        candidatesEntityArrayList.clear();
+        for(int i = 0; i < allCandidates.length() ; i++){
+            String ss = String.valueOf(allCandidates.charAt(i));
+            candidatesEntityArrayList.add(new CandidatesEntity(i,ss));
+        }
+        Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +candidatesEntityArrayList.toString());
+        omeletteIME.getKeyboardSwisher().showCandidatesView(candidatesEntityArrayList,nowPinYin);
+    }
     private void dealKeyEvent(Key key) {
         switch (key.getAltCode()) {
             case 0:
-                omeletteIME.commitText(key.getKeySpec());
+                clickAndInput(key,0);
                 break;
             case -1:
-                omeletteIME.deleteText();
+                // 目标：删除最后一个输入的符号
+                if (nowPinYin != ""&&nowPinYin != null&&nowPinYin.length()>0){
+
+                    nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 1);
+                    Log.i("MyKeyboardView", "dealKeyEvent: 现在拼音字符长度是 "+nowPinYin.length());
+                }else {
+                    omeletteIME.deleteText();
+                }
+                clickAndInput(key,-1);
                 break;
-            case -5:
+            case -5://大小写切换
+                break;
+            case -2://确认按键
+                omeletteIME.getKeyboardSwisher().enterInputPinYin(nowPinYin);
+                clearAndHideInputView();
+                break;
+            case -3://符号按键
+                break;
+            case 3://空格按键
+
                 break;
             default:
                 omeletteIME.commitText(key.getKeySpec());
                 break;
         }
+    }
+    //用于清除当前存在的拼音
+    public void clearNowPinYin(){
+        nowPinYin = "";
     }
 }
