@@ -1,17 +1,19 @@
 package com.nuc.omeletteinputmethod.kernel;
 
-import android.content.Intent;
 import android.inputmethodservice.InputMethodService;
-import android.inputmethodservice.KeyboardView;
-import android.net.Uri;
-import android.provider.Settings;
-import android.view.LayoutInflater;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
 
-import com.nuc.omeletteinputmethod.R;
-import com.nuc.omeletteinputmethod.SettingsActivity;
-import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.nuc.omeletteinputmethod.DBoperation.DBManage;
+import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
+import com.nuc.omeletteinputmethod.kernel.util.SinogramLibrary;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class OmeletteIME extends InputMethodService {
 	public static boolean canShowWindow = false;
@@ -30,11 +32,18 @@ public class OmeletteIME extends InputMethodService {
     private int mStatusBarHeight;
 
     private KeyboardSwisher keyboardSwisher;
-
+    private DBManage dbManage = null;
     @Override
     public void onCreate() {
         super.onCreate();
         keyboardSwisher = new KeyboardSwisher(this);
+
+		// /storage/emulated/0
+		//File file = new File(basepath+"/zhengti2.txt");
+		if (dbManage == null){
+			Log.i("OmeletteIME", "onCreate: new 数据库");
+			dbManage = new DBManage(this);
+		}
     }
 
     @Override
@@ -48,6 +57,7 @@ public class OmeletteIME extends InputMethodService {
 	}
 	
 	public void commitText(String data) {
+
 		getCurrentInputConnection().commitText(data, 0); // 往输入框输出内容
 		setCandidatesViewShown(false); // 隐藏 CandidatesView
 	}
@@ -60,5 +70,11 @@ public class OmeletteIME extends InputMethodService {
 		hideWindow();
 	}
 
+	public KeyboardSwisher getKeyboardSwisher() {
+		return keyboardSwisher;
+	}
 
+	public DBManage getDbManage() {
+		return dbManage;
+	}
 }

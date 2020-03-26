@@ -5,4 +5,7 @@
     <string name="tips"> A </string>
     <string name="subtype_en_US">TestDemo(EN)</string>
     <string name="HelloWorld">欢迎使用煎蛋输入法，这仅仅是个开始</string>
+    <string name="oneSinogramString"></string>
+
+
 </resources>

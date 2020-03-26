@@ -103,10 +103,12 @@
     </Row>
     <Row  >
         <Key
-            omelette:startingPosition = "2%"
-            omelette:keySpec="大小写"
+            omelette:ifimagekey = "true"
+            omelette:imgresource = "@drawable/lower_now"
+            omelette:startingPosition = "7%"
             omelette:length = "7%"
             omelette:padding="2%"
+            omelette:altCode ="-5"
             />
         <Key
 
@@ -154,5 +156,31 @@
             omelette:altCode ="-1"
             />
     </Row>
-
+    <Row
+        omelette:rowHeight = "35dp"
+        >
+        <Key
+            omelette:ifimagekey = "true"
+            omelette:startingPosition = "2%"
+            omelette:imgresource = "@drawable/symbols"
+            omelette:length = "10%"
+            omelette:padding="6%"
+            omelette:altCode ="2"
+            />
+        <Key
+            omelette:ifimagekey = "true"
+            omelette:imgresource = "@drawable/spacing"
+            omelette:length = "60%"
+            omelette:padding="2%"
+            omelette:altCode ="-3"
+            />
+        <Key
+            omelette:ifimagekey = "true"
+            omelette:keyStyle = "special"
+            omelette:imgresource = "@drawable/huiche"
+            omelette:length = "10%"
+            omelette:padding="6%"
+            omelette:altCode ="-2"
+            />
+    </Row>
 </MyKeyboard>

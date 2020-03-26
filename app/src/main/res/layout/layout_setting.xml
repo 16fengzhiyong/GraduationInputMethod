@@ -22,4 +22,12 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/id_json_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </ScrollView>
     </LinearLayout>

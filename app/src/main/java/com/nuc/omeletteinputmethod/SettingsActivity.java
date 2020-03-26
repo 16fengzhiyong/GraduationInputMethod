@@ -2,6 +2,9 @@ package com.nuc.omeletteinputmethod;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,34 +14,136 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 
 import com.nuc.omeletteinputmethod.floatwindow.FloatingImageDisplayService;
+import com.nuc.omeletteinputmethod.kernel.util.SinogramLibrary;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 public class SettingsActivity extends Activity {
+    private Spinner spinner;
+    private TextView json_textView;
     private final int REQUEST_CODE = 0;
     public static boolean showMyselfkeyboard = false;
+
+    public static String dbName="myandroid.db";//数据库的名字
+    private static String DATABASE_PATH="/data/data/com.nuc.omeletteinputmethod/databases/";//数据库在手机里的路径
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_setting);
         initView();
+        //verifyStoragePermissions(this);
         getPermissions();
+        //判断数据库是否存在
+        boolean dbExist = checkDataBase();
+        if(dbExist){
+            Log.d("复制数据库", "onCreate: 数据库存在");
+        }else{//不存在就把raw里的数据库写入手机
+            try{
+                copyDataBase();
+            }catch(IOException e){
+                throw new Error("Error copying database");
+            }
+        }
     }
+    /**
+     * 判断数据库是否存在
+     * @return false or true
+     */
+    public boolean checkDataBase(){
+        SQLiteDatabase checkDB = null;
+        try{
+            String databaseFilename = DATABASE_PATH+dbName;
+            checkDB =SQLiteDatabase.openDatabase(databaseFilename, null,
+                    SQLiteDatabase.OPEN_READONLY);
+        }catch(SQLiteException e){
+            Log.e("复制数据库", "checkDataBase: ", e);
+        }
+        if(checkDB!=null){
+            checkDB.close();
+        }
+        return checkDB !=null?true:false;
+    }
+    /**
+     * 复制数据库到手机指定文件夹下
+     * @throws IOException
+     */
+    public void copyDataBase() throws IOException{
+        String databaseFilenames =DATABASE_PATH+dbName;
+        File dir = new File(DATABASE_PATH);
+        if(!dir.exists())//判断文件夹是否存在，不存在就新建一个
+            dir.mkdir();
+        FileOutputStream os = null;
+        try{
+            os = new FileOutputStream(databaseFilenames);//得到数据库文件的写入流
+        }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        InputStream is = SettingsActivity.this.getResources().openRawResource(R.raw.myandroid);//得到数据库文件的数据流
+        byte[] buffer = new byte[8192];
+        int count = 0;
+        try{
+
+            while((count=is.read(buffer))>0){
+                os.write(buffer, 0, count);
+                os.flush();
+            }
+        }catch(IOException e){
+            Log.e("复制数据库", "copyDataBase: ", e);
+        }
+        try{
+            is.close();
+            os.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
     public void initView(){
         String[] arrayStrings = new String[]{"个人编写版","系统接口板"};
-
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,arrayStrings);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-
-        Spinner spinner = findViewById(R.id.switch_keyboard);
+        json_textView = findViewById(R.id.id_json_list);
+        spinner = findViewById(R.id.switch_keyboard);
         spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
         spinner.setAdapter(adapter);
-
     }
+    //先定义
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+
+    private static String[] PERMISSIONS_STORAGE = {
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE" };
+
+    //然后通过一个函数来申请
+    public static void verifyStoragePermissions(Activity activity) {
+        try {
+            //检测是否有写的权限
+            int permission = ActivityCompat.checkSelfPermission(activity,
+                    "android.permission.WRITE_EXTERNAL_STORAGE");
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                // 没有写的权限，去申请写的权限，会弹出对话框
+                ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     //使用数组形式操作
     class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
 
@@ -60,7 +165,12 @@ public class SettingsActivity extends Activity {
                 startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
             } else {
                 Log.i("弹窗", "getPermissions: 准备开启 FloatingImageDisplayService");
-                startService(new Intent(SettingsActivity.this, FloatingImageDisplayService.class));
+                try {
+                    startService(new Intent(SettingsActivity.this, FloatingImageDisplayService.class));
+
+                }catch (Exception e){
+
+                }
             }
         }
     }
