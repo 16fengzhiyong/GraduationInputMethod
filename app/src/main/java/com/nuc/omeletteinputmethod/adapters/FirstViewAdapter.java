@@ -1,28 +1,15 @@
 package com.nuc.omeletteinputmethod.adapters;
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.telecom.Call;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
-import com.nuc.omeletteinputmethod.entityclass.OneSinograEntity;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboardView;
-
-import java.io.IOException;
 
 import java.util.ArrayList;
 

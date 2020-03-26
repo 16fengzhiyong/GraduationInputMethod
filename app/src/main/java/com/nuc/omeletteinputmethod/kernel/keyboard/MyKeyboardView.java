@@ -19,18 +19,14 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.nuc.omeletteinputmethod.R;
-import com.nuc.omeletteinputmethod.SettingsActivity;
 import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
-import com.nuc.omeletteinputmethod.entityclass.OneSinograEntity;
+import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -153,7 +149,7 @@ public class MyKeyboardView extends View {
                     //长按逻辑触发，isClick置为false，手指移开后，不触发点击事件
                     ifOnClick = false;
                     doLongPress(indexX, indexY);
-                    omeletteIME.deleteText();
+                    //omeletteIME.deleteText();
                 }
             };
             ifOnClick = true;
@@ -522,25 +518,39 @@ public class MyKeyboardView extends View {
             clearAndHideInputView();
             return;
         }
-
         Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +nowPinYin);
-        for (OneSinograEntity oneSinograEntity :omeletteIME.getOneSinograEntityArrayList()){
-            if (oneSinograEntity.getPinyin().equals(nowPinYin)){
-                allCandidates = oneSinograEntity.getNeirong();
-            }
-            Log.i("dealKeyEvent", "遍历拼音 " +oneSinograEntity.getPinyin());
-            Log.i("dealKeyEvent", "遍历拼音对应内容 " + oneSinograEntity.getNeirong());
-
-        }
-        allCandidates= allCandidates.replace("\"", "");
-        Log.i("dealKeyEvent", "dealKeyEvent: allCandidates " +allCandidates);
+        if (omeletteIME.getDbManage() == null) Log.i("数据库是否为空", "dbManage == null");
+//        Log.i("数据库返回信息", "commitText: 开始");
+//        ArrayList<SinograFromDB> sinograFromDBS = new ArrayList<>();
+//        sinograFromDBS = omeletteIME.getDbManage().getSinogramByPinyin(nowPinYin);
+//        for (SinograFromDB sinograFromDB :sinograFromDBS){
+//            Log.i("数据库返回信息", "commitText: "+sinograFromDB.getWenzi1());
+//        }
+//        Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +nowPinYin);
+//        candidatesEntityArrayList.clear();
         candidatesEntityArrayList.clear();
-        for(int i = 0; i < allCandidates.length() ; i++){
-            String ss = String.valueOf(allCandidates.charAt(i));
-            candidatesEntityArrayList.add(new CandidatesEntity(i,ss));
+        for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSinogramByPinyin(nowPinYin)){
+            Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
+            candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1()));
         }
-        Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +candidatesEntityArrayList.toString());
-        omeletteIME.getKeyboardSwisher().showCandidatesView(candidatesEntityArrayList,nowPinYin);
+        omeletteIME.getKeyboardSwisher().showCandidatesView(removeRepetiton(candidatesEntityArrayList),nowPinYin);
+    }
+    private ArrayList<CandidatesEntity>  removeRepetiton(ArrayList<CandidatesEntity> arrayList){
+        ArrayList<CandidatesEntity> retlist = new ArrayList<>();
+        for (CandidatesEntity candidatesEntity:arrayList){
+            if (retlist.size() == 0){
+                retlist.add(candidatesEntity);
+            }
+            for (int i = 0;i<retlist.size();i++){
+
+                if (retlist.get(i).getCandidates().equals(candidatesEntity.getCandidates())){
+                    continue;
+                }else if (i == retlist.size()-1){
+                    retlist.add(candidatesEntity);
+                }
+            }
+        }
+        return retlist;
     }
     private void dealKeyEvent(Key key) {
         switch (key.getAltCode()) {
@@ -550,8 +560,9 @@ public class MyKeyboardView extends View {
             case -1:
                 // 目标：删除最后一个输入的符号
                 if (nowPinYin != ""&&nowPinYin != null&&nowPinYin.length()>0){
-
-                    nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 1);
+                    if (nowPinYin.substring(nowPinYin.length()-2,nowPinYin.length()-1).equals("'")){
+                        nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 2);
+                    }else nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 1);
                     Log.i("MyKeyboardView", "dealKeyEvent: 现在拼音字符长度是 "+nowPinYin.length());
                 }else {
                     omeletteIME.deleteText();
@@ -577,5 +588,13 @@ public class MyKeyboardView extends View {
     //用于清除当前存在的拼音
     public void clearNowPinYin(){
         nowPinYin = "";
+    }
+
+    public String getNowPinYin() {
+        return nowPinYin;
+    }
+
+    public void setNowPinYin(String nowPinYin) {
+        this.nowPinYin = nowPinYin;
     }
 }

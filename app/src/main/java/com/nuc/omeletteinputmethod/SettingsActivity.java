@@ -18,14 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.nuc.omeletteinputmethod.DBoperation.CopyDB;
-import com.nuc.omeletteinputmethod.entityclass.OneSinograEntity;
 import com.nuc.omeletteinputmethod.floatwindow.FloatingImageDisplayService;
 import com.nuc.omeletteinputmethod.kernel.util.SinogramLibrary;
 
@@ -35,7 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class SettingsActivity extends Activity {
     private Spinner spinner;
@@ -47,11 +40,6 @@ public class SettingsActivity extends Activity {
     private static String DATABASE_PATH="/data/data/com.nuc.omeletteinputmethod/databases/";//数据库在手机里的路径
 
 
-    public static ArrayList<OneSinograEntity> getOneSinograEntityArrayList() {
-        return oneSinograEntityArrayList;
-    }
-
-    private static ArrayList<OneSinograEntity> oneSinograEntityArrayList = new ArrayList<>();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +47,6 @@ public class SettingsActivity extends Activity {
         initView();
         //verifyStoragePermissions(this);
         getPermissions();
-        setOneSinograEntityArrayList(SinogramLibrary.oneSinogramString);
         //判断数据库是否存在
         boolean dbExist = checkDataBase();
         if(dbExist){
@@ -133,32 +120,6 @@ public class SettingsActivity extends Activity {
         spinner = findViewById(R.id.switch_keyboard);
         spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
         spinner.setAdapter(adapter);
-        json_textView.setText(SinogramLibrary.oneSinogramString);
-    }
-    private void setOneSinograEntityArrayList(String result){
-        oneSinograEntityArrayList.clear();
-        JsonParser parser = new JsonParser();  //创建JSON解析器
-        JsonArray array = (JsonArray)parser.parse(result) ;
-        for (int i = 0; i < array.size(); i++) {
-            JsonArray array2 = array.get(i).getAsJsonArray();
-            //Log.e("SettingsActivity", "setOneSinograEntityArrayList: array.size() "+array.size() );
-
-            for (int j = 0; j < array2.size(); j++) {
-                //Log.e("SettingsActivity", "setOneSinograEntityArrayList: array2.size() "+array2.size() );
-
-                JsonObject subObject = array2.get(j).getAsJsonObject();
-//                Log.i("SettingsActivity", "setOneSinograEntityArrayList: " + subObject.getAsString());
-              //  Log.i("SettingsActivity", "setOneSinograEntityArrayList: " + subObject.entrySet());
-                for (Map.Entry entry : subObject.entrySet()) {
-                    Log.i("SettingsActivity", "entry.getKey():" + entry.getKey());
-                    Log.i("SettingsActivity", "entry.getKey():" + entry.getValue().toString());
-//                    entry.getKey();
-//                    entry.getValue().toString();
-                    oneSinograEntityArrayList.add(new OneSinograEntity(entry.getKey().toString(), entry.getValue().toString()));
-                }
-
-            }
-        }
     }
     //先定义
     private static final int REQUEST_EXTERNAL_STORAGE = 1;

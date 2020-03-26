@@ -121,4 +121,8 @@ public class KeyboardSwisher {
         candidatesView = RelativeLayout.inflate(omeletteIME,R.layout.input_waiting_layout, null);
         return candidatesView;
     }
+
+    public MyKeyboardView getMyKeyboardView() {
+        return myKeyboardView;
+    }
 }
