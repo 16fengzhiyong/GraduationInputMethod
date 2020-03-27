@@ -57,8 +57,7 @@ public class OmeletteIME extends InputMethodService {
 	}
 	
 	public void commitText(String data) {
-
-		getCurrentInputConnection().commitText(data, 0); // 往输入框输出内容
+		getCurrentInputConnection().commitText(data.replace("'",""), 0); // 往输入框输出内容
 		setCandidatesViewShown(false); // 隐藏 CandidatesView
 	}
 	

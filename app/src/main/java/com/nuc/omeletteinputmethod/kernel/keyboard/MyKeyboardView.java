@@ -50,6 +50,8 @@ public class MyKeyboardView extends View {
             super.handleMessage(msg);
             if (msg.what == 0x11) {
                 invalidate();
+            }else if (msg.what == 0x01){
+                dealLongClickKeyEvent(clickKey);
             }
         }
     };
@@ -148,13 +150,15 @@ public class MyKeyboardView extends View {
                 public void run() {
                     //长按逻辑触发，isClick置为false，手指移开后，不触发点击事件
                     ifOnClick = false;
-                    doLongPress(indexX, indexY);
+                   // doLongPress(indexX, indexY);
+                    LongClickState = LONGCLICKBEGIN;
+                    LongClickKey(keyX,keyY);
                     //omeletteIME.deleteText();
                 }
             };
             ifOnClick = true;
+            drawClickKeyColor(keyX,keyY);
             Log.i("MyKeyboardView", "onTouchEvent: ACTION_DOWN");
-            foundKey(keyX, keyY);
             timer.schedule(timerTask, LONGPRESSTIME, 1000 * 60 * 60 * 24);
         }
 
@@ -163,12 +167,13 @@ public class MyKeyboardView extends View {
             //没有触发长按逻辑，进行点击事件
             if (ifOnClick == true) {
                 doClick(indexX, indexY);
-
+                foundKey(keyX, keyY);
             }
             //取消计时
             timerTask.cancel();
             timer.cancel();
             Log.i("MyKeyboardView", "onTouchEvent: ACTION_UP ");
+            LongClickState = LONGCLICKEND;
             Message message = Message.obtain();
             message.what = 0x11;
             handler.sendMessageDelayed(message, 50);
@@ -307,7 +312,11 @@ public class MyKeyboardView extends View {
                     drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100) +
                             (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100),
                     drawY + row.getRowHeight());
-            key.setRect(rect);
+            RectF rectsave = new RectF(drawX , drawY - row.getRowVerticalGap()/2,
+                    drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100) +
+                            (key.getGap()* myKeyboard.getKeyboardWidth() / 100),
+                    drawY + row.getRowHeight()+ row.getRowVerticalGap()/2);
+            key.setRect(rectsave);
             canvas.drawRoundRect(rect, 20, 20, mPaint);
             //mPaint.setTypeface();
             Paint paint = new Paint();
@@ -481,11 +490,32 @@ public class MyKeyboardView extends View {
     }
 
     private void doClick(int x, int y) {
-        Log.i("onTouchEvent", "点击了" + x + "   " + y);
+        Log.i("MyKeyboardView", "点击了" + x + "   " + y);
         //foundKey(x, y);
     }
 
-    private String foundKey(float x, float y) {
+    private final int LONGCLICKBEGIN = 1;
+    private final int LONGCLICKEND = 0;
+    private int LongClickState = LONGCLICKEND;
+    private String LongClickKey(float x, float y){
+            long nowTime = System.currentTimeMillis();
+            int waittime = 500;
+            while (LongClickState == LONGCLICKBEGIN){
+                if (System.currentTimeMillis()-nowTime>=waittime){
+                    nowTime = System.currentTimeMillis();
+                    Message message = Message.obtain();
+                    message.what = 0x01;
+                    handler.sendMessage(message);
+                    if (waittime>100){
+                        waittime = waittime -200;
+                    }else if (waittime>50){
+                        waittime = waittime -50;
+                    }
+                }
+            }
+            return clickKey.getKeySpec();
+    }
+    private void drawClickKeyColor(float x, float y){
         for (Key key : mKeys) {
             if (x > key.getRect().left && x < key.getRect().right && y > key.getRect().top && y < key.getRect().bottom) {
                 //Toast.makeText(omeletteIME, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
@@ -494,13 +524,25 @@ public class MyKeyboardView extends View {
                 Message message = Message.obtain();
                 message.what = 0x11;
                 handler.sendMessage(message);
-                dealKeyEvent(key);
-
-
-                return key.getKeySpec();
             }
         }
-        return null;
+    }
+    private String foundKey(float x, float y) {
+//        for (Key key : mKeys) {
+//            if (x > key.getRect().left && x < key.getRect().right && y > key.getRect().top && y < key.getRect().bottom) {
+//                //Toast.makeText(omeletteIME, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
+//                clickKey = key;
+//                keyClick = true;
+//                Message message = Message.obtain();
+//                message.what = 0x11;
+//                handler.sendMessage(message);
+//                dealKeyEvent(key);
+//                return key.getKeySpec();
+//            }
+//        }
+
+        dealKeyEvent(clickKey);
+        return clickKey.getKeySpec();
     }
     public void clearAndHideInputView(){
         Log.i("clickAndInput", "clickAndInput: 现在拼音为空了");
@@ -520,19 +562,22 @@ public class MyKeyboardView extends View {
         }
         Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +nowPinYin);
         if (omeletteIME.getDbManage() == null) Log.i("数据库是否为空", "dbManage == null");
-//        Log.i("数据库返回信息", "commitText: 开始");
-//        ArrayList<SinograFromDB> sinograFromDBS = new ArrayList<>();
-//        sinograFromDBS = omeletteIME.getDbManage().getSinogramByPinyin(nowPinYin);
-//        for (SinograFromDB sinograFromDB :sinograFromDBS){
-//            Log.i("数据库返回信息", "commitText: "+sinograFromDB.getWenzi1());
-//        }
-//        Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +nowPinYin);
-//        candidatesEntityArrayList.clear();
+
         candidatesEntityArrayList.clear();
-        for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSinogramByPinyin(nowPinYin)){
-            Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
-            candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1()));
+
+
+        if(nowPinYin.contains("'")){
+            for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSomeSinogramByPinyin(nowPinYin,0)){
+                Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
+                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1()));
+            }
+        }else {
+            for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSinogramByPinyin(nowPinYin)){
+                Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
+                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1()));
+            }
         }
+
         omeletteIME.getKeyboardSwisher().showCandidatesView(removeRepetiton(candidatesEntityArrayList),nowPinYin);
     }
     private ArrayList<CandidatesEntity>  removeRepetiton(ArrayList<CandidatesEntity> arrayList){
@@ -552,6 +597,34 @@ public class MyKeyboardView extends View {
         }
         return retlist;
     }
+    private void dealLongClickKeyEvent(Key key) {
+        switch (key.getAltCode()) {
+            case 0:
+                break;
+            case -1:
+                // 目标：删除最后一个输入的符号
+                if (nowPinYin != ""&&nowPinYin != null&&nowPinYin.length()>0){
+                    nowPinYin = "";
+                    Log.i("MyKeyboardView", "dealKeyEvent: 现在拼音字符长度是 "+nowPinYin.length());
+                    clickAndInput(key,-1);
+                }else {
+                    omeletteIME.deleteText();
+                }
+                //clickAndInput(key,-1);
+                break;
+            case -5://大小写切换
+                break;
+            case -2://确认按键
+                break;
+            case -3://符号按键
+                break;
+            case 3://空格按键
+                break;
+            default:
+                break;
+        }
+    }
+
     private void dealKeyEvent(Key key) {
         switch (key.getAltCode()) {
             case 0:
@@ -560,8 +633,10 @@ public class MyKeyboardView extends View {
             case -1:
                 // 目标：删除最后一个输入的符号
                 if (nowPinYin != ""&&nowPinYin != null&&nowPinYin.length()>0){
-                    if (nowPinYin.substring(nowPinYin.length()-2,nowPinYin.length()-1).equals("'")){
-                        nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 2);
+                    if (nowPinYin.length() >1){
+                        if (nowPinYin.substring(nowPinYin.length()-2,nowPinYin.length()-1).equals("'")){
+                            nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 2);
+                        }else nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 1);
                     }else nowPinYin = nowPinYin.substring(0, nowPinYin.length() - 1);
                     Log.i("MyKeyboardView", "dealKeyEvent: 现在拼音字符长度是 "+nowPinYin.length());
                 }else {

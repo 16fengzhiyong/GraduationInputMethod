@@ -35,7 +35,7 @@ public class DBManage {
 
     public ArrayList<SinograFromDB> getSinogramByPinyin(String pinyin ){
         ArrayList<SinograFromDB> arrayList = new ArrayList<>();
-        String sendStr = pinyin +"%"; ;
+        String sendStr = pinyin +"%";
         Cursor cursor=null;
         Log.e("数据库返回信息", "getSinogramByPinyin: 在此");
         Log.e("数据库返回信息", "getSinogramByPinyin: 作用成功");
@@ -50,13 +50,8 @@ public class DBManage {
      //   Cursor cursor = DBCanRead.query("hanzi", new String[]{"wenzi1,wenzi2,jisheng,id"}, "pinyin like ?", new String[]{pinyin}, null, null, null);
         Log.i("数据库返回信息", "getSinogramByPinyin: 成功返回");
         if (cursor.getCount() == 0){
-            if (pinyin.contains("'")){
                 Log.i("数据库返回信息", "getSinogramByPinyin: 单字拼音为空 flag为1");
                return getSomeSinogramByPinyin(pinyin,1);
-            }else {
-                Log.i("数据库返回信息", "getSinogramByPinyin: 单字拼音为空 flag为0");
-               return getSomeSinogramByPinyin(pinyin,0);
-            }
         }
         try {
             cursor.moveToFirst();
@@ -80,7 +75,76 @@ public class DBManage {
     }
     //SELECT * FROM duozi WHERE pinyin LIKE "cha%'ji%"
     //SELECT * FROM duozi WHERE pinyin LIKE "s%'j%'s%" ORDER BY pinlv DESC
-    public ArrayList<SinograFromDB> getSomeSinogramByPinyin(String oldpinyin,int flag){
+
+    public ArrayList<SinograFromDB> getSomeSinogramByPinyin(final String oldpinyin,int flag){
+        ArrayList<SinograFromDB> arrayList = new ArrayList<>();
+        //此时为单字符传递过来的
+        String newpinyin = "";
+        String nowpinyin = "";
+        Cursor cursor=null;
+        //flag = 1为单字搜索后 执行的操作
+        //flag = 0此时为带有 ' 的拼音
+        if (flag == 1&&oldpinyin.length()>=2){
+            if (!oldpinyin.substring(oldpinyin.length()-2,oldpinyin.length()-1).equals("'")){
+                nowpinyin = oldpinyin.substring(0,oldpinyin.length()-1)
+                        +"'"+oldpinyin.substring(oldpinyin.length()-1);
+            }else {
+                nowpinyin = oldpinyin;
+            }
+            String linshi = nowpinyin.replace("'","%'");
+            newpinyin = linshi + "%";
+        }else if(flag == 0 || flag == 2){
+            nowpinyin = oldpinyin;
+            String linshi = nowpinyin.replace("'","%'");
+            newpinyin = linshi + "%";
+        }
+
+        try {
+            Log.e("数据库返回信息", "getSinogramByPinyin: nowpinyin = "+nowpinyin +" flag = "+flag);
+
+            Log.e("数据库返回信息", "getSinogramByPinyin: newpinyin = "+newpinyin +" flag = "+flag);
+            // ORDER BY allcishu DESC
+            cursor = myDBHelper.query("duozi", new String[]{"wenzi,pinyin,pinlv,id"}, "pinyin like ? ", new String[]{newpinyin}, null, null, "pinlv DESC");
+            Log.e("数据库返回信息", "getSinogramByPinyin: 获取返回成功");
+        }catch (Exception e){
+            Log.e("数据库返回信息", "getSinogramByPinyin: ",e );
+            return null;
+        }
+
+        if (cursor.getCount() != 0){
+            try {
+                cursor.moveToFirst();
+
+                while (!cursor.isLast()){
+                    arrayList.add(
+                            new SinograFromDB(cursor.getString(cursor.getColumnIndex("wenzi"))
+                                    ,cursor.getString(cursor.getColumnIndex("wenzi"))
+                                    ,cursor.getInt(cursor.getColumnIndex("id"))
+                                    ,cursor.getInt(cursor.getColumnIndex("id"))
+                            ));
+                    cursor.moveToNext();
+                }
+
+                cursor.close();
+            }catch (Exception e){
+                Log.e("数据库返回信息错误", "getSomeSinogramByPinyin: ", e );
+            }
+            omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
+            return arrayList;
+        }else {
+
+            if (flag == 2){
+                omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
+                return arrayList;
+            }
+            nowpinyin = oldpinyin.substring(0,oldpinyin.length()-1)
+                    +"'"+oldpinyin.substring(oldpinyin.length()-1);
+            return getSomeSinogramByPinyin(nowpinyin,2);
+        }
+    }
+
+
+    public ArrayList<SinograFromDB> getSomeSinogramByPinyin1(String oldpinyin,int flag){
         ArrayList<SinograFromDB> arrayList = new ArrayList<>();
         //此时为单字符传递过来的
         String newpinyin = "";
@@ -96,6 +160,7 @@ public class DBManage {
         }
 
         if (flag == 0){
+            oldpinyin = oldpinyin.replace("'","%'");
             newpinyin = oldpinyin.substring(0,oldpinyin.length()-1)
                     +"%'"+oldpinyin.substring(oldpinyin.length()-1)+"%";
         }else if (flag == 1){
@@ -109,6 +174,7 @@ public class DBManage {
         }else return null;
 
         try {
+            Log.e("数据库返回信息", "getSinogramByPinyin: newpinyin = "+newpinyin +"flag = "+flag);
             // ORDER BY allcishu DESC
             cursor = myDBHelper.query("duozi", new String[]{"wenzi,pinyin,pinlv,id"}, "pinyin like ? ", new String[]{newpinyin}, null, null, "pinlv DESC");
             Log.e("数据库返回信息", "getSinogramByPinyin: 获取返回成功");
@@ -118,6 +184,10 @@ public class DBManage {
         }
 
         if (cursor.getCount() == 0){
+            if (nowpinyin.substring(nowpinyin.length()-2,nowpinyin.length()-1).equals("'")){
+                omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
+                return arrayList;
+            }
             Log.i("数据库准备", "getSomeSinogramByPinyin: "+nowpinyin);
             return getSomeSinogramByPinyin(nowpinyin,1);
         }
