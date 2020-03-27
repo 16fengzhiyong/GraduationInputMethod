@@ -166,14 +166,14 @@
             omelette:imgresource = "@drawable/symbols"
             omelette:length = "10%"
             omelette:padding="6%"
-            omelette:altCode ="2"
+            omelette:altCode ="-3"
             />
         <Key
             omelette:ifimagekey = "true"
             omelette:imgresource = "@drawable/spacing"
             omelette:length = "60%"
             omelette:padding="1%"
-            omelette:altCode ="-3"
+            omelette:altCode ="3"
             />
         <Key
             omelette:ifimagekey = "true"

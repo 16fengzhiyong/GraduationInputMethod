@@ -1,11 +1,13 @@
 package com.nuc.omeletteinputmethod.DBoperation;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
 import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 
@@ -41,7 +43,7 @@ public class DBManage {
         Log.e("数据库返回信息", "getSinogramByPinyin: 作用成功");
         try {
             // ORDER BY allcishu DESC
-            cursor = myDBHelper.query("test_hanzi", new String[]{"wenzi1,wenzi2,jisheng,id,pinlv"}, "pinyin like ? ", new String[]{sendStr}, null, null, "allcishu DESC");
+            cursor = myDBHelper.query("test_hanzi", new String[]{"wenzi1,pinyin,jisheng,id,allcishu,usercishu"}, "pinyin like ? ", new String[]{sendStr}, null, null, "COALESCE(allcishu,usercishu)  DESC");
             Log.e("数据库返回信息", "getSinogramByPinyin: 获取返回成功");
         }catch (Exception e){
             Log.e("数据库返回信息", "getSinogramByPinyin: ",e );
@@ -59,9 +61,10 @@ public class DBManage {
             while (!cursor.isLast()){
                 arrayList.add(
                         new SinograFromDB(cursor.getString(cursor.getColumnIndex("wenzi1"))
-                                ,cursor.getString(cursor.getColumnIndex("wenzi2"))
-                                ,cursor.getInt(cursor.getColumnIndex("jisheng"))
+                                ,cursor.getString(cursor.getColumnIndex("pinyin"))
+                                ,cursor.getInt(cursor.getColumnIndex("allcishu"))
                                 ,cursor.getInt(cursor.getColumnIndex("id"))
+                                ,cursor.getInt(cursor.getColumnIndex("usercishu"))
                         ));
                 cursor.moveToNext();
             }
@@ -75,6 +78,23 @@ public class DBManage {
     }
     //SELECT * FROM duozi WHERE pinyin LIKE "cha%'ji%"
     //SELECT * FROM duozi WHERE pinyin LIKE "s%'j%'s%" ORDER BY pinlv DESC
+    public void savePinlvOfOneSinogra(CandidatesEntity data){
+//        myDBHelper.update()
+        ContentValues values = new ContentValues();
+        values.put("allcishu",data.getAllcishu()+1);
+        values.put("usercishu",data.getAllcishu()+1);
+
+        int shumu = myDBHelper.update("test_hanzi",values,"id=?",new String[]{String.valueOf(data.getId())});
+        Log.i("数据库返回信息", "更新的数目 " +shumu);
+
+    }
+    public void savePinlvOfMoreSinogra(CandidatesEntity data){
+        ContentValues values = new ContentValues();
+        values.put("allcishu",data.getAllcishu()+1);
+        values.put("usercishu",data.getAllcishu()+1);
+        int shumu = myDBHelper.update("duozi",values,"id=?",new String[]{String.valueOf(data.getId())});
+        Log.i("数据库返回信息", "更新的数目 " +shumu);
+    }
 
     public ArrayList<SinograFromDB> getSomeSinogramByPinyin(final String oldpinyin,int flag){
         ArrayList<SinograFromDB> arrayList = new ArrayList<>();
@@ -101,10 +121,9 @@ public class DBManage {
 
         try {
             Log.e("数据库返回信息", "getSinogramByPinyin: nowpinyin = "+nowpinyin +" flag = "+flag);
-
             Log.e("数据库返回信息", "getSinogramByPinyin: newpinyin = "+newpinyin +" flag = "+flag);
             // ORDER BY allcishu DESC
-            cursor = myDBHelper.query("duozi", new String[]{"wenzi,pinyin,pinlv,id"}, "pinyin like ? ", new String[]{newpinyin}, null, null, "pinlv DESC");
+            cursor = myDBHelper.query("duozi", new String[]{"wenzi,pinyin,allcishu,id,usercishu"}, "pinyin like ? ", new String[]{newpinyin}, null, null, "COALESCE(allcishu,usercishu)  DESC");
             Log.e("数据库返回信息", "getSinogramByPinyin: 获取返回成功");
         }catch (Exception e){
             Log.e("数据库返回信息", "getSinogramByPinyin: ",e );
@@ -118,9 +137,10 @@ public class DBManage {
                 while (!cursor.isLast()){
                     arrayList.add(
                             new SinograFromDB(cursor.getString(cursor.getColumnIndex("wenzi"))
-                                    ,cursor.getString(cursor.getColumnIndex("wenzi"))
+                                    ,cursor.getString(cursor.getColumnIndex("pinyin"))
+                                    ,cursor.getInt(cursor.getColumnIndex("allcishu"))
                                     ,cursor.getInt(cursor.getColumnIndex("id"))
-                                    ,cursor.getInt(cursor.getColumnIndex("id"))
+                                    ,cursor.getInt(cursor.getColumnIndex("usercishu"))
                             ));
                     cursor.moveToNext();
                 }
@@ -143,72 +163,71 @@ public class DBManage {
         }
     }
 
-
-    public ArrayList<SinograFromDB> getSomeSinogramByPinyin1(String oldpinyin,int flag){
-        ArrayList<SinograFromDB> arrayList = new ArrayList<>();
-        //此时为单字符传递过来的
-        String newpinyin = "";
-        String nowpinyin = "";
-        Cursor cursor=null;
-        boolean isdelete = false;
-        if (!oldpinyin.substring(oldpinyin.length()-2,oldpinyin.length()-1).equals("'")){
-            nowpinyin = oldpinyin.substring(0,oldpinyin.length()-1)
-                    +"'"+oldpinyin.substring(oldpinyin.length()-1);
-        }else {
-            isdelete = true;
-            nowpinyin = oldpinyin;
-        }
-
-        if (flag == 0){
-            oldpinyin = oldpinyin.replace("'","%'");
-            newpinyin = oldpinyin.substring(0,oldpinyin.length()-1)
-                    +"%'"+oldpinyin.substring(oldpinyin.length()-1)+"%";
-        }else if (flag == 1){
-            Log.i("数据库返回信息", "getSomeSinogramByPinyin: " +nowpinyin.substring(nowpinyin.length()-2,nowpinyin.length()-1));
-            if (nowpinyin.substring(nowpinyin.length()-2,nowpinyin.length()-1).equals("'")&&!isdelete){
-                omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
-                return arrayList;
-            }
-            oldpinyin.replace("'","'%");
-            newpinyin = oldpinyin + "%";
-        }else return null;
-
-        try {
-            Log.e("数据库返回信息", "getSinogramByPinyin: newpinyin = "+newpinyin +"flag = "+flag);
-            // ORDER BY allcishu DESC
-            cursor = myDBHelper.query("duozi", new String[]{"wenzi,pinyin,pinlv,id"}, "pinyin like ? ", new String[]{newpinyin}, null, null, "pinlv DESC");
-            Log.e("数据库返回信息", "getSinogramByPinyin: 获取返回成功");
-        }catch (Exception e){
-            Log.e("数据库返回信息", "getSinogramByPinyin: ",e );
-            return null;
-        }
-
-        if (cursor.getCount() == 0){
-            if (nowpinyin.substring(nowpinyin.length()-2,nowpinyin.length()-1).equals("'")){
-                omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
-                return arrayList;
-            }
-            Log.i("数据库准备", "getSomeSinogramByPinyin: "+nowpinyin);
-            return getSomeSinogramByPinyin(nowpinyin,1);
-        }
-        try {
-            cursor.moveToFirst();
-
-            while (!cursor.isLast()){
-                arrayList.add(
-                        new SinograFromDB(cursor.getString(cursor.getColumnIndex("wenzi"))
-                                ,cursor.getString(cursor.getColumnIndex("wenzi"))
-                                ,cursor.getInt(cursor.getColumnIndex("id"))
-                                ,cursor.getInt(cursor.getColumnIndex("id"))
-                        ));
-                cursor.moveToNext();
-            }
-
-            cursor.close();
-        }catch (Exception e){
-            Log.e("数据库返回信息错误", "getSomeSinogramByPinyin: ", e );
-        }
-        omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
-        return arrayList;
-    }
+//    public ArrayList<SinograFromDB> getSomeSinogramByPinyin1(String oldpinyin,int flag){
+//        ArrayList<SinograFromDB> arrayList = new ArrayList<>();
+//        //此时为单字符传递过来的
+//        String newpinyin = "";
+//        String nowpinyin = "";
+//        Cursor cursor=null;
+//        boolean isdelete = false;
+//        if (!oldpinyin.substring(oldpinyin.length()-2,oldpinyin.length()-1).equals("'")){
+//            nowpinyin = oldpinyin.substring(0,oldpinyin.length()-1)
+//                    +"'"+oldpinyin.substring(oldpinyin.length()-1);
+//        }else {
+//            isdelete = true;
+//            nowpinyin = oldpinyin;
+//        }
+//
+//        if (flag == 0){
+//            oldpinyin = oldpinyin.replace("'","%'");
+//            newpinyin = oldpinyin.substring(0,oldpinyin.length()-1)
+//                    +"%'"+oldpinyin.substring(oldpinyin.length()-1)+"%";
+//        }else if (flag == 1){
+//            Log.i("数据库返回信息", "getSomeSinogramByPinyin: " +nowpinyin.substring(nowpinyin.length()-2,nowpinyin.length()-1));
+//            if (nowpinyin.substring(nowpinyin.length()-2,nowpinyin.length()-1).equals("'")&&!isdelete){
+//                omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
+//                return arrayList;
+//            }
+//            oldpinyin.replace("'","'%");
+//            newpinyin = oldpinyin + "%";
+//        }else return null;
+//
+//        try {
+//            Log.e("数据库返回信息", "getSinogramByPinyin: newpinyin = "+newpinyin +"flag = "+flag);
+//            // ORDER BY allcishu DESC
+//            cursor = myDBHelper.query("duozi", new String[]{"wenzi,pinyin,pinlv,id"}, "pinyin like ? ", new String[]{newpinyin}, null, null, "pinlv DESC");
+//            Log.e("数据库返回信息", "getSinogramByPinyin: 获取返回成功");
+//        }catch (Exception e){
+//            Log.e("数据库返回信息", "getSinogramByPinyin: ",e );
+//            return null;
+//        }
+//
+//        if (cursor.getCount() == 0){
+//            if (nowpinyin.substring(nowpinyin.length()-2,nowpinyin.length()-1).equals("'")){
+//                omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
+//                return arrayList;
+//            }
+//            Log.i("数据库准备", "getSomeSinogramByPinyin: "+nowpinyin);
+//            return getSomeSinogramByPinyin(nowpinyin,1);
+//        }
+//        try {
+//            cursor.moveToFirst();
+//
+//            while (!cursor.isLast()){
+//                arrayList.add(
+//                        new SinograFromDB(cursor.getString(cursor.getColumnIndex("wenzi"))
+//                                ,cursor.getString(cursor.getColumnIndex("wenzi"))
+//                                ,cursor.getInt(cursor.getColumnIndex("id"))
+//                                ,cursor.getInt(cursor.getColumnIndex("id"))
+//                        ));
+//                cursor.moveToNext();
+//            }
+//
+//            cursor.close();
+//        }catch (Exception e){
+//            Log.e("数据库返回信息错误", "getSomeSinogramByPinyin: ", e );
+//        }
+//        omeletteIME.getKeyboardSwisher().getMyKeyboardView().setNowPinYin(nowpinyin);
+//        return arrayList;
+//    }
 }

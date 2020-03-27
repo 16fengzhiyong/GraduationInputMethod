@@ -6,12 +6,55 @@ public class SinograFromDB {
     private String pinyin;
     private int jisheng;
     private int id;
+    private int allcishu;
+    private int usercishu;
+//    public SinograFromDB(String wenzi1, String wenzi2, int jisheng, int id) {
+//        this.wenzi1 = wenzi1;
+//        this.wenzi2 = wenzi2;
+//        this.jisheng = jisheng;
+//        this.id = id;
+//    }
 
-    public SinograFromDB(String wenzi1, String wenzi2, int jisheng, int id) {
+
+    /**
+     *
+     * @param wenzi1 文字
+     * @param pinyin 拼音
+     * @param allcishu 相当于频率
+     * @param id id
+     */
+    public SinograFromDB(String wenzi1, String pinyin, int allcishu,int id,int usercishu) {
+        this.wenzi1 = wenzi1;
+        this.pinyin = pinyin;
+        this.id = id;
+        this.allcishu = allcishu;
+        this.usercishu = usercishu;
+    }
+
+    public SinograFromDB(String wenzi1, String wenzi2, int jisheng, int id, int allcishu,int usercishu) {
         this.wenzi1 = wenzi1;
         this.wenzi2 = wenzi2;
         this.jisheng = jisheng;
         this.id = id;
+        this.allcishu = allcishu;
+        this.usercishu = usercishu;
+    }
+
+
+    public int getUsercishu() {
+        return usercishu;
+    }
+
+    public void setUsercishu(int usercishu) {
+        this.usercishu = usercishu;
+    }
+
+    public int getAllcishu() {
+        return allcishu;
+    }
+
+    public void setAllcishu(int allcishu) {
+        this.allcishu = allcishu;
     }
 
     public int getId() {

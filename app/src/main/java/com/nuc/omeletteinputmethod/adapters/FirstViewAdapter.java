@@ -58,7 +58,9 @@ public class FirstViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         return holder;
     }
-
+    //在此处添加 文本的使用频率
+    //data.matches("[a-zA-Z]+")
+    //是否为汉字
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
         candidatesEntity = candidatesEntityArrayList.get(position);
@@ -70,7 +72,21 @@ public class FirstViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             public void onClick(View view) {
                 myKeyboardView.clearNowPinYin();
                 omeletteIME.getKeyboardSwisher().hideCandidatesView();
-                omeletteIME.commitText(myViewHolder.candidatesView.getText().toString());
+                //omeletteIME.commitText(myViewHolder.candidatesView.getText().toString());
+                omeletteIME.commitText(candidatesEntityArrayList.get(position).getCandidates());
+                //输入的是文字
+                Log.i("输入的文字信息", "commitText: data " +candidatesEntityArrayList.get(position).getCandidates()
+                        +"长度是:"+candidatesEntityArrayList.get(position).getCandidates().length());
+                final String finalData = candidatesEntityArrayList.get(position).getCandidates();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (finalData.length()==1){
+                            omeletteIME.getDbManage().savePinlvOfOneSinogra(candidatesEntityArrayList.get(position));
+                        }else omeletteIME.getDbManage().savePinlvOfMoreSinogra(candidatesEntityArrayList.get(position));
+                    }
+                }).start();
+
             }
         });
 

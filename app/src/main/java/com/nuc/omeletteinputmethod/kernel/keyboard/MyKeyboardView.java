@@ -569,12 +569,12 @@ public class MyKeyboardView extends View {
         if(nowPinYin.contains("'")){
             for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSomeSinogramByPinyin(nowPinYin,0)){
                 Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
-                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1()));
+                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1(),sinograFromDB.getAllcishu(),sinograFromDB.getUsercishu()));
             }
         }else {
             for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSinogramByPinyin(nowPinYin)){
                 Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
-                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1()));
+                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1(),sinograFromDB.getAllcishu(),sinograFromDB.getUsercishu()));
             }
         }
 
@@ -653,7 +653,7 @@ public class MyKeyboardView extends View {
             case -3://符号按键
                 break;
             case 3://空格按键
-
+                omeletteIME.commitText(" ");
                 break;
             default:
                 omeletteIME.commitText(key.getKeySpec());
