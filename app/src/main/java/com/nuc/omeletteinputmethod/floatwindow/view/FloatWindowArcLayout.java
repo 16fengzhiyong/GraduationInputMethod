@@ -155,8 +155,8 @@ public class FloatWindowArcLayout extends ViewGroup {
         return mRadius;
     }
 
-    public void setMinRadius(float persent){
-        MIN_RADIUS= (int) (DEFAULT_MIN_RADIUS*persent);
+    public void setMinRadius(float persent) {
+        MIN_RADIUS = (int) (DEFAULT_MIN_RADIUS * persent);
     }
 
     /**
@@ -310,7 +310,7 @@ public class FloatWindowArcLayout extends ViewGroup {
                 + index * perDegrees, mChildSize);
         final int toXDelta = frame.left - child.getLeft();//展开或收缩动画,child沿X轴位移距离
         final int toYDelta = frame.top - child.getTop();//展开或收缩动画,child沿Y轴位移距离
-        LogUtil.d("arcLayout","toX:"+ toXDelta+" toY:"+toYDelta);
+        LogUtil.d("arcLayout", "toX:" + toXDelta + " toY:" + toYDelta);
         Interpolator interpolator = mExpanded ? new AccelerateInterpolator()
                 : new OvershootInterpolator(1.5f);
         final long startOffset = computeStartOffset(childCount, mExpanded,
@@ -424,9 +424,10 @@ public class FloatWindowArcLayout extends ViewGroup {
 
         invalidate();
     }
-public void setExpand(boolean expand){
-    mExpanded = expand;
-}
+
+    public void setExpand(boolean expand) {
+        mExpanded = expand;
+    }
 
     /**
      * 切换中心按钮的展开缩小
@@ -463,7 +464,12 @@ public void setExpand(boolean expand){
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.e("shang-path-menu-layout",""+event);
+        Log.e("shang-path-menu-layout", "" + event);
         return super.onTouchEvent(event);
     }
+
+
+
+
+
 }

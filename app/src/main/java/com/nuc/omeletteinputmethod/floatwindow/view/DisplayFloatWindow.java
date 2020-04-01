@@ -15,8 +15,10 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.floatwindow.util.ViewUtil;
 
 public class DisplayFloatWindow extends FrameLayout {
     private ImageView mHintView;
@@ -79,6 +81,47 @@ public class DisplayFloatWindow extends FrameLayout {
 
         mHintView = (ImageView) findViewById(R.id.control_hint);
     }
+
+
+
+
+    public void applySizeChange(float persents){
+        setArcLayoutSize((int) (ViewUtil.dp2px(146)* persents));
+        setMenuSize((int) (ViewUtil.dp2px(40)* persents));
+        setHintViewSize((int) (ViewUtil.dp2px(47)* persents));
+        int padding = (int) (ViewUtil.dp2px(10)*persents);
+        mHintView.setPadding(padding,padding,padding,padding);
+        mArcLayout.setMinRadius(persents);
+    }
+    public void setMenuSize(int radiu){
+        mArcLayout.setChildSize(radiu);
+    }
+
+    public void setHintViewSize(int width){
+        FrameLayout.LayoutParams layoutParams= (LayoutParams) mHintView.getLayoutParams();
+        if (layoutParams!=null){
+            layoutParams.width=width;
+            layoutParams.height=width;
+            mHintView.setLayoutParams(layoutParams);
+            mHintView.setMaxWidth(width);
+            mHintView.setMaxHeight(width);
+        }
+    }
+    public void setArcLayoutSize(int width){
+        ViewGroup.LayoutParams layoutParams= (LayoutParams) mArcLayout.getLayoutParams();
+        if (layoutParams!=null){
+            layoutParams.width=width;
+            layoutParams.height=width;
+            mArcLayout.setLayoutParams(layoutParams);
+        }
+    }
+
+
+
+
+
+
+
 
     public ViewGroup getControlLayout() {
         return controlLayout;
