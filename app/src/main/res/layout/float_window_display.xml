@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.nuc.omeletteinputmethod.floatwindow.view.FloatWindowArcLayout
+        xmlns:omelette="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/item_layout"
+        android:layout_width="146dp"
+        android:layout_height="146dp"
+        android:layout_alignParentLeft="true"
+        omelette:childSize="40dp"
+        omelette:fromDegrees="270.0"
+        omelette:toDegrees="360.0"/>
+    <FrameLayout
+        android:id="@+id/control_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        >
+
+        <ImageView
+            android:layout_margin="1dp"
+            android:id="@+id/control_hint"
+            android:layout_width="47dp"
+            android:padding="10dp"
+            android:layout_height="47dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/symbols_press"
+            android:layout_gravity="center"
+            android:duplicateParentState="true"
+            />
+    </FrameLayout>
+
+
+</merge>
