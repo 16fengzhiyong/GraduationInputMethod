@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
 
-    <ImageView
+<!--    <ImageView-->
+<!--        android:id="@+id/image_display_imageview"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+
+<!--        />-->
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
         android:id="@+id/image_display_imageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:src="@drawable/jiandan"
 
-        />
-
+        app:border_width="1dp"
+        app:corner_radius="20dp"
+        app:inner_border_width="1dp"
+        app:is_circle="true" />
+<!--    android:background="@drawable/popwindow_zhongjie"-->
 </LinearLayout>
