@@ -38,10 +38,6 @@ public class FloatWindowLayout extends ViewGroup {
 
     private int mChildSize = 0;
 
-
-
-
-
     public FloatWindowLayout(Context context) {
         super(context);
     }
@@ -63,12 +59,10 @@ public class FloatWindowLayout extends ViewGroup {
         computeCenterXY(position);
         //当子菜单要收缩时radius=0，在ViewGroup坐标中心
 //        final int radius = mExpanded ? mRadius : 0;
-//
+
         final int childCount = getChildCount();
-////        final float perDegrees =Math.abs (mToDegrees - mFromDegrees) / (childCount - 1);
+//        final float perDegrees =Math.abs (mToDegrees - mFromDegrees) / (childCount - 1);
 //        final float perDegrees = Math.abs(mToDegrees - mFromDegrees) == 360 ? (Math.abs(mToDegrees - mFromDegrees)) / (childCount) : (Math.abs(mToDegrees - mFromDegrees)) / (childCount - 1);
-//
-//
 //        float degrees = mFromDegrees;
 //        Log.i("FloatWindowLayout", "onLayout: childCount "+childCount);
 //        for (int i = 0; i < childCount; i++) {

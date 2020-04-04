@@ -1,8 +1,6 @@
 package com.nuc.omeletteinputmethod.floatwindow.view;
 
-/**
- * Created by wangyan-pd on 2016/12/11.
- */
+
 public class PathMenu {
     public static final int LEFT_TOP = 1;
     public static final int CENTER_TOP = 2;

@@ -1,159 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MyKeyboard xmlns:omelette="http://schemas.android.com/apk/res-auto">
-    <Row >
+    <Row omelette:rowHeight="50dp">
         <Key
-            omelette:startingPosition = "4%"
+            omelette:startingPosition = "2%"
             omelette:keySpec="q"
             omelette:length="8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="w"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="e"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="r"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="t"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="y"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="u"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="i"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="o"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="p"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
     </Row>
-    <Row >
+    <Row omelette:rowHeight="50dp" >
         <Key
             
-            omelette:startingPosition="8%"
+            omelette:startingPosition="6%"
             omelette:keySpec="a"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="s"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="d"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="f"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="g"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="h"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="j"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="k"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="l"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
     </Row>
-    <Row  >
+    <Row omelette:rowHeight="50dp"  >
         <Key
             omelette:ifimagekey = "true"
             omelette:imgresource = "@drawable/lower_now"
-            omelette:startingPosition = "8%"
-            omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:startingPosition = "3%"
+            omelette:length = "11%"
+            omelette:padding="1.5%"
             omelette:altCode ="-5"
             />
         <Key
 
             omelette:keySpec="z"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="x"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="c"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="v"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="b"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="n"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:keySpec="m"
             omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:padding="1.5%"
             />
         <Key
             omelette:ifimagekey = "true"
             omelette:keyStyle = "special"
             omelette:keySpec="删除"
             omelette:imgresource = "@drawable/keyboard_backspace_my"
-            omelette:length = "8%"
-            omelette:padding="1%"
+            omelette:length = "11%"
+            omelette:padding="1.5%"
             omelette:altCode ="-1"
             />
     </Row>
@@ -162,10 +162,10 @@
         >
         <Key
             omelette:ifimagekey = "true"
-            omelette:startingPosition = "1%"
+            omelette:startingPosition = "6%"
             omelette:imgresource = "@drawable/symbols"
             omelette:length = "10%"
-            omelette:padding="6%"
+            omelette:padding="3%"
             omelette:altCode ="-3"
             />
         <Key
@@ -180,7 +180,7 @@
             omelette:keyStyle = "special"
             omelette:imgresource = "@drawable/huiche"
             omelette:length = "10%"
-            omelette:padding="6%"
+            omelette:padding="3%"
             omelette:altCode ="-2"
             />
     </Row>

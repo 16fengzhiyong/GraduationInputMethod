@@ -33,7 +33,8 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_width="0dp"
-            android:layout_height="40dp">
+            android:layout_height="40dp"
+            >
             <TextView
                 android:layout_gravity="center_vertical"
                 android:layout_width="30dp"

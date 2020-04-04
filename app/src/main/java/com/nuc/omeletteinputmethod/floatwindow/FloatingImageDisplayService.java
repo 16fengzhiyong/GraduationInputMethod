@@ -357,7 +357,7 @@ public class FloatingImageDisplayService extends Service {
                     int nowY = (int) event.getRawY();
                     int movedX = nowX - x;
                     int movedY = nowY - y;
-                    if (movedX > 5||movedY>5){
+                    if (movedX > 2||movedY>2){
                         isClick = false;
                     }
                     x = nowX;
@@ -366,9 +366,7 @@ public class FloatingImageDisplayService extends Service {
                     layoutParams.y = layoutParams.y + movedY;
                     windowManager.updateViewLayout(view, layoutParams);
                     if (layoutParams.x<120){
-
                         layoutParams.width=layoutParams.x;
-
                         if (layoutParams.x<40){
                             layoutParams.width = 40;
                         }

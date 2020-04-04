@@ -176,7 +176,8 @@ public class MyKeyboardView extends View {
             LongClickState = LONGCLICKEND;
             Message message = Message.obtain();
             message.what = 0x11;
-            handler.sendMessageDelayed(message, 50);
+            handler.sendMessage(message);
+//            handler.sendMessageDelayed(message, 50);
 
 
         }
