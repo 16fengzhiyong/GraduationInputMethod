@@ -1,22 +1,17 @@
 package com.nuc.omeletteinputmethod.kernel;
 
-import android.inputmethodservice.KeyboardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.nuc.omeletteinputmethod.MainActivity;
 import com.nuc.omeletteinputmethod.R;
-import com.nuc.omeletteinputmethod.SettingsActivity;
 import com.nuc.omeletteinputmethod.adapters.FirstViewAdapter;
 import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
 import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardBuider;
 import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardHeadListener;
-import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboard;
 import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboardView;
-import com.nuc.omeletteinputmethod.kernel.util.KeyboardUtil;
 
 import java.util.ArrayList;
 

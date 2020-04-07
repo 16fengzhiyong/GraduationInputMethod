@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="keyboardBackround">#ECEFF1</color>
+    <!-- 红紫 -->
+    <color name="red01">#F9B2C0</color>
+    <color name="red02">#F6728C</color>
+    <color name="redViolet01">#F6D1F3</color>
+    <color name="redViolet02">#F6728C</color>
 </resources>

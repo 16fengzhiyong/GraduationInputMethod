@@ -29,7 +29,7 @@ public class FloatWindowLayout extends ViewGroup {
     private int centerX = 0;
     private int centerY = 0;
     private int position = PathMenu.LEFT_CENTER;
-
+    private int nowState;
 
     public static final float DEFAULT_FROM_DEGREES = 270.0f;
     public static final float DEFAULT_TO_DEGREES = 360.0f;
@@ -61,20 +61,7 @@ public class FloatWindowLayout extends ViewGroup {
 //        final int radius = mExpanded ? mRadius : 0;
 
         final int childCount = getChildCount();
-//        final float perDegrees =Math.abs (mToDegrees - mFromDegrees) / (childCount - 1);
-//        final float perDegrees = Math.abs(mToDegrees - mFromDegrees) == 360 ? (Math.abs(mToDegrees - mFromDegrees)) / (childCount) : (Math.abs(mToDegrees - mFromDegrees)) / (childCount - 1);
-//        float degrees = mFromDegrees;
-//        Log.i("FloatWindowLayout", "onLayout: childCount "+childCount);
-//        for (int i = 0; i < childCount; i++) {
-//            Rect frame = computeChildFrame(centerX, centerY, radius, degrees,
-//                    80);
-//            degrees += perDegrees;
-//            getChildAt(i).layout(frame.left, frame.top, frame.right,
-//                    frame.bottom);
-//        }
 
-//        centerX = (getMeasuredWidth() - getPaddingStart() - getPaddingEnd()) / 2;
-//        centerY = (getMeasuredHeight() - getPaddingBottom() - getPaddingTop()) / 2;
 
         View child;
         int childWidth;//item的宽
@@ -113,108 +100,17 @@ public class FloatWindowLayout extends ViewGroup {
             Log.d("分配的大小是什么","onLayout: old childWidth"+String.valueOf(cX-childWidth/2)+"childHeight"+ String.valueOf(cY-childHeight/2)+"childWidth"
                     + String.valueOf(cX + childWidth / 2)+"childHeight"+ String.valueOf(cY + childHeight / 2));
             child.layout(cX - childWidth / 2, cY - childHeight / 2, cX + childWidth / 2, cY + childHeight / 2);
-//            if (i == 0)
-////            drawimg(centerX,cX,centerY,cY);
-//
-//            Log.d("分配的大小是什么","onLayout: new childWidth"+(20+i*60)+"childHeight"+ (20+i*60)+"childWidth"
-//                    + (320+i*60)+"childHeight"+ (320+i*60));
-//            child.layout(20+i*60, 20+i*60, 120+i*60, 120+i*60);
         }
-    }
-
-
-
-    ImageView imageView1;
-    ImageView imageView2;
-    ImageView imageView3;
-    ImageView imageView4;
-    FloatWindowLayout floatWindowLayout;
-
-
-    /**
-     * Constructor to use when building a TranslateAnimation from code
-     *
-     * @param fromXDelta Change in X coordinate to apply at the start of the
-     *        animation
-     * @param toXDelta Change in X coordinate to apply at the end of the
-     *        animation
-     * @param fromYDelta Change in Y coordinate to apply at the start of the
-     *        animation
-     * @param toYDelta Change in Y coordinate to apply at the end of the
-     *        animation
-     */
-    private void drawimg(float fromXDelta, float toXDelta, float fromYDelta, float toYDelta){
-        imageView1 = findViewById(R.id.bar_image_1);
-//        imageView2 = findViewById(R.id.bar_image_2);
-//        imageView3 = findViewById(R.id.bar_image_3);
-//        imageView4 = findViewById(R.id.bar_image_4);
-        TranslateAnimation translateAnimation1 = new TranslateAnimation(fromXDelta,toXDelta,fromYDelta,toYDelta);
-        translateAnimation1.setDuration(500);
-        translateAnimation1.setFillAfter(true);
-        translateAnimation1.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation2 = new TranslateAnimation(layoutParams.x,layoutParams.x+150,layoutParams.y,layoutParams.y+60);
-//        translateAnimation2.setDuration(500);
-//        translateAnimation2.setFillAfter(true);
-//        translateAnimation2.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation3 = new TranslateAnimation(layoutParams.x,layoutParams.x+60,layoutParams.y,layoutParams.y+150);
-//        translateAnimation3.setDuration(500);
-//        translateAnimation3.setFillAfter(true);
-//        translateAnimation3.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation4 = new TranslateAnimation(layoutParams.x,layoutParams.x+0,layoutParams.y,layoutParams.y+200);
-//        translateAnimation4.setDuration(500);
-//        translateAnimation4.setFillAfter(true);
-//        translateAnimation4.setInterpolator(new AccelerateInterpolator());
-//        translateAnimation4.setAnimationListener(new Animation.AnimationListener() {
-//            @Override
-//            public void onAnimationStart(Animation animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//
-//                imageView4.clearAnimation();// 增加这句后，重新设置位置，物体才会移动正确
-//                Log.d("fzy test","end Top:" + imageView4.getTop() + ",Y:" + imageView4.getY());
-//
-//                RelativeLayout.LayoutParams paramsTexas = new RelativeLayout.LayoutParams(80,80);
-//                paramsTexas.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-//                paramsTexas.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//                paramsTexas.setMargins(layoutParams.x,layoutParams.x+200,layoutParams.y,layoutParams.y+200);
-//                imageView4.setLayoutParams(paramsTexas);
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animation animation) {
-//
-//            }
-//        });
-//
-//
-//        imageView1.setAnimation(translateAnimation1);
-//        translateAnimation1.start();
-        imageView1.startAnimation(translateAnimation1);
-//        imageView2.startAnimation(translateAnimation2);
-//        imageView3.startAnimation(translateAnimation3);
-//
-////        imageView4.setAnimation(translateAnimation4);
-//        imageView4.startAnimation(translateAnimation4);
-////        ViewGroup vg =(ViewGroup)displayView.getParent();
-////        if(vg!= null){
-////            vg.removeAllViews();
-
     }
 
     FloatingImageDisplayService floatingImageDisplayService;
     /**
      * 切换中心按钮的展开缩小
      */
-    public boolean switchState(final boolean showAnimation, int position ,FloatingImageDisplayService floatingImageDisplayService) {
+    public boolean switchState(final boolean showAnimation, int position ,FloatingImageDisplayService floatingImageDisplayService ,int nowState) {
         this.floatingImageDisplayService = floatingImageDisplayService;
 //        this.position = position;
+        this.nowState = nowState;
         if (showAnimation) {
             final int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {
@@ -249,8 +145,6 @@ public class FloatWindowLayout extends ViewGroup {
         final float perDegrees = Math.abs(mToDegrees - mFromDegrees) == 360 ? (mToDegrees - mFromDegrees) / (childCount) : (mToDegrees - mFromDegrees) / (childCount - 1);
         Rect frame = computeChildFrame(centerX, centerY, radius, mFromDegrees
                 + index * perDegrees, 0);
-
-
 
 
          int toXDelta = frame.left - child.getLeft();//展开或收缩动画,child沿X轴位移距离
@@ -307,7 +201,15 @@ public class FloatWindowLayout extends ViewGroup {
                     child.setVisibility(GONE);
                 }
                 if (isLast&&!mExpanded){
-                    floatingImageDisplayService.sendMessageToHandler();
+                    switch (nowState){
+                        case 0:
+                            floatingImageDisplayService.sendMessageToHandler(2);
+                            break;
+                        case 1:
+                            floatingImageDisplayService.sendMessageToHandler(3);
+                            break;
+                    }
+
                 }
 
             }
@@ -405,13 +307,6 @@ public class FloatWindowLayout extends ViewGroup {
         requestLayout();
     }
 
-
-
-
-
-    public void openall(View views[]){
-
-    }
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

@@ -1,4 +1,4 @@
-package com.nuc.omeletteinputmethod;
+package com.nuc.omeletteinputmethod.setting;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,18 +10,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
+import com.nuc.omeletteinputmethod.CCPCustomViewPager;
+import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.adapters.MainViewPagerAdapter;
 import com.nuc.omeletteinputmethod.floatwindow.FloatingImageDisplayService;
-import com.nuc.omeletteinputmethod.kernel.util.SinogramLibrary;
+import com.nuc.omeletteinputmethod.floatwindow.schedule.Schedule;
+import com.nuc.omeletteinputmethod.myframent.ScheduleFrament;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,15 +32,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-public class SettingsActivity extends Activity {
-    private Spinner spinner;
-    private TextView json_textView;
+
+public class SettingsActivity extends FragmentActivity {
+//    private Spinner spinner;
     private final int REQUEST_CODE = 0;
     public static boolean showMyselfkeyboard = false;
+
+
+    private ArrayList<Fragment> fragmentList;
 
     public static String dbName="myandroid.db";//数据库的名字
     private static String DATABASE_PATH="/data/data/com.nuc.omeletteinputmethod/databases/";//数据库在手机里的路径
 
+
+    CCPCustomViewPager vp;
+    public MainViewPagerAdapter mMainViewPagerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +66,9 @@ public class SettingsActivity extends Activity {
                 throw new Error("Error copying database");
             }
         }
+
+
+
     }
     /**
      * 判断数据库是否存在
@@ -113,49 +124,25 @@ public class SettingsActivity extends Activity {
     }
 
     public void initView(){
-        String[] arrayStrings = new String[]{"个人编写版","系统接口板"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,arrayStrings);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        json_textView = findViewById(R.id.id_json_list);
-        spinner = findViewById(R.id.switch_keyboard);
-        spinner.setOnItemSelectedListener(new SpinnerSelectedListener());
-        spinner.setAdapter(adapter);
+        initFragments();
+        vp = findViewById(R.id.vp);
+        vp.setSlideEnabled(true);
+        vp.setOffscreenPageLimit(fragmentList.size());  //更改：总页数
+        mMainViewPagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(),
+                fragmentList);
+        vp.setAdapter(mMainViewPagerAdapter);
     }
-    //先定义
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private void initFragments() {
+        fragmentList = new ArrayList<Fragment>();
+        ScheduleFrament homeFra = ScheduleFrament.newInstance();//消息
+        fragmentList.add(homeFra);
+//        ScheduleFrament dialFra = ScheduleFrament.newInstance();//通讯录
+//        fragmentList.add(dialFra);
+        // WorkbenchFragment workbenchFragment = WorkbenchFragment.newInstance();//工作台
+        // fragmentList.add(workbenchFragment);
+//        ScheduleFrament myFrament = ScheduleFrament.newInstance();//我的
+//        fragmentList.add(myFrament);
 
-    private static String[] PERMISSIONS_STORAGE = {
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.WRITE_EXTERNAL_STORAGE" };
-
-    //然后通过一个函数来申请
-    public static void verifyStoragePermissions(Activity activity) {
-        try {
-            //检测是否有写的权限
-            int permission = ActivityCompat.checkSelfPermission(activity,
-                    "android.permission.WRITE_EXTERNAL_STORAGE");
-            if (permission != PackageManager.PERMISSION_GRANTED) {
-                // 没有写的权限，去申请写的权限，会弹出对话框
-                ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    //使用数组形式操作
-    class SpinnerSelectedListener implements AdapterView.OnItemSelectedListener {
-
-        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
-                                   long arg3) {
-            if (arg2 == 0){
-                showMyselfkeyboard = true;
-            }else showMyselfkeyboard = false;
-        }
-
-        public void onNothingSelected(AdapterView<?> arg0) {
-        }
     }
     public void getPermissions(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

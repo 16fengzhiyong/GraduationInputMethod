@@ -18,14 +18,18 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.floatwindow.view.FloatWindowLayout;
 import com.nuc.omeletteinputmethod.floatwindow.view.PathMenu;
+import com.nuc.omeletteinputmethod.floatwindow.view.StateMenu;
 import com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView;
 
 import java.util.Timer;
@@ -98,11 +102,11 @@ public class FloatingImageDisplayService extends Service {
         }
         return super.onStartCommand(intent, flags, startId);
     }
-
+    LayoutInflater layoutInflater ;
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void showFloatingWindow() {
         if (Settings.canDrawOverlays(this)) {
-            LayoutInflater layoutInflater = LayoutInflater.from(this);
+            layoutInflater = LayoutInflater.from(this);
             displayView = layoutInflater.inflate(R.layout.image_display, null);
             displayView.setOnTouchListener(new FloatingOnTouchListener());
             centerImage = displayView.findViewById(R.id.image_display_imageview);
@@ -136,7 +140,22 @@ public class FloatingImageDisplayService extends Service {
                 }catch (Exception e){
 
                 }
+            }if (msg.what == 3){
+                try {
+                    windowManager.removeView(zhankai);
+                    windowManager.addView(displayView,layoutParams);
+                    WindowManager.LayoutParams ls = layoutParams;
+                    ls.x = ls.x + 120;
+                    ls.y = ls.y + 10;
+                    ls.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                    ls.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                    View testv = layoutInflater.inflate(R.layout.float_shortinput_layout, null);
+                    windowManager.addView(testv,ls);
+                    EditText editText = testv.findViewById(R.id.testinput);
+                    editText.setShowSoftInputOnFocus(true);
+                }catch (Exception e){
 
+                }
             }
             return false;
         }
@@ -148,17 +167,17 @@ public class FloatingImageDisplayService extends Service {
     ImageView imageView3;
     ImageView imageView4;
     FloatWindowLayout floatWindowLayout;
-
+    OpenIngOnTouchListener openIngOnTouchListener;
     /**
      * 点击悬浮图后的事件
      */
     private void clickDo(){
-
+        openIngOnTouchListener = new OpenIngOnTouchListener();
         layoutParams.height = 350;
         layoutParams.width = 300;
 //        zhankai.setMinimumHeight(600);
 //        zhankai.setMinimumWidth(600);
-        zhankai.setOnTouchListener(new OpenIngOnTouchListener());
+        zhankai.setOnTouchListener(openIngOnTouchListener);
         try {
             windowManager.removeView(displayView);
             windowManager.addView(zhankai,layoutParams);
@@ -166,14 +185,15 @@ public class FloatingImageDisplayService extends Service {
 
         }
         floatWindowLayout = (FloatWindowLayout) zhankai.findViewById(R.id.item_layout);
+        floatWindowLayout.switchState(true, PathMenu.CENTER,this, StateMenu.CENTER);
 
+        zhankai.findViewById(R.id.bar_image_1);
+        zhankai.findViewById(R.id.bar_image_2);
+        zhankai.findViewById(R.id.bar_image_3).setOnTouchListener(openIngOnTouchListener);
+        zhankai.findViewById(R.id.bar_image_4);
 
-        floatWindowLayout.switchState(true, PathMenu.CENTER,this);
 //
-//        imageView1 = zhankai.findViewById(R.id.bar_image_1);
-//        imageView2 = zhankai.findViewById(R.id.bar_image_2);
-//        imageView3 = zhankai.findViewById(R.id.bar_image_3);
-//        imageView4 = zhankai.findViewById(R.id.bar_image_4);
+
 //        imageView1.measure(60,60);
 //        floatWindowLayout.addView(imageView1);
 //        floatWindowLayout.addView(imageView2);
@@ -239,8 +259,8 @@ public class FloatingImageDisplayService extends Service {
 
     }
 
-    public void sendMessageToHandler(){
-                changeImageHandler.sendEmptyMessage(2);
+    public void sendMessageToHandler(int p){
+                changeImageHandler.sendEmptyMessage(p);
     }
     /**
      * 点击悬浮图后的事件
@@ -252,87 +272,8 @@ public class FloatingImageDisplayService extends Service {
 //        zhankai.setMinimumHeight(600);
 //        zhankai.setMinimumWidth(600);
 
-
-        floatWindowLayout.switchState(true, PathMenu.CENTER ,this);
+        floatWindowLayout.switchState(true, PathMenu.CENTER ,this,StateMenu.CENTER);
 //        changeImageHandler.sendEmptyMessageAtTime(2,30000);
-
-
-
-//        Timer timer = new Timer();
-//        timer.scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-
-//            }
-//        },1000,300);
-
-//
-//        imageView1 = zhankai.findViewById(R.id.bar_image_1);
-//        imageView2 = zhankai.findViewById(R.id.bar_image_2);
-//        imageView3 = zhankai.findViewById(R.id.bar_image_3);
-//        imageView4 = zhankai.findViewById(R.id.bar_image_4);
-//        imageView1.measure(60,60);
-//        floatWindowLayout.addView(imageView1);
-//        floatWindowLayout.addView(imageView2);
-//        floatWindowLayout.addView(imageView3);
-//        floatWindowLayout.addView(imageView4);
-
-//        TranslateAnimation translateAnimation1 = new TranslateAnimation(layoutParams.x,layoutParams.x+200,layoutParams.y,layoutParams.y);
-//        translateAnimation1.setDuration(500);
-//        translateAnimation1.setFillAfter(true);
-//        translateAnimation1.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation2 = new TranslateAnimation(layoutParams.x,layoutParams.x+150,layoutParams.y,layoutParams.y+60);
-//        translateAnimation2.setDuration(500);
-//        translateAnimation2.setFillAfter(true);
-//        translateAnimation2.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation3 = new TranslateAnimation(layoutParams.x,layoutParams.x+60,layoutParams.y,layoutParams.y+150);
-//        translateAnimation3.setDuration(500);
-//        translateAnimation3.setFillAfter(true);
-//        translateAnimation3.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation4 = new TranslateAnimation(layoutParams.x,layoutParams.x+0,layoutParams.y,layoutParams.y+200);
-//        translateAnimation4.setDuration(500);
-//        translateAnimation4.setFillAfter(true);
-//        translateAnimation4.setInterpolator(new AccelerateInterpolator());
-//        translateAnimation4.setAnimationListener(new Animation.AnimationListener() {
-//            @Override
-//            public void onAnimationStart(Animation animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//
-//                imageView4.clearAnimation();// 增加这句后，重新设置位置，物体才会移动正确
-//                Log.d("fzy test","end Top:" + imageView4.getTop() + ",Y:" + imageView4.getY());
-//
-//                RelativeLayout.LayoutParams paramsTexas = new RelativeLayout.LayoutParams(80,80);
-//                paramsTexas.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-//                paramsTexas.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//                paramsTexas.setMargins(layoutParams.x,layoutParams.x+200,layoutParams.y,layoutParams.y+200);
-//                imageView4.setLayoutParams(paramsTexas);
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animation animation) {
-//
-//            }
-//        });
-//
-//
-//
-//        imageView1.startAnimation(translateAnimation1);
-//        imageView2.startAnimation(translateAnimation2);
-//        imageView3.startAnimation(translateAnimation3);
-//
-////        imageView4.setAnimation(translateAnimation4);
-//        imageView4.startAnimation(translateAnimation4);
-////        ViewGroup vg =(ViewGroup)displayView.getParent();
-////        if(vg!= null){
-////            vg.removeAllViews();
 
     }
 
@@ -357,7 +298,7 @@ public class FloatingImageDisplayService extends Service {
                     int nowY = (int) event.getRawY();
                     int movedX = nowX - x;
                     int movedY = nowY - y;
-                    if (movedX > 2||movedY>2){
+                    if (movedX > 1||movedY>1){
                         isClick = false;
                     }
                     x = nowX;
@@ -393,12 +334,26 @@ public class FloatingImageDisplayService extends Service {
         public boolean onTouch(View v, MotionEvent event) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    Log.i(TAG, "onTouch: "+v.getId());
-                    clickDo2();
+                    doByView(v);
                     break;
-
             }
             return false;
+        }
+        public void doByView(View view){
+            switch (view.getId()){
+                case R.id.bar_image_3:
+                    Toast.makeText(FloatingImageDisplayService.this,"你点击了快捷输入",
+                            Toast.LENGTH_LONG).show();
+                    floatWindowLayout.switchState(true, PathMenu.CENTER ,
+                            FloatingImageDisplayService.this,StateMenu.SHORT_INPUT);
+                    layoutParams.height = 120;
+                    layoutParams.width = 120;
+                    centerImage.setImageResource(R.drawable.ic_shortcutinput);
+                    break;
+                default:
+//                    clickDo2();
+                    break;
+            }
         }
     }
 }

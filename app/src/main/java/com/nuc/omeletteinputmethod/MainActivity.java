@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nuc.omeletteinputmethod.setting.SettingsActivity;
+
 
 public class MainActivity extends AppCompatActivity {
     private final int REQUEST_DIALOG_PERMISSION = 1010;
@@ -27,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         tosetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,SettingsActivity.class);
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
             }
         });
