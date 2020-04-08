@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
 <!--    <ImageView-->
 <!--        android:id="@+id/image_display_imageview"-->
@@ -13,8 +13,8 @@
 <!--        />-->
     <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
         android:id="@+id/image_display_imageview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
         android:src="@drawable/jiandan"
@@ -23,5 +23,8 @@
         app:corner_radius="20dp"
         app:inner_border_width="1dp"
         app:is_circle="true" />
+    <include layout="@layout/float_shortinput_layout"/>
+
+
 <!--    android:background="@drawable/popwindow_zhongjie"-->
 </LinearLayout>

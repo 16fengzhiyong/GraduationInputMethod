@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
+import android.view.WindowManager;
 
 /**
  * 快捷输入 将常用的 信息 加载至输入块中
@@ -15,8 +16,15 @@ import android.provider.Settings;
 public class  ShortcutInput {
 
     Context mContext;
+    WindowManager mWindowManager;
 
+    ShortcutInput(Context context, WindowManager windowManager){
+        this.mContext = context;
+        this.mWindowManager = windowManager;
+    }
+    public void initView(){
 
+    }
     //检测用户是否对本app开启了“Apps with usage access”权限
     private boolean hasPermission() {
         AppOpsManager appOps = (AppOpsManager)
@@ -41,5 +49,9 @@ public class  ShortcutInput {
 //            }
 //        }
 //    }
+//    ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+//    RunningTaskInfo runningTaskInfo = manager.getRunningTasks(1).get(0);
+//    Log.v("TAG", "getClassName:"+runningTaskInfo.baseActivity.getPackageName());
+
 
 }

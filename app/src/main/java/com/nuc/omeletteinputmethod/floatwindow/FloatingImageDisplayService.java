@@ -1,7 +1,10 @@
 package com.nuc.omeletteinputmethod.floatwindow;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Handler;
@@ -13,27 +16,26 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
+import com.nuc.omeletteinputmethod.adapters.SettingShortInputAdapter;
+import com.nuc.omeletteinputmethod.entityclass.AppInfomationEntity;
+import com.nuc.omeletteinputmethod.entityclass.FloatShortInputEntity;
 import com.nuc.omeletteinputmethod.floatwindow.view.FloatWindowLayout;
 import com.nuc.omeletteinputmethod.floatwindow.view.PathMenu;
 import com.nuc.omeletteinputmethod.floatwindow.view.StateMenu;
 import com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dongzhong on 2018/5/30.
@@ -43,7 +45,7 @@ public class FloatingImageDisplayService extends Service {
     public static boolean isStarted = false;
 
     private String TAG = "fzy FloatingImageDisplayService";
-    private WindowManager windowManager;
+    private static WindowManager windowManager;
     private WindowManager.LayoutParams layoutParams;
 
     private View displayView;
@@ -69,8 +71,8 @@ public class FloatingImageDisplayService extends Service {
         layoutParams.format = PixelFormat.RGBA_8888;
         layoutParams.gravity = Gravity.LEFT | Gravity.CENTER;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        layoutParams.width = 120;
-        layoutParams.height = 120;
+        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
         layoutParams.x = 0;
         layoutParams.y = 300;
 
@@ -87,6 +89,9 @@ public class FloatingImageDisplayService extends Service {
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         zhankai = layoutInflater.inflate(R.layout.click_show_bar_enum, null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            showFloatingWindow();
+        }
     }
 
     @Override
@@ -97,9 +102,7 @@ public class FloatingImageDisplayService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            showFloatingWindow();
-        }
+
         return super.onStartCommand(intent, flags, startId);
     }
     LayoutInflater layoutInflater ;
@@ -110,10 +113,12 @@ public class FloatingImageDisplayService extends Service {
             displayView = layoutInflater.inflate(R.layout.image_display, null);
             displayView.setOnTouchListener(new FloatingOnTouchListener());
             centerImage = displayView.findViewById(R.id.image_display_imageview);
+            centerImage.setMaxWidth(120);
 //            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 //            imageView.setImageResource(images[imageIndex]);
+            Log.i(TAG, "showFloatingWindow: windowManager.hashCode() "+windowManager.hashCode());
             windowManager.addView(displayView, layoutParams);
-
+            Log.i(TAG, "showFloatingWindow: windowManager.hashCode() "+windowManager.hashCode());
             changeImageHandler.sendEmptyMessageDelayed(0, 2000);
         }
     }
@@ -143,24 +148,57 @@ public class FloatingImageDisplayService extends Service {
             }if (msg.what == 3){
                 try {
                     windowManager.removeView(zhankai);
+                    layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                    layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                    displayView.findViewById(R.id.id_float_shortinput_parent_LL).setVisibility(View.VISIBLE);
+                    displayView.findViewById(R.id.id_float_shortinput_close_IV).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            displayView.findViewById(R.id.id_float_shortinput_parent_LL).setVisibility(View.GONE);
+                        }
+                    });
+//                    WindowManager.LayoutParams ls = layoutParams;
+//                    ls.x = ls.x + 120;
+//                    ls.y = ls.y + 10;
+//                    ls.width = WindowManager.LayoutParams.WRAP_CONTENT;
+//                    ls.height = WindowManager.LayoutParams.WRAP_CONTENT;
+//                    View testv = layoutInflater.inflate(R.layout.float_shortinput_layout, null);
+//                    windowManager.addView(testv,ls);
+                    LinearLayoutManager layoutManager = new LinearLayoutManager(FloatingImageDisplayService.this);
+                    RecyclerView mRecyclerView=(RecyclerView)displayView.findViewById(R.id.id_float_shortinput_list_RV);
+                    //调整RecyclerView的排列方向
+                    layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                    mRecyclerView.setLayoutManager(layoutManager);
+                    ArrayList<FloatShortInputEntity> floatShortInputEntities = new ArrayList<>();
+                    for (int i = 0;i<20;i++){
+                        floatShortInputEntities.add(new FloatShortInputEntity(i,"test"+i,"com.nuc.omeletteinputmethod"));
+                    }
+                    mRecyclerView.setAdapter(new FloatShortInputAdapter(floatShortInputEntities,FloatingImageDisplayService.this));
                     windowManager.addView(displayView,layoutParams);
-                    WindowManager.LayoutParams ls = layoutParams;
-                    ls.x = ls.x + 120;
-                    ls.y = ls.y + 10;
-                    ls.width = WindowManager.LayoutParams.WRAP_CONTENT;
-                    ls.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                    View testv = layoutInflater.inflate(R.layout.float_shortinput_layout, null);
-                    windowManager.addView(testv,ls);
-                    EditText editText = testv.findViewById(R.id.testinput);
-                    editText.setShowSoftInputOnFocus(true);
                 }catch (Exception e){
 
                 }
             }
             return false;
+
         }
     };
 
+
+
+    public ArrayList<AppInfomationEntity> getItems(Context context) {
+        PackageManager pckMan = context.getPackageManager();
+        ArrayList<AppInfomationEntity> appInfomationEntities = new ArrayList<>();
+//        ArrayList<HashMap<String, Object>> items = new ArrayList<HashMap<String, Object>>();
+        int id = 0;
+        List<PackageInfo> packageInfo = pckMan.getInstalledPackages(0);
+
+        for (PackageInfo pInfo : packageInfo) {
+            appInfomationEntities.add(new AppInfomationEntity(id++,pInfo.applicationInfo.loadLabel(pckMan).toString()
+                    ,pInfo.packageName,pInfo.versionName,pInfo.applicationInfo.loadIcon(pckMan)));
+        }
+        return appInfomationEntities;
+    }
 
     ImageView imageView1;
     ImageView imageView2;
@@ -191,72 +229,6 @@ public class FloatingImageDisplayService extends Service {
         zhankai.findViewById(R.id.bar_image_2);
         zhankai.findViewById(R.id.bar_image_3).setOnTouchListener(openIngOnTouchListener);
         zhankai.findViewById(R.id.bar_image_4);
-
-//
-
-//        imageView1.measure(60,60);
-//        floatWindowLayout.addView(imageView1);
-//        floatWindowLayout.addView(imageView2);
-//        floatWindowLayout.addView(imageView3);
-//        floatWindowLayout.addView(imageView4);
-
-//        TranslateAnimation translateAnimation1 = new TranslateAnimation(layoutParams.x,layoutParams.x+200,layoutParams.y,layoutParams.y);
-//        translateAnimation1.setDuration(500);
-//        translateAnimation1.setFillAfter(true);
-//        translateAnimation1.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation2 = new TranslateAnimation(layoutParams.x,layoutParams.x+150,layoutParams.y,layoutParams.y+60);
-//        translateAnimation2.setDuration(500);
-//        translateAnimation2.setFillAfter(true);
-//        translateAnimation2.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation3 = new TranslateAnimation(layoutParams.x,layoutParams.x+60,layoutParams.y,layoutParams.y+150);
-//        translateAnimation3.setDuration(500);
-//        translateAnimation3.setFillAfter(true);
-//        translateAnimation3.setInterpolator(new AccelerateInterpolator());
-//
-//        TranslateAnimation translateAnimation4 = new TranslateAnimation(layoutParams.x,layoutParams.x+0,layoutParams.y,layoutParams.y+200);
-//        translateAnimation4.setDuration(500);
-//        translateAnimation4.setFillAfter(true);
-//        translateAnimation4.setInterpolator(new AccelerateInterpolator());
-//        translateAnimation4.setAnimationListener(new Animation.AnimationListener() {
-//            @Override
-//            public void onAnimationStart(Animation animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//
-//                imageView4.clearAnimation();// 增加这句后，重新设置位置，物体才会移动正确
-//                Log.d("fzy test","end Top:" + imageView4.getTop() + ",Y:" + imageView4.getY());
-//
-//                RelativeLayout.LayoutParams paramsTexas = new RelativeLayout.LayoutParams(80,80);
-//                paramsTexas.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-//                paramsTexas.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//                paramsTexas.setMargins(layoutParams.x,layoutParams.x+200,layoutParams.y,layoutParams.y+200);
-//                imageView4.setLayoutParams(paramsTexas);
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animation animation) {
-//
-//            }
-//        });
-//
-//
-//
-//        imageView1.startAnimation(translateAnimation1);
-//        imageView2.startAnimation(translateAnimation2);
-//        imageView3.startAnimation(translateAnimation3);
-//
-////        imageView4.setAnimation(translateAnimation4);
-//        imageView4.startAnimation(translateAnimation4);
-////        ViewGroup vg =(ViewGroup)displayView.getParent();
-////        if(vg!= null){
-////            vg.removeAllViews();
-
     }
 
     public void sendMessageToHandler(int p){
@@ -267,12 +239,12 @@ public class FloatingImageDisplayService extends Service {
      */
     private void clickDo2(){
 
-        layoutParams.height = 120;
-        layoutParams.width = 120;
+//        layoutParams.height = 120;
+//        layoutParams.width = 120;
 //        zhankai.setMinimumHeight(600);
 //        zhankai.setMinimumWidth(600);
 
-        floatWindowLayout.switchState(true, PathMenu.CENTER ,this,StateMenu.CENTER);
+//        floatWindowLayout.switchState(true, PathMenu.CENTER ,this,StateMenu.CENTER);
 //        changeImageHandler.sendEmptyMessageAtTime(2,30000);
 
     }
@@ -312,7 +284,7 @@ public class FloatingImageDisplayService extends Service {
                             layoutParams.width = 40;
                         }
                     }else if (layoutParams.width < 120){
-                        layoutParams.width = 120;
+                        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
                     }
                     break;
                 default:
@@ -349,6 +321,9 @@ public class FloatingImageDisplayService extends Service {
                     layoutParams.height = 120;
                     layoutParams.width = 120;
                     centerImage.setImageResource(R.drawable.ic_shortcutinput);
+                    break;
+                case R.id.bar_image_center:
+
                     break;
                 default:
 //                    clickDo2();

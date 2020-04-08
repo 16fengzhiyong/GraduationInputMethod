@@ -24,6 +24,7 @@ import com.nuc.omeletteinputmethod.adapters.MainViewPagerAdapter;
 import com.nuc.omeletteinputmethod.floatwindow.FloatingImageDisplayService;
 import com.nuc.omeletteinputmethod.floatwindow.schedule.Schedule;
 import com.nuc.omeletteinputmethod.myframent.ScheduleFrament;
+import com.nuc.omeletteinputmethod.myframent.ShortInputFrament;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -136,6 +137,8 @@ public class SettingsActivity extends FragmentActivity {
         fragmentList = new ArrayList<Fragment>();
         ScheduleFrament homeFra = ScheduleFrament.newInstance();//消息
         fragmentList.add(homeFra);
+        ShortInputFrament shortInputFrament = ShortInputFrament.newInstance();
+        fragmentList.add(shortInputFrament);
 //        ScheduleFrament dialFra = ScheduleFrament.newInstance();//通讯录
 //        fragmentList.add(dialFra);
         // WorkbenchFragment workbenchFragment = WorkbenchFragment.newInstance();//工作台

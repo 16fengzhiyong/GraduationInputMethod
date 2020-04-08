@@ -37,9 +37,6 @@ public class FirstViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         TextView candidatesView;
         TextView CandidatesIdView;
         View myitemView ;
-
-
-
         public ItemViewHolder(View itemView) {
             super(itemView);
             myitemView=itemView;

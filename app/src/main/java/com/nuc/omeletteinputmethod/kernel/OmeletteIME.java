@@ -9,6 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nuc.omeletteinputmethod.DBoperation.DBManage;
+import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
 import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
 import com.nuc.omeletteinputmethod.kernel.util.SinogramLibrary;
 
@@ -37,7 +38,7 @@ public class OmeletteIME extends InputMethodService {
     public void onCreate() {
         super.onCreate();
         keyboardSwisher = new KeyboardSwisher(this);
-
+		FloatShortInputAdapter.omeletteIME = this;
 		// /storage/emulated/0
 		//File file = new File(basepath+"/zhengti2.txt");
 		if (dbManage == null){

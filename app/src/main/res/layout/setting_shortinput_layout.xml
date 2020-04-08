@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <TextView
+        android:layout_marginLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="已设置快捷输入的应用:"/>
+    <TextView
+        android:layout_marginLeft="20dp"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="空"/>
+    <TextView
+        android:layout_marginLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:text="未设置快捷输入的应用:"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/id_setting_shortinput_RV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+</LinearLayout>
