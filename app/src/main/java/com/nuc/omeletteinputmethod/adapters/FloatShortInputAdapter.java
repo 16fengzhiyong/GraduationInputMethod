@@ -1,6 +1,9 @@
 package com.nuc.omeletteinputmethod.adapters;
 
 import android.content.Context;
+import android.inputmethodservice.InputMethodService;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.entityclass.AppInfomationEntity;
 import com.nuc.omeletteinputmethod.entityclass.FloatShortInputEntity;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FloatShortInputAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private ArrayList<FloatShortInputEntity> floatShortInputEntities ;
@@ -57,6 +62,9 @@ public class FloatShortInputAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         myViewHolder.tagView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                InputMethodService inputMethodService = (InputMethodService)mContext.getSystemService(getDefaultInputMethodPkgName(mContext));
+//                inputMethodService.getCurrentInputConnection().commitText(floatShortInputEntities.get(position).getTag(),0);
+
                 if (omeletteIME!=null)
                 omeletteIME.commitText(floatShortInputEntities.get(position).getTag());
                 else Log.i("FloatShortInputAdapter", "fzy onClick: 62 null");
@@ -75,4 +83,24 @@ public class FloatShortInputAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             notifyItemRangeChanged(pos, floatShortInputEntities.size() - pos);
         }
     }
+
+    public List<FloatShortInputEntity> getAllData(){
+        return floatShortInputEntities;
+    }
+//    //获取默认输入法包名：
+//    private String getDefaultInputMethodPkgName(Context context) {
+//        String mDefaultInputMethodPkg = null;
+//
+//        String mDefaultInputMethodCls = Settings.Secure.getString(
+//                context.getContentResolver(),
+//                Settings.Secure.DEFAULT_INPUT_METHOD);
+//        //输入法类名信息
+//        Log.d("TAG", "mDefaultInputMethodCls=" + mDefaultInputMethodCls);
+//        if (!TextUtils.isEmpty(mDefaultInputMethodCls)) {
+//            //输入法包名
+//            mDefaultInputMethodPkg = mDefaultInputMethodCls.split("/")[0];
+//            Log.d("TAG", "mDefaultInputMethodPkg=" + mDefaultInputMethodPkg);
+//        }
+//        return mDefaultInputMethodPkg;
+//    }
 }

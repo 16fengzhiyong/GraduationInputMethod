@@ -10,6 +10,8 @@ import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboardView;
+import com.nuc.omeletteinputmethod.util.TranslateCallback;
+import com.nuc.omeletteinputmethod.util.TranslateUtil;
 
 import java.util.ArrayList;
 
@@ -74,21 +76,23 @@ public class FirstViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 //输入的是文字
                 Log.i("输入的文字信息", "commitText: data " +candidatesEntityArrayList.get(position).getCandidates()
                         +"长度是:"+candidatesEntityArrayList.get(position).getCandidates().length());
-                final String finalData = candidatesEntityArrayList.get(position).getCandidates();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (finalData.length()==1){
-                            omeletteIME.getDbManage().savePinlvOfOneSinogra(candidatesEntityArrayList.get(position));
-                        }else omeletteIME.getDbManage().savePinlvOfMoreSinogra(candidatesEntityArrayList.get(position));
-                    }
-                }).start();
 
             }
         });
+        myViewHolder.candidatesView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
 
+                omeletteIME.getKeyboardSwisher().translateToEnglish(candidatesEntityArrayList.get(position).getCandidates());
+
+                return true;
+            }
+        });
 
     }
+
+
+
 
     @Override
     public int getItemCount() {

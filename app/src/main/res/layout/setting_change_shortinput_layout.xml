@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+
+            <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+                android:id="@+id/id_setting_change_shortinput_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="50dp"
+                android:src="@drawable/jiandan"
+                android:layout_gravity="center_horizontal"
+                app:border_width="1dp"
+                app:corner_radius="20dp"
+                app:inner_border_width="1dp"
+                app:is_circle="true" />
+            <!--        <ImageView-->
+            <!--            android:layout_marginTop="50dp"-->
+            <!--            android:layout_gravity="center_horizontal"-->
+            <!--            android:layout_width="60dp"-->
+            <!--            android:layout_height="60dp"-->
+            <!--            android:scaleType="fitCenter"-->
+            <!--            android:src="@drawable/jiandan"-->
+            <!--            />-->
+            <TextView
+                android:id="@+id/id_setting_change_shortinput_name"
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#1ADDFD"
+                android:text="煎蛋输入法"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/id_setting_change_shortinput_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/id_setting_change_add_RelativeLayout"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        >
+
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:background="@drawable/only_yuanjiao"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="添加快捷输入语句"
+                />
+            <EditText
+                android:id="@+id/id_setting_change_add_EditText"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:maxLines="4"
+                android:minLines="4"
+                android:gravity="top"
+                android:padding="10dp"
+                android:background="@drawable/order_edt_note_bg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:id="@+id/id_setting_change_add_ok_Button"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/enter_btn_backround"
+                android:layout_width="64dp"
+                android:layout_height="36dp"
+                android:text="确定"
+                />
+        </LinearLayout>
+        <ImageView
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_close"
+            />
+    </RelativeLayout>
+
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+        android:id="@+id/id_setting_change_add_imageview"
+        android:src="@drawable/setting_add_button_128"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        />
+</RelativeLayout>

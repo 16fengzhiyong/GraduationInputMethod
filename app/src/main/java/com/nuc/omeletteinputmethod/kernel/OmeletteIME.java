@@ -11,12 +11,18 @@ import com.google.gson.JsonParser;
 import com.nuc.omeletteinputmethod.DBoperation.DBManage;
 import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
 import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
+import com.nuc.omeletteinputmethod.inputC.InputC;
 import com.nuc.omeletteinputmethod.kernel.util.SinogramLibrary;
+import com.nuc.omeletteinputmethod.util.TranslateCallback;
+import com.nuc.omeletteinputmethod.util.TranslateUtil;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 public class OmeletteIME extends InputMethodService {
+	static {
+		System.loadLibrary("native-lib");
+	}
 	public static boolean canShowWindow = false;
     /**
      * 屏幕宽度
@@ -33,18 +39,17 @@ public class OmeletteIME extends InputMethodService {
     private int mStatusBarHeight;
 
     private KeyboardSwisher keyboardSwisher;
-    private DBManage dbManage = null;
+
+    public static InputC inputC = new InputC();
     @Override
     public void onCreate() {
         super.onCreate();
+		inputC.stringFromJNI();
         keyboardSwisher = new KeyboardSwisher(this);
 		FloatShortInputAdapter.omeletteIME = this;
 		// /storage/emulated/0
 		//File file = new File(basepath+"/zhengti2.txt");
-		if (dbManage == null){
-			Log.i("OmeletteIME", "onCreate: new 数据库");
-			dbManage = new DBManage(this);
-		}
+
     }
 
     @Override
@@ -75,9 +80,5 @@ public class OmeletteIME extends InputMethodService {
 
 	public KeyboardSwisher getKeyboardSwisher() {
 		return keyboardSwisher;
-	}
-
-	public DBManage getDbManage() {
-		return dbManage;
 	}
 }

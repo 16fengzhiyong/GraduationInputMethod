@@ -1,11 +1,21 @@
 package com.nuc.omeletteinputmethod.floatwindow.shortcutinput;
 
+import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.WindowManager;
+
+import com.nuc.omeletteinputmethod.entityclass.AppInfomationEntity;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 快捷输入 将常用的 信息 加载至输入块中
@@ -52,6 +62,48 @@ public class  ShortcutInput {
 //    ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
 //    RunningTaskInfo runningTaskInfo = manager.getRunningTasks(1).get(0);
 //    Log.v("TAG", "getClassName:"+runningTaskInfo.baseActivity.getPackageName());
+    /**
+     * 获取应用信息
+     * @param context
+     * @return
+     */
+    public ArrayList<AppInfomationEntity> getItems(Context context) {
+        PackageManager pckMan = context.getPackageManager();
+        ArrayList<AppInfomationEntity> appInfomationEntities = new ArrayList<>();
+//        ArrayList<HashMap<String, Object>> items = new ArrayList<HashMap<String, Object>>();
+        int id = 0;
+        List<PackageInfo> packageInfo = pckMan.getInstalledPackages(0);
 
+        for (PackageInfo pInfo : packageInfo) {
+            appInfomationEntities.add(new AppInfomationEntity(id++,pInfo.applicationInfo.loadLabel(pckMan).toString()
+                    ,pInfo.packageName,pInfo.versionName,pInfo.applicationInfo.loadIcon(pckMan)));
+            Log.i("应用信息：", "appName :" +pInfo.applicationInfo.loadLabel(pckMan).toString()+
+                    "appPackageName :"+pInfo.packageName);
+        }
+        return appInfomationEntities;
+    }
 
+    public static String getLollipopRecentTask(Context context) {
+        final int PROCESS_STATE_TOP = 2;
+        try {
+            //通过反射获取私有成员变量processState，稍后需要判断该变量的值
+            Field processStateField = ActivityManager.RunningAppProcessInfo.class.getDeclaredField("processState");
+            List<ActivityManager.RunningAppProcessInfo> processes = ((ActivityManager) context.getSystemService(
+                    Context.ACTIVITY_SERVICE)).getRunningAppProcesses();
+            for (ActivityManager.RunningAppProcessInfo process : processes) {
+                //判断进程是否为前台进程
+                if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    int state = processStateField.getInt(process);
+                    //processState值为2
+                    if (state == PROCESS_STATE_TOP) {
+                        String[] packname = process.pkgList;
+                        return packname[0];
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 }

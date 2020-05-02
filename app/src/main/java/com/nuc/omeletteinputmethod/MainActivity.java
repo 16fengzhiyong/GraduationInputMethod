@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_DIALOG_PERMISSION = 1010;
     private final String TAG = "MainActivity";
     private TextView tosetting;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return mDefaultInputMethodPkg;
     }
+
     //判断是否拥有悬浮窗权限
     public boolean canDrawOverlays(Context context) {
         try {

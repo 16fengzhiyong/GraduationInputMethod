@@ -7,7 +7,6 @@ public class NotepadFrament extends LazyFrament {
     public void fetchData() {
 
     }
-
     @Override
     protected int getLayoutId() {
         return 0;
@@ -17,7 +16,6 @@ public class NotepadFrament extends LazyFrament {
     protected void initView(Bundle savedInstanceState) {
 
     }
-
     @Override
     protected void initWidgetActions() {
 

@@ -13,6 +13,12 @@
         android:visibility="gone"
         >
         <TextView
+            android:id="@+id/id_textview_candidates_translate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            />
+        <TextView
             android:id="@+id/id_textview_candidates_pinyin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

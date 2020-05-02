@@ -13,12 +13,9 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
-import android.view.animation.TranslateAnimation;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.nuc.omeletteinputmethod.R;
-import com.nuc.omeletteinputmethod.floatwindow.FloatingImageDisplayService;
+import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
 
 public class FloatWindowLayout extends ViewGroup {
 
@@ -103,12 +100,12 @@ public class FloatWindowLayout extends ViewGroup {
         }
     }
 
-    FloatingImageDisplayService floatingImageDisplayService;
+    FloatingWindowDisplayService floatingWindowDisplayService;
     /**
      * 切换中心按钮的展开缩小
      */
-    public boolean switchState(final boolean showAnimation, int position ,FloatingImageDisplayService floatingImageDisplayService ,int nowState) {
-        this.floatingImageDisplayService = floatingImageDisplayService;
+    public boolean switchState(final boolean showAnimation, int position , FloatingWindowDisplayService floatingWindowDisplayService, int nowState) {
+        this.floatingWindowDisplayService = floatingWindowDisplayService;
 //        this.position = position;
         this.nowState = nowState;
         if (showAnimation) {
@@ -203,10 +200,10 @@ public class FloatWindowLayout extends ViewGroup {
                 if (isLast&&!mExpanded){
                     switch (nowState){
                         case 0:
-                            floatingImageDisplayService.sendMessageToHandler(2);
+                            floatingWindowDisplayService.sendMessageToHandler(2);
                             break;
                         case 1:
-                            floatingImageDisplayService.sendMessageToHandler(3);
+                            floatingWindowDisplayService.sendMessageToHandler(3);
                             break;
                     }
 

@@ -24,9 +24,9 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.nuc.omeletteinputmethod.DBoperation.DBManage;
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
-import com.nuc.omeletteinputmethod.adapters.SettingShortInputAdapter;
 import com.nuc.omeletteinputmethod.entityclass.AppInfomationEntity;
 import com.nuc.omeletteinputmethod.entityclass.FloatShortInputEntity;
 import com.nuc.omeletteinputmethod.floatwindow.view.FloatWindowLayout;
@@ -41,8 +41,10 @@ import java.util.List;
  * Created by dongzhong on 2018/5/30.
  */
 
-public class FloatingImageDisplayService extends Service {
+public class FloatingWindowDisplayService extends Service {
     public static boolean isStarted = false;
+
+    private static DBManage dbManage = null;
 
     private String TAG = "fzy FloatingImageDisplayService";
     private static WindowManager windowManager;
@@ -76,7 +78,6 @@ public class FloatingImageDisplayService extends Service {
         layoutParams.x = 0;
         layoutParams.y = 300;
 
-
         images = new int[] {
                 R.drawable.jiandan,
                 R.drawable.jiandan,
@@ -91,6 +92,10 @@ public class FloatingImageDisplayService extends Service {
         zhankai = layoutInflater.inflate(R.layout.click_show_bar_enum, null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             showFloatingWindow();
+        }
+        if (dbManage == null){
+            Log.i("OmeletteIME", "onCreate: new 数据库");
+            dbManage = new DBManage(this);
         }
     }
 
@@ -164,7 +169,7 @@ public class FloatingImageDisplayService extends Service {
 //                    ls.height = WindowManager.LayoutParams.WRAP_CONTENT;
 //                    View testv = layoutInflater.inflate(R.layout.float_shortinput_layout, null);
 //                    windowManager.addView(testv,ls);
-                    LinearLayoutManager layoutManager = new LinearLayoutManager(FloatingImageDisplayService.this);
+                    LinearLayoutManager layoutManager = new LinearLayoutManager(FloatingWindowDisplayService.this);
                     RecyclerView mRecyclerView=(RecyclerView)displayView.findViewById(R.id.id_float_shortinput_list_RV);
                     //调整RecyclerView的排列方向
                     layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -173,7 +178,13 @@ public class FloatingImageDisplayService extends Service {
                     for (int i = 0;i<20;i++){
                         floatShortInputEntities.add(new FloatShortInputEntity(i,"test"+i,"com.nuc.omeletteinputmethod"));
                     }
-                    mRecyclerView.setAdapter(new FloatShortInputAdapter(floatShortInputEntities,FloatingImageDisplayService.this));
+//                    com.nuc.omeletteinputmethod
+                    mRecyclerView.setAdapter(new FloatShortInputAdapter(floatShortInputEntities, FloatingWindowDisplayService.this));
+//                    mRecyclerView.setAdapter(
+//                            new FloatShortInputAdapter(dbManage.getDataByPackageName(
+//                                    ShortcutInput.getLollipopRecentTask(FloatingImageDisplayService.this)),
+//                                    FloatingImageDisplayService.this));
+
                     windowManager.addView(displayView,layoutParams);
                 }catch (Exception e){
 
@@ -314,10 +325,10 @@ public class FloatingImageDisplayService extends Service {
         public void doByView(View view){
             switch (view.getId()){
                 case R.id.bar_image_3:
-                    Toast.makeText(FloatingImageDisplayService.this,"你点击了快捷输入",
+                    Toast.makeText(FloatingWindowDisplayService.this,"你点击了快捷输入",
                             Toast.LENGTH_LONG).show();
                     floatWindowLayout.switchState(true, PathMenu.CENTER ,
-                            FloatingImageDisplayService.this,StateMenu.SHORT_INPUT);
+                            FloatingWindowDisplayService.this,StateMenu.SHORT_INPUT);
                     layoutParams.height = 120;
                     layoutParams.width = 120;
                     centerImage.setImageResource(R.drawable.ic_shortcutinput);
@@ -330,5 +341,9 @@ public class FloatingImageDisplayService extends Service {
                     break;
             }
         }
+    }
+
+    public static DBManage getDbManage() {
+        return dbManage;
     }
 }

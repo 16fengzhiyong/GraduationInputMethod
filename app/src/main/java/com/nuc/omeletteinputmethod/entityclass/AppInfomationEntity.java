@@ -1,8 +1,12 @@
 package com.nuc.omeletteinputmethod.entityclass;
 
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class AppInfomationEntity {
+import java.io.Serializable;
+
+public class AppInfomationEntity implements Parcelable {
     private int id;
     private String appName;
     private String appPackageName;
@@ -23,6 +27,25 @@ public class AppInfomationEntity {
         this.appPackageName = appPackageName;
         this.appIcon = appIcon;
     }
+
+    protected AppInfomationEntity(Parcel in) {
+        id = in.readInt();
+        appName = in.readString();
+        appPackageName = in.readString();
+        versionName = in.readString();
+    }
+
+    public static final Creator<AppInfomationEntity> CREATOR = new Creator<AppInfomationEntity>() {
+        @Override
+        public AppInfomationEntity createFromParcel(Parcel in) {
+            return new AppInfomationEntity(in);
+        }
+
+        @Override
+        public AppInfomationEntity[] newArray(int size) {
+            return new AppInfomationEntity[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -73,5 +96,18 @@ public class AppInfomationEntity {
                 ", appPackageName='" + appPackageName + '\'' +
                 ", appIcon=" + appIcon +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(appName);
+        dest.writeString(appPackageName);
+        dest.writeString(versionName);
     }
 }

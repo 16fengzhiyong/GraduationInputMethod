@@ -1,30 +1,28 @@
 package com.nuc.omeletteinputmethod.setting;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
-import android.widget.ArrayAdapter;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.nuc.omeletteinputmethod.CCPCustomViewPager;
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.adapters.MainViewPagerAdapter;
-import com.nuc.omeletteinputmethod.floatwindow.FloatingImageDisplayService;
-import com.nuc.omeletteinputmethod.floatwindow.schedule.Schedule;
+import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
 import com.nuc.omeletteinputmethod.myframent.ScheduleFrament;
 import com.nuc.omeletteinputmethod.myframent.ShortInputFrament;
+import com.nuc.omeletteinputmethod.util.TitleBar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,7 +36,7 @@ public class SettingsActivity extends FragmentActivity {
 //    private Spinner spinner;
     private final int REQUEST_CODE = 0;
     public static boolean showMyselfkeyboard = false;
-
+    TitleBar titleBar;
 
     private ArrayList<Fragment> fragmentList;
 
@@ -53,10 +51,14 @@ public class SettingsActivity extends FragmentActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_setting);
+        titleBar = findViewById(R.id.setting_title_bar);
+//        titleBar.setTitle("我的日程");
+//        titleBar.setMyCenterTitle("teas");
+        initTooleBar(titleBar,true,"我的日程");
         initView();
         //verifyStoragePermissions(this);
         getPermissions();
-        //判断数据库是否存在
+//        判断数据库是否存在
         boolean dbExist = checkDataBase();
         if(dbExist){
             Log.d("复制数据库", "onCreate: 数据库存在");
@@ -67,10 +69,35 @@ public class SettingsActivity extends FragmentActivity {
                 throw new Error("Error copying database");
             }
         }
+        Log.i("app启动运行：", "onCreate: SettingActivity 72");
 
 
 
     }
+    public void initTooleBar( TitleBar mTitleBar,boolean showBack, String title) {
+        if (mTitleBar == null) {
+            return;
+        }
+        //mTitleBar.setTitleMargin();
+        if (showBack) {
+            mTitleBar.setNavigationIcon(R.drawable.setting_back2);
+            mTitleBar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    finish();
+                }
+            });
+        } else {
+            mTitleBar.setVisibility(View.GONE);
+        }
+        if (TextUtils.isEmpty(title)) {
+            mTitleBar.setVisibility(View.GONE);
+        } else {
+            mTitleBar.setVisibility(View.VISIBLE);
+            mTitleBar.setMyCenterTitle(title);
+        }
+    }
+
     /**
      * 判断数据库是否存在
      * @return false or true
@@ -156,7 +183,7 @@ public class SettingsActivity extends FragmentActivity {
             } else {
                 Log.i("弹窗", "getPermissions: 准备开启 FloatingImageDisplayService");
                 try {
-                    startService(new Intent(SettingsActivity.this, FloatingImageDisplayService.class));
+                    startService(new Intent(SettingsActivity.this, FloatingWindowDisplayService.class));
 
                 }catch (Exception e){
 
@@ -173,7 +200,7 @@ public class SettingsActivity extends FragmentActivity {
                 } else {
                     Toast.makeText(this, "授权成功", Toast.LENGTH_SHORT).show();
                     Log.i("弹窗", "onActivityResult: 准备开启 FloatingImageDisplayService");
-                    startService(new Intent(SettingsActivity.this, FloatingImageDisplayService.class));
+                    startService(new Intent(SettingsActivity.this, FloatingWindowDisplayService.class));
                 }
             }
         }

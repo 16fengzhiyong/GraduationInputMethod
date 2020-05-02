@@ -5,9 +5,9 @@ import java.util.List;
 public class ShortcutInputEntity {
     private String appName;
     private String packageName;
-    private List<String> inputs;
+    private List<FloatShortInputEntity> inputs;
 
-    public ShortcutInputEntity(String appName, String packageName, List<String> inputs) {
+    public ShortcutInputEntity(String appName, String packageName, List<FloatShortInputEntity> inputs) {
         this.appName = appName;
         this.packageName = packageName;
         this.inputs = inputs;
@@ -29,11 +29,11 @@ public class ShortcutInputEntity {
         this.packageName = packageName;
     }
 
-    public List<String> getInputs() {
+    public List<FloatShortInputEntity> getInputs() {
         return inputs;
     }
 
-    public void setInputs(List<String> inputs) {
+    public void setInputs(List<FloatShortInputEntity> inputs) {
         this.inputs = inputs;
     }
 }

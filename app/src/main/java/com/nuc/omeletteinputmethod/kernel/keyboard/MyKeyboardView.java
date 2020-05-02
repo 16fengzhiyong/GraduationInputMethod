@@ -13,12 +13,22 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.CompletionInfo;
+import android.view.inputmethod.CorrectionInfo;
+import android.view.inputmethod.ExtractedText;
+import android.view.inputmethod.ExtractedTextRequest;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputContentInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,11 +36,15 @@ import androidx.annotation.Nullable;
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
 import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
+import com.nuc.omeletteinputmethod.inputC.InputC;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MyKeyboardView extends View {
@@ -42,7 +56,10 @@ public class MyKeyboardView extends View {
     OmeletteIME omeletteIME;
     String nowPinYin = "";
     String allCandidates = null;
+
+
     ArrayList<CandidatesEntity> candidatesEntityArrayList = new ArrayList<>();
+    ArrayList<Rect> arrows = new ArrayList<>();
 
     final Handler handler = new Handler() {
         @Override
@@ -123,6 +140,7 @@ public class MyKeyboardView extends View {
         switch (KeyboardState.getInstance().getWitchKeyboardNow()) {
             case KeyboardState.ARROWS_KEYBOARD:
                 Log.i("onTouchEvent", "onTouchEvent: ARROWS_KEYBOARD");
+                arrowsKeyboardEvent(event);
                 break;
             case KeyboardState.ENGLISH_26_KEY_KEYBOARD:
                 Log.i("onTouchEvent", "onTouchEvent: ENGLISH_26_KEY_KEYBOARD");
@@ -132,7 +150,7 @@ public class MyKeyboardView extends View {
         return true;
     }
 
-    private boolean englishKeyboardEvent(MotionEvent event) {
+    private boolean  englishKeyboardEvent(MotionEvent event) {
         float X = event.getX();
         float Y = event.getY();
         //手指移动的模糊范围，手指移动超出该范围则取消事件处理
@@ -198,6 +216,87 @@ public class MyKeyboardView extends View {
         return true;
     }
 
+    private boolean arrowsKeyboardEvent(MotionEvent event){
+        float x = event.getX();
+        float y = event.getY();
+        if (event.getAction() == MotionEvent.ACTION_DOWN
+                && event.getPointerCount() == 1) {
+            ifOnClick = true;
+            for (int i = 0;i<arrows.size();i++) {
+                Rect rect = arrows.get(i);
+                if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
+                    //Toast.makeText(omeletteIME, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
+                    dealArrowsEvent(i);
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+    private void dealArrowsEvent(int flag){
+
+        switch (flag){
+            case 0:
+                omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_UP);
+                break;
+            case 1:
+                omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_DOWN);
+                break;
+            case 2:
+                omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_LEFT);
+                break;
+            case 3:
+                omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_RIGHT);
+                break;
+            case 4:
+
+                //omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_SHIFT_LEFT|KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE);
+                Log.i("方向界面", "dealArrowsEvent: 点击ok");
+                //omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_SHIFT_LEFT);
+                long eventTime = SystemClock.uptimeMillis();
+                omeletteIME.getCurrentInputConnection().sendKeyEvent(new KeyEvent(eventTime, eventTime,
+                        KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SHIFT_LEFT, 0, 0,
+                        KeyCharacterMap.BUILT_IN_KEYBOARD, 0,
+                        KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
+                break;
+            case 5:
+               // omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_SHIFT_LEFT);
+
+                break;
+            case 6:
+               // omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_DOWN_RIGHT);
+                break;
+            case 7:
+                omeletteIME.getCurrentInputConnection().performContextMenuAction(android.R.id.copy);
+                break;
+            case 8:
+                omeletteIME.getCurrentInputConnection().performContextMenuAction(android.R.id.paste);
+                break;
+
+
+        }
+
+        //  omelet
+//        //复制：
+//        inputConnection.performContextMenuAction(android.R.id.copy);
+//        //剪切
+//        inputConnection.performContextMenuAction(android.R.id.cut);
+//        //全选
+//        inputConnection.performContextMenuAction(android.R.id.selectAll);
+
+//        //移动光标（上下左右）：
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_UP);
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_LEFT);
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_RIGHT);
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_DOWN);
+       // omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_D);
+
+        // 要按住Shift键，再使用上面移动光标（上下左右）的代码，
+        // 就可以实现选中状态时移动上下左右。按住Shift键只要发送按键事件。
+
+    }
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -230,36 +329,48 @@ public class MyKeyboardView extends View {
         Rect rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
         Rect rect2 = new Rect(300, 50, 400, 150);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
-        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_down);
+        arrows.add(new Rect(300, 50, 400, 150));//上
 
+
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_down);
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
         rect2 = new Rect(300, 350, 400, 450);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
-        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right);
+        arrows.add(new Rect(300, 350, 400, 450));//下
 
-        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        rect2 = new Rect(450, 200, 550, 300);
-        canvas.drawBitmap(bmp, rect, rect2, mPaint);
         bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_left);
-
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
         rect2 = new Rect(150, 200, 250, 300);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
-        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_ok);
+        arrows.add(new Rect(150, 200, 250, 300));//左
 
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right);
+        rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
+        rect2 = new Rect(450, 200, 550, 300);
+        canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        arrows.add(new Rect(450, 200, 550, 300));//右
+
+
+
+
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_ok);
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
         rect2 = new Rect(300, 200, 400, 300);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
-        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_left_go);
+        arrows.add( new Rect(300, 200, 400, 300));//选中
 
+
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_left_go);
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
         rect2 = new Rect(130, 420, 230, 520);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
-        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right_go);
+        arrows.add(new Rect(130, 420, 230, 520));//最左
 
+        bmp = BitmapFactory.decodeResource(r, R.drawable.arrows_right_go);
         rect = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
         rect2 = new Rect(470, 420, 570, 520);
         canvas.drawBitmap(bmp, rect, rect2, mPaint);
+        arrows.add(new Rect(470, 420, 570, 520));//最右
         bmp.recycle();//回收内存
 
 
@@ -270,10 +381,17 @@ public class MyKeyboardView extends View {
         paint.setColor(Color.BLACK);
         paint.setTextAlign(Paint.Align.CENTER);//对其方式
         canvas.drawText("复制", 680, 165, paint);
+        arrows.add(new Rect(600, 50, 760, 150));//复制
+
 
         rectf = new RectF(800, 50, 960, 150);
         canvas.drawRoundRect(rectf, 20, 20, mPaint);
         canvas.drawText("粘贴", 880, 165, paint);
+        arrows.add(new Rect(800, 50, 960, 150));//粘贴
+
+
+
+
     }
 
     /**
@@ -529,18 +647,6 @@ public class MyKeyboardView extends View {
         }
     }
     private String foundKey(float x, float y) {
-//        for (Key key : mKeys) {
-//            if (x > key.getRect().left && x < key.getRect().right && y > key.getRect().top && y < key.getRect().bottom) {
-//                //Toast.makeText(omeletteIME, "您点击了" + key.getKeySpec(), Toast.LENGTH_SHORT).show();
-//                clickKey = key;
-//                keyClick = true;
-//                Message message = Message.obtain();
-//                message.what = 0x11;
-//                handler.sendMessage(message);
-//                dealKeyEvent(key);
-//                return key.getKeySpec();
-//            }
-//        }
 
         dealKeyEvent(clickKey);
         return clickKey.getKeySpec();
@@ -552,6 +658,7 @@ public class MyKeyboardView extends View {
         omeletteIME.getKeyboardSwisher().hideCandidatesView();
         nowPinYin = "";
     }
+    String returnstr;
     public void clickAndInput(Key key,int altCode){
         //omeletteIME.commitText(key.getKeySpec());
         if (0 ==altCode){
@@ -561,25 +668,50 @@ public class MyKeyboardView extends View {
             clearAndHideInputView();
             return;
         }
-        Log.i("dealKeyEvent", "dealKeyEvent: nowPinYin " +nowPinYin);
-        if (omeletteIME.getDbManage() == null) Log.i("数据库是否为空", "dbManage == null");
-
-        candidatesEntityArrayList.clear();
-
-
-        if(nowPinYin.contains("'")){
-            for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSomeSinogramByPinyin(nowPinYin,0)){
-                Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
-                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1(),sinograFromDB.getAllcishu(),sinograFromDB.getUsercishu()));
-            }
+        Log.i("c++返回信息", "clickAndInput: 获取返回");
+        if (nowPinYin.contains("'")){
+            int one1 = nowPinYin.lastIndexOf("'");
+            String Suffix1 = nowPinYin.substring((one1+1),nowPinYin.length());
+            Log.i("c++返回信息", "clickAndInput: 传入信息"+Suffix1+"   "+countInnerStr(nowPinYin,"'"));
+            returnstr = omeletteIME.inputC.getStringOfScendFromJNI(Suffix1,countInnerStr(nowPinYin,"'"));
         }else {
-            for (SinograFromDB sinograFromDB :omeletteIME.getDbManage().getSinogramByPinyin(nowPinYin)){
-                Log.i("dealKeyEvent", "遍历返回文字 " +sinograFromDB.getWenzi1());
-                candidatesEntityArrayList.add(new CandidatesEntity(sinograFromDB.getId(),sinograFromDB.getWenzi1(),sinograFromDB.getAllcishu(),sinograFromDB.getUsercishu()));
+            returnstr = omeletteIME.inputC.getStringOfFristFromJNI(nowPinYin);
+        }
+        if (returnstr == null||returnstr == ""||returnstr.equals("")){
+            Log.i("c++返回信息", "clickAndInput: returnstr == null ");
+            if (nowPinYin.toCharArray()[0]=='v'||nowPinYin.toCharArray()[0]=='V'){
+                nowPinYin.replace('v','u');
+            }
+            if (nowPinYin.length()>=2){
+                nowPinYin = nowPinYin.substring(0,nowPinYin.length()-1)
+                        +"'"+nowPinYin.substring(nowPinYin.length()-1);
+            }
+            int one2 = nowPinYin.lastIndexOf("'");
+            String Suffix2 = nowPinYin.substring((one2+1),nowPinYin.length());
+            Log.i("c++返回信息", "clickAndInput: 当单个返回为空 传入信息:"+Suffix2+"   "+countInnerStr(nowPinYin,"'"));
+
+            returnstr = omeletteIME.inputC.getStringOfScendFromJNI(Suffix2 ,countInnerStr(nowPinYin,"'"));
+        }
+        Log.i("c++返回信息", "clickAndInput: returnstr:"+returnstr);
+        String[] strArrays = returnstr.split(",");
+        candidatesEntityArrayList.clear();
+        int t = 0;
+        for (String i:strArrays){
+            candidatesEntityArrayList.add(new CandidatesEntity(t++,i));
+            if (t>10){
+                break;
             }
         }
-
         omeletteIME.getKeyboardSwisher().showCandidatesView(removeRepetiton(candidatesEntityArrayList),nowPinYin);
+    }
+    public static int countInnerStr(final String str, final String patternStr) {
+        int count = 0;
+        final Pattern r = Pattern.compile(patternStr);
+        final Matcher m = r.matcher(str);
+        while (m.find()) {
+            count++;
+        }
+        return count;
     }
     private ArrayList<CandidatesEntity>  removeRepetiton(ArrayList<CandidatesEntity> arrayList){
         ArrayList<CandidatesEntity> retlist = new ArrayList<>();
@@ -673,4 +805,31 @@ public class MyKeyboardView extends View {
     public void setNowPinYin(String nowPinYin) {
         this.nowPinYin = nowPinYin;
     }
+    /**
+     * 之后为箭头键盘处理时间
+     */
+    public void copythis(){
+//        //  omelet
+//        //复制：
+//        inputConnection.performContextMenuAction(android.R.id.copy);
+//        //剪切
+//        inputConnection.performContextMenuAction(android.R.id.cut);
+//        //全选
+//        inputConnection.performContextMenuAction(android.R.id.selectAll);
+//
+//        //移动光标（上下左右）：
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_UP);
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_LEFT);
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_RIGHT);
+//        omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_DPAD_DOWN);
+//
+//        // 要按住Shift键，再使用上面移动光标（上下左右）的代码，
+//        // 就可以实现选中状态时移动上下左右。按住Shift键只要发送按键事件。
+//        long eventTime = SystemClock.uptimeMillis();
+//        inputConnection.sendKeyEvent(new KeyEvent(eventTime, eventTime,
+//                KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_SHIFT_LEFT, 0, 0,
+//                KeyCharacterMap.BUILT_IN_KEYBOARD, 0,
+//                KeyEvent.FLAG_SOFT_KEYBOARD | KeyEvent.FLAG_KEEP_TOUCH_MODE));
+    }
+
 }

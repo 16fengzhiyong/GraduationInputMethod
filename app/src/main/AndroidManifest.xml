@@ -4,7 +4,11 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/jiandan"
@@ -22,6 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ShortInputActivity" />
 
         <service
             android:name=".kernel.OmeletteIME"
@@ -35,7 +40,7 @@
                 android:name="android.view.im"
                 android:resource="@xml/method" />
         </service>
-        <service android:name=".floatwindow.FloatingImageDisplayService" />
+        <service android:name=".floatwindow.FloatingWindowDisplayService" />
     </application>
 
 </manifest>

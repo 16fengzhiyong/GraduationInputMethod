@@ -1,5 +1,6 @@
 package com.nuc.omeletteinputmethod.kernel;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -12,6 +13,8 @@ import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
 import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardBuider;
 import com.nuc.omeletteinputmethod.kernel.keyboard.KeyboardHeadListener;
 import com.nuc.omeletteinputmethod.kernel.keyboard.MyKeyboardView;
+import com.nuc.omeletteinputmethod.util.TranslateCallback;
+import com.nuc.omeletteinputmethod.util.TranslateUtil;
 
 import java.util.ArrayList;
 
@@ -26,6 +29,9 @@ public class KeyboardSwisher {
     RelativeLayout chooseBar;
     MyKeyboardView myKeyboardView;
     TextView textviewCandidatesPinyin;
+
+    TextView translatelateTextView = null;
+
     public KeyboardSwisher(){
 
     }
@@ -56,6 +62,7 @@ public class KeyboardSwisher {
         // 实现方向转化方
         mkeyView = LayoutInflater.from(omeletteIME).inflate(
                 R.layout.mytestkeyboardlayout, null);
+        translatelateTextView =mkeyView.findViewById(R.id.id_textview_candidates_translate);
         myKeyboardView = mkeyView.findViewById(R.id.test_mykeyboardview);
         myKeyboardView.SetMyKeyboardView(omeletteIME,R.xml.nomal_qwerty);
         ///omeletteIME.setCandidatesViewShown(true);
@@ -70,6 +77,24 @@ public class KeyboardSwisher {
         mkeyView.findViewById(R.id.id_linear_pinyin_input).setOnClickListener(keyboardHeadListener);
         mkeyView.findViewById(R.id.id_linear_english_input).setOnClickListener(keyboardHeadListener);
         mkeyView.findViewById(R.id.id_linear_arrows_input).setOnClickListener(keyboardHeadListener);
+        translatelateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                translatelateTextView.setVisibility(View.GONE);
+                omeletteIME.getCurrentInputConnection().commitText(translatelateTextView.getText().toString(),0);
+
+            }
+        });
+         translateCallback = new TranslateCallback() {
+            @Override
+            public void onTranslateDone(String result) {
+                Log.i("翻译返回内容", "onTranslateDone: "+result+"开始显示");
+                translatelateTextView.setVisibility(View.VISIBLE);
+                translatelateTextView.setText(result);
+                // result是翻译结果，在这里使用翻译结果，比如使用对话框显示翻译结果
+                Log.i("翻译返回内容", "onTranslateDone: "+result);
+            }
+        };
         return mkeyView;
 //        return setWaitView(mkeyView);
     }
@@ -117,7 +142,19 @@ public class KeyboardSwisher {
         return candidatesView;
     }
 
-    public MyKeyboardView getMyKeyboardView() {
-        return myKeyboardView;
+    public TextView getTranslatelateTextView() {
+        return translatelateTextView;
     }
+
+    // 使用
+    TranslateCallback translateCallback;
+    public void translateToEnglish(final String valuestr) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i("翻译返回内容", "onLongClick: ");
+                new TranslateUtil().translate(omeletteIME, "auto", "en", valuestr, translateCallback);
+            }
+        }).start();
+       }
 }
