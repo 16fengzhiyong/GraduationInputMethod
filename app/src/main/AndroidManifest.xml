@@ -2,13 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nuc.omeletteinputmethod">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/jiandan"
@@ -16,8 +9,8 @@
         android:roundIcon="@drawable/jiandan"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".MainActivity" />
+
         <activity android:name=".FirstActivity" />
         <activity android:name=".setting.SettingsActivity">
             <intent-filter>
@@ -27,6 +20,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".ShortInputActivity" />
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/number_qwerty" />
 
         <service
             android:name=".kernel.OmeletteIME"
@@ -42,5 +38,13 @@
         </service>
         <service android:name=".floatwindow.FloatingWindowDisplayService" />
     </application>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 </manifest>

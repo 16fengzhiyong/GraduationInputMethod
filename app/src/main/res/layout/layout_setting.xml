@@ -8,7 +8,7 @@
         android:id="@+id/setting_title_bar"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="#bbbbbb">
+        android:background="#FFCCCCCC">
     </com.nuc.omeletteinputmethod.util.TitleBar>
     <com.nuc.omeletteinputmethod.CCPCustomViewPager
     android:id="@+id/vp"

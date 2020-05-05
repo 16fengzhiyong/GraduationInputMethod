@@ -22,6 +22,7 @@ import com.nuc.omeletteinputmethod.adapters.MainViewPagerAdapter;
 import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
 import com.nuc.omeletteinputmethod.myframent.ScheduleFrament;
 import com.nuc.omeletteinputmethod.myframent.ShortInputFrament;
+import com.nuc.omeletteinputmethod.util.SymbolsManager;
 import com.nuc.omeletteinputmethod.util.TitleBar;
 
 import java.io.File;
@@ -54,6 +55,8 @@ public class SettingsActivity extends FragmentActivity {
         titleBar = findViewById(R.id.setting_title_bar);
 //        titleBar.setTitle("我的日程");
 //        titleBar.setMyCenterTitle("teas");
+
+        Log.i("字符信息", "onCreate: "+new SymbolsManager(this).toString());
         initTooleBar(titleBar,true,"我的日程");
         initView();
         //verifyStoragePermissions(this);

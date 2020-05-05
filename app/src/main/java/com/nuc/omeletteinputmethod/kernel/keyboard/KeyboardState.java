@@ -7,6 +7,8 @@ public class KeyboardState {
     public static final int ENGLISH_26_KEY_KEYBOARD = 3;
     public static final int ENGLISH_9_KEY_KEYBOARD = 4;
     public static final int ARROWS_KEYBOARD = 5;
+    public static final int NUMBER_9_KEY_KEYBOARD = 6;
+    public static final int SYMBOL_KEYBOARD = 7;
     private int witchKeyboardNow = 1;
     private int witchKeyboardLast = 0;
     private static final KeyboardState instance = new KeyboardState();

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyKeyboard xmlns:omelette="http://schemas.android.com/apk/res-auto">
+    <Row omelette:rowHeight="50dp">
+        <Key
+            omelette:startingPosition = "1.3%"
+            omelette:keySpec="1"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="2"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="3"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="删除"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+    </Row>
+    <Row omelette:rowHeight="50dp">
+        <Key
+            omelette:startingPosition = "1.3%"
+            omelette:keySpec="4"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="5"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="6"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="字符"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+    </Row>
+    <Row omelette:rowHeight="50dp">
+        <Key
+            omelette:startingPosition = "1.3%"
+            omelette:keySpec="7"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="8"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="9"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="确认"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+    </Row>
+    <Row omelette:rowHeight="50dp">
+        <Key
+            omelette:startingPosition = "1.3%"
+            omelette:keySpec=","
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="0"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="."
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            />
+        <Key
+            omelette:keySpec="返回"
+            omelette:length="23%"
+            omelette:padding="1.3%"
+            omelette:altCode = "4"
+            />
+    </Row>
+</MyKeyboard>

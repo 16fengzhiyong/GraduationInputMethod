@@ -141,8 +141,6 @@ android:layout_height="match_parent">
                 android:gravity="center"
                 android:textColor="#ff9c0e"
                 android:textSize="14sp"/>
-
-
         </LinearLayout>
     </LinearLayout>
     <LinearLayout

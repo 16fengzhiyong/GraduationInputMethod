@@ -42,6 +42,10 @@ public class KeyboardHeadListener implements View.OnClickListener {
             case R.id.id_linear_english_input:
 
                 break;
+            case R.id.id_symbol_return:
+                Log.i("点击了字符界面的返回", "onClick: ");
+                omeletteIME.getKeyboardSwisher().checkSymbolKeyboard();
+                break;
             case R.id.id_linear_arrows_input:
                 checkArrowsKeyboard();
                 Log.i("KeyboardHeadListener", "onClick: id_linear_arrows_input");
@@ -74,6 +78,9 @@ public class KeyboardHeadListener implements View.OnClickListener {
             myKeyboardView.invalidate();
         }
     }
+
+
+
     private void hideKeyboard(){
         omeletteIME.hideInputMethod();
     }
