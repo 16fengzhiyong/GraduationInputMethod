@@ -5,16 +5,9 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.nuc.omeletteinputmethod.DBoperation.DBManage;
 import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
-import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
 import com.nuc.omeletteinputmethod.inputC.InputC;
-import com.nuc.omeletteinputmethod.kernel.util.SinogramLibrary;
-import com.nuc.omeletteinputmethod.util.TranslateCallback;
-import com.nuc.omeletteinputmethod.util.TranslateUtil;
+
 
 import java.util.ArrayList;
 import java.util.Map;

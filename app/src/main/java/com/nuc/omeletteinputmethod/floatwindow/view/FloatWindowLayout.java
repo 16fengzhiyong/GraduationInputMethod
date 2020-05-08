@@ -200,11 +200,22 @@ public class FloatWindowLayout extends ViewGroup {
                 if (isLast&&!mExpanded){
                     switch (nowState){
                         case 0:
+                            Log.i("点击中心的图标", "onAnimationEnd: ");
                             floatingWindowDisplayService.sendMessageToHandler(2);
                             break;
-                        case 1:
-                            floatingWindowDisplayService.sendMessageToHandler(3);
+                        case StateMenu.SHORT_INPUT:
+                            floatingWindowDisplayService.sendMessageToHandler(StateMenu.SHORT_INPUT);
                             break;
+                            case StateMenu.SCHEDULE:
+                                floatingWindowDisplayService.sendMessageToHandler(StateMenu.SCHEDULE);
+                                break;
+                        case StateMenu.NOTEPAD:
+                            floatingWindowDisplayService.sendMessageToHandler(StateMenu.NOTEPAD);
+                            break;
+                        case StateMenu.TRANSLATE:
+                            floatingWindowDisplayService.sendMessageToHandler(StateMenu.TRANSLATE);
+                            break;
+
                     }
 
                 }

@@ -59,7 +59,6 @@ public class MyKeyboardView extends View {
     //定义一个paint
     private Paint mPaint;
     OmeletteIME omeletteIME;
-    String nowPinYin = "";
 
 
 
@@ -174,15 +173,16 @@ public class MyKeyboardView extends View {
         }
     }
 
-    //用于清除当前存在的拼音
-    public void clearNowPinYin(){
-        nowPinYin = "";
+    public ArrowKeyboard getArrowKeyboard() {
+        return arrowKeyboard;
     }
-    public String getNowPinYin() {
-        return nowPinYin;
+
+    public Pinyin26Keyboard getPinyin26Keyboard() {
+        return pinyin26Keyboard;
     }
-    public void setNowPinYin(String nowPinYin) {
-        this.nowPinYin = nowPinYin;
+
+    public NumberKeyboard getNumberKeyboard() {
+        return numberKeyboard;
     }
 
 }

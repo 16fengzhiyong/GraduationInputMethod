@@ -51,7 +51,6 @@ public class SettingShortInputAdapter extends RecyclerView.Adapter<RecyclerView.
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-
         View view = mLayoutInflater.inflate(R.layout.setting_shortinput_item, viewGroup, false);
         ItemViewHolder holder = new ItemViewHolder(view);
         return holder;

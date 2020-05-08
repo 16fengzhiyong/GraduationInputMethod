@@ -41,5 +41,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     compile 'com.github.MagicMashRoom:SuperCalendar:1.6'
+    implementation 'com.squareup.okhttp3:okhttp:4.0.0'
 //    implementation 'com.github.Othershe:CalendarView:1.2.1'
 }

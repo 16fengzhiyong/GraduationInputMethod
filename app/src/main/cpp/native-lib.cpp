@@ -203,3 +203,24 @@ Java_com_nuc_omeletteinputmethod_inputC_InputC_removeHanziArraryFromJNI(
     string retu;
     return str2jstring(env,retu.c_str());
 }
+
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nuc_omeletteinputmethod_inputC_InputC_getStringForReadyFromJNI(JNIEnv *env, jobject thiz,
+                                                                        jstring wenzi) {
+    int ls = jstring2str(env,wenzi).length();
+    char* insome = jstringToChar(env,wenzi);
+    string retu;
+    int geshu = 0;
+
+    for (size_t i = 0; i < allofhanzi; i++)
+    {
+        if (!strncmp(hanzis[i]->hanzi, insome,ls)) {
+            retu = retu + hanzis[i]->hanzi+",";
+        }
+    }
+    return str2jstring(env,retu.c_str());
+
+    // TODO: implement getStringForReadyFromJNI()
+}

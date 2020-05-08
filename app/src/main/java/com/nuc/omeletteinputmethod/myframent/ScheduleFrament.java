@@ -2,6 +2,7 @@ package com.nuc.omeletteinputmethod.myframent;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -13,12 +14,17 @@ import com.ldf.calendar.model.CalendarDate;
 import com.ldf.calendar.view.Calendar;
 import com.ldf.calendar.view.MonthPager;
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.adapters.SettingScheduleAdapter;
+import com.nuc.omeletteinputmethod.entityclass.ScheduleEntity;
+import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
 import com.nuc.omeletteinputmethod.setting.view.CustomDayView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 
@@ -34,6 +40,8 @@ public class ScheduleFrament extends LazyFrament {
     TextView themeSwitch;
     TextView nextMonthBtn;
     TextView lastMonthBtn;
+    RecyclerView scheduleList;
+
 
     private ArrayList<Calendar> currentCalendars = new ArrayList<>();
     private CalendarViewAdapter calendarAdapter;
@@ -66,6 +74,10 @@ public class ScheduleFrament extends LazyFrament {
         themeSwitch = (TextView) rootView.findViewById(R.id.theme_switch);
         nextMonthBtn = (TextView) rootView.findViewById(R.id.next_month);
         lastMonthBtn = (TextView) rootView.findViewById(R.id.last_month);
+        scheduleList = (RecyclerView)rootView.findViewById(R.id.id_setting_schedule_recycler);
+        scheduleList.setHasFixedSize(true);
+        //这里用线性显示 类似于listview
+        scheduleList.setLayoutManager(new LinearLayoutManager(getContext()));
         //rvToDoList = (RecyclerView) findViewById(R.id.list);
         initCurrentDate();
         initCalendarView();
@@ -156,11 +168,27 @@ public class ScheduleFrament extends LazyFrament {
         currentDate = new CalendarDate();
         tvYear.setText(currentDate.getYear() + "年");
         tvMonth.setText(currentDate.getMonth() + "");
+
+        Log.i("当前选择日期", "initCurrentDate: 看谁快 "+currentDate.getYear() + "年"+currentDate.getMonth() + "月"
+                +currentDate.getDay() + "日");
+        scheduleList.setAdapter(new SettingScheduleAdapter(
+                FloatingWindowDisplayService.getDbManage().getScheduleByTime(
+                        currentDate.getYear()+"-"+currentDate.getMonth()+"-"+currentDate.getDay())
+                ,getContext()));
     }
     private void refreshClickDate(CalendarDate date) {
         currentDate = date;
         tvYear.setText(date.getYear() + "年");
         tvMonth.setText(date.getMonth() + "");
+        Log.i("当前选择日期", "refreshClickDate: "+date.getYear() + "年"+date.getMonth() + "月"
+                +date.getDay() + "日");
+
+        scheduleList.setAdapter(new SettingScheduleAdapter(
+                FloatingWindowDisplayService.getDbManage().getScheduleByTime(
+                        date.getYear()+"-"+date.getMonth()+"-"+date.getDay())
+                ,getContext()));
+//        FloatingWindowDisplayService.getDbManage().getScheduleByTime(
+//                date.getYear()+"-"+date.getMonth()+"-"+date.getDay());
     }
 
 

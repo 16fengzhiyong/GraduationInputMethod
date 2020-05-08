@@ -11,7 +11,6 @@ public class Input {
         return null;
     }
     public String getCandidatesBySinogram(){
-
         return null;
     }
 

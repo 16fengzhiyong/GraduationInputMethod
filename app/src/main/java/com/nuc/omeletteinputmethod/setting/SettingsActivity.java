@@ -3,6 +3,7 @@ package com.nuc.omeletteinputmethod.setting;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,16 +11,21 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.nuc.omeletteinputmethod.CCPCustomViewPager;
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.adapters.MainViewPagerAdapter;
 import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
+import com.nuc.omeletteinputmethod.myframent.MyUI;
+import com.nuc.omeletteinputmethod.myframent.NotepadFrament;
 import com.nuc.omeletteinputmethod.myframent.ScheduleFrament;
 import com.nuc.omeletteinputmethod.myframent.ShortInputFrament;
 import com.nuc.omeletteinputmethod.util.SymbolsManager;
@@ -39,11 +45,24 @@ public class SettingsActivity extends FragmentActivity {
     public static boolean showMyselfkeyboard = false;
     TitleBar titleBar;
 
-    private ArrayList<Fragment> fragmentList;
+    ImageView tabScheduleIV ;
+    ImageView tabShortinputIV ;
+    ImageView tabNotepadIV ;
+    ImageView tabMyIV ;
+    TextView tabScheduleTV ;
+    TextView tabShortinputTV ;
+    TextView tabNotepadTV ;
+    TextView tabMyTV ;
+//    id_tab_schedule_iv
 
+
+
+
+    private ArrayList<Fragment> fragmentList;
     public static String dbName="myandroid.db";//数据库的名字
     private static String DATABASE_PATH="/data/data/com.nuc.omeletteinputmethod/databases/";//数据库在手机里的路径
 
+    int index = 0;
 
     CCPCustomViewPager vp;
     public MainViewPagerAdapter mMainViewPagerAdapter;
@@ -119,6 +138,78 @@ public class SettingsActivity extends FragmentActivity {
         }
         return checkDB !=null?true:false;
     }
+    View.OnClickListener onClickListener =  new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.id_tab_schedule_FL:
+                    index = 0;
+                    tabScheduleIV.setSelected(true);
+                    tabScheduleTV.setTextColor(Color.GREEN);
+                    vp.setCurrentItem(index, true);
+                    break;
+                case R.id.id_tab_shortinput_FL:
+                    index = 1;
+                    tabShortinputIV.setSelected(true);
+                    tabShortinputTV.setTextColor(Color.GREEN);
+                    vp.setCurrentItem(index, true);
+                    break;
+                case R.id.id_tab_notepad_FL:
+                    index = 2;
+                    tabNotepadIV.setSelected(true);
+                    tabNotepadTV.setTextColor(Color.GREEN);
+                    vp.setCurrentItem(index, true);
+                    break;
+                case R.id.id_tab_my_FL:
+                    index = 3;
+                    tabMyIV.setSelected(true);
+                    tabMyTV.setTextColor(Color.GREEN);
+                    vp.setCurrentItem(index, true);
+                    break;
+
+            }
+        }
+    };
+    private void reSetButton() {
+        tabScheduleIV.setSelected(false);
+        tabShortinputIV.setSelected(false);
+        tabNotepadIV.setSelected(false);
+        tabMyIV.setSelected(false);
+        tabScheduleTV.setTextColor(Color.BLACK);
+        tabShortinputTV.setTextColor(Color.BLACK);
+        tabNotepadTV.setTextColor(Color.BLACK);
+        tabMyTV.setTextColor(Color.BLACK);
+    }
+    protected void initWidgetAciotns(){
+
+        vp.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                reSetButton();
+                switch (position) {
+                    case 0:
+                        tabScheduleIV.setSelected(true);
+                        tabScheduleTV.setTextColor(Color.GREEN);
+                        break;
+                    case 1:
+                        tabShortinputIV.setSelected(true);
+                        tabShortinputTV.setTextColor(Color.GREEN);
+                        break;
+                    case 2:
+                        tabNotepadIV.setSelected(true);
+                        tabNotepadTV.setTextColor(Color.GREEN);
+                        break;
+                    case 3:
+                        tabMyIV.setSelected(true);
+                        tabMyTV.setTextColor(Color.GREEN);
+                        break;
+                }
+            }
+        });
+
+    }
+
     /**
      * 复制数据库到手机指定文件夹下
      * @throws IOException
@@ -162,6 +253,23 @@ public class SettingsActivity extends FragmentActivity {
         mMainViewPagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(),
                 fragmentList);
         vp.setAdapter(mMainViewPagerAdapter);
+        tabScheduleIV = findViewById(R.id.id_tab_schedule_iv);
+        tabScheduleTV = findViewById(R.id.id_tab_schedule_tv);
+        tabShortinputIV = findViewById(R.id.id_tab_shortinput_iv);
+        tabShortinputTV = findViewById(R.id.id_tab_shortinput_tv);
+        tabNotepadIV = findViewById(R.id.id_tab_notepad_iv);
+        tabNotepadTV = findViewById(R.id.id_tab_notepad_tv);
+        tabMyIV = findViewById(R.id.id_tab_my_iv);
+        tabMyTV = findViewById(R.id.id_tab_my_tv);
+        findViewById(R.id.id_tab_schedule_FL).setOnClickListener(onClickListener);
+        findViewById(R.id.id_tab_shortinput_FL) .setOnClickListener(onClickListener);
+        findViewById(R.id.id_tab_notepad_FL) .setOnClickListener(onClickListener);
+        findViewById(R.id.id_tab_my_FL) .setOnClickListener(onClickListener);
+
+        
+        
+        
+        initWidgetAciotns();
     }
     private void initFragments() {
         fragmentList = new ArrayList<Fragment>();
@@ -169,6 +277,10 @@ public class SettingsActivity extends FragmentActivity {
         fragmentList.add(homeFra);
         ShortInputFrament shortInputFrament = ShortInputFrament.newInstance();
         fragmentList.add(shortInputFrament);
+        NotepadFrament notepadFrament = NotepadFrament.newInstance();
+        fragmentList.add(notepadFrament);
+        MyUI myUI = MyUI.newInstance();
+        fragmentList.add(myUI);
 //        ScheduleFrament dialFra = ScheduleFrament.newInstance();//通讯录
 //        fragmentList.add(dialFra);
         // WorkbenchFragment workbenchFragment = WorkbenchFragment.newInstance();//工作台

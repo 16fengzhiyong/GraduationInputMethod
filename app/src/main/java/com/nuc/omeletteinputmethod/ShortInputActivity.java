@@ -82,11 +82,11 @@ public class ShortInputActivity extends Activity {
         addImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (findViewById(R.id.id_setting_change_add_RelativeLayout).getVisibility() == View.GONE) {
-//                    findViewById(R.id.id_setting_change_add_RelativeLayout).setVisibility(View.VISIBLE);
-//                } else {
-//                    findViewById(R.id.id_setting_change_add_RelativeLayout).setVisibility(View.GONE);
-//                }
+                if (findViewById(R.id.id_setting_change_add_RelativeLayout).getVisibility() == View.GONE) {
+                    findViewById(R.id.id_setting_change_add_RelativeLayout).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.id_setting_change_add_RelativeLayout).setVisibility(View.GONE);
+                }
                // InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             }
         });

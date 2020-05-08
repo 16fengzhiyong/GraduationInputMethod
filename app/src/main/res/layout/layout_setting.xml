@@ -23,19 +23,21 @@
         android:gravity="bottom"
         >
         <FrameLayout
+            android:id="@+id/id_tab_schedule_FL"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             >
             <ImageView
+                android:id="@+id/id_tab_schedule_iv"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="top|center_horizontal"
-                android:id="@+id/btn_my"
                 style="@style/tab_main2"
                 android:src="@drawable/tab_my_sel"
                 />
             <TextView
+                android:id="@+id/id_tab_schedule_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"
@@ -43,11 +45,13 @@
                 />
         </FrameLayout>
         <FrameLayout
+            android:id="@+id/id_tab_shortinput_FL"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             >
             <ImageView
+                android:id="@+id/id_tab_shortinput_iv"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="top|center_horizontal"
@@ -55,6 +59,7 @@
                 android:src="@drawable/tab_my_sel"
                 />
             <TextView
+                android:id="@+id/id_tab_shortinput_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"
@@ -62,11 +67,13 @@
                 />
         </FrameLayout>
         <FrameLayout
+            android:id="@+id/id_tab_notepad_FL"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             >
             <ImageView
+                android:id="@+id/id_tab_notepad_iv"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="top|center_horizontal"
@@ -74,6 +81,7 @@
                 android:src="@drawable/tab_my_sel"
                 />
             <TextView
+                android:id="@+id/id_tab_notepad_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"
@@ -83,11 +91,13 @@
 
 
         <FrameLayout
+            android:id="@+id/id_tab_my_FL"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             >
             <ImageView
+                android:id="@+id/id_tab_my_iv"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_gravity="top|center_horizontal"
@@ -95,6 +105,7 @@
                 android:src="@drawable/tab_my_sel"
                 />
             <TextView
+                android:id="@+id/id_tab_my_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"

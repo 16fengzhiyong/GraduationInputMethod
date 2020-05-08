@@ -69,22 +69,25 @@ public class FirstViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         myViewHolder.candidatesView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                myKeyboardView.clearNowPinYin();
+                myKeyboardView.getPinyin26Keyboard().clearNowPinYin();
                 omeletteIME.getKeyboardSwisher().hideCandidatesView();
                 //omeletteIME.commitText(myViewHolder.candidatesView.getText().toString());
                 omeletteIME.commitText(candidatesEntityArrayList.get(position).getCandidates());
                 //输入的是文字
                 Log.i("输入的文字信息", "commitText: data " +candidatesEntityArrayList.get(position).getCandidates()
                         +"长度是:"+candidatesEntityArrayList.get(position).getCandidates().length());
-
+                String trBack = candidatesEntityArrayList.get(position).getCandidates();
+                myKeyboardView.getPinyin26Keyboard().showRetforhold(trBack.substring(trBack.length()-1,trBack.length()))        ;
+//                char c = 'a';
+//                if(c>='a'&&c<='z'||c>='A'&&c<='Z'){
+//                    // TODO
+//                }
             }
         });
         myViewHolder.candidatesView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
                 omeletteIME.getKeyboardSwisher().translateToEnglish(candidatesEntityArrayList.get(position).getCandidates());
-
                 return true;
             }
         });

@@ -4,8 +4,10 @@
     android:layout_height="70dp"
     android:orientation="vertical"
     android:gravity="center_vertical"
+    android:background="#e7e7e7"
     >
     <LinearLayout
+        android:id="@+id/id_schedule_item_parent"
         android:background="@drawable/gradual_change_backround"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -31,7 +33,7 @@
                     android:id="@+id/id_setting_schedule_info_TV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="笼子"
+                    android:text="显示信息"
                     />
             </LinearLayout>
             <LinearLayout
@@ -69,4 +71,15 @@
         </RelativeLayout>
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/id_schedule_item_add_IV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_item_add"
+        android:scaleType="centerInside"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:tooltipText="添加一个日程吧"
+        />
 </LinearLayout>

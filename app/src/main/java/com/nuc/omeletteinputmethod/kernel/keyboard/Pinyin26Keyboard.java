@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
+import com.nuc.omeletteinputmethod.inputC.InputC;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
 
 import java.util.ArrayList;
@@ -115,22 +116,21 @@ public class Pinyin26Keyboard {
                 Log.i("onTouchEvent", "修改了" + clickKey.getKeySpec());
             }
             if (key.isIfimagekey()) {
-
+                int width_1_4 = (int) (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 200+ (key.getLength() * myKeyboard.getKeyboardWidth() / 100 /2 /2));
+                int height_1_4 = row.getRowHeight() / 2 / 2;
                 Bitmap bmp = BitmapFactory.decodeResource(r, key.getImgresource());
                 Rect rect1 = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-                Rect rect2 = new Rect((int) (drawX + (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100))
-                        , (int) drawY + row.getRowHeight() / 2
-                        , (int) (drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 200) +
-                        (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100))
-                        , (int) (drawY + row.getRowHeight()));
+                Rect rect2 = new Rect((int) (drawX + width_1_4)
+                        , (int) drawY + height_1_4
+                        , (int) (drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100 /2 ) +
+                        (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100)) +width_1_4
+                        , (int) (drawY + row.getRowHeight() /2 +height_1_4));
                 canvas.drawBitmap(bmp, rect1, rect2, mPaint);
             } else {
                 canvas.drawText(key.getKeySpec(), drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 200) +
                         (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100), drawY + row.getRowHeight() / 2, paint);
             }
             drawX = (int) (drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100) + (key.getGap() * myKeyboard.getKeyboardWidth() / 100));
-
-
         }
 
     }
@@ -329,5 +329,25 @@ public class Pinyin26Keyboard {
             }
         }
         return retlist;
+    }
+
+    //用于清除当前存在的拼音
+    public void clearNowPinYin(){
+        nowPinYin = "";
+    }
+    public void showRetforhold(String s){
+        Log.i("后补次", "showRetforhold: "+omeletteIME.inputC.getStringForReadyFromJNI(s));
+        returnstr = omeletteIME.inputC.getStringForReadyFromJNI(s);
+        String[] strArrays = returnstr.split(",");
+        candidatesEntityArrayList.clear();
+        int t = 0;
+        for (String i:strArrays){
+            candidatesEntityArrayList.add(new CandidatesEntity(t++,i.substring(1,i.length())));
+            if (t>10){
+                break;
+            }
+        }
+        omeletteIME.getKeyboardSwisher().showCandidatesView(removeRepetiton(candidatesEntityArrayList),nowPinYin);
+
     }
 }

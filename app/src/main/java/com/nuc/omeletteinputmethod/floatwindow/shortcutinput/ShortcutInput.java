@@ -9,13 +9,21 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 
+import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
 import com.nuc.omeletteinputmethod.entityclass.AppInfomationEntity;
+import com.nuc.omeletteinputmethod.entityclass.FloatShortInputEntity;
+import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 快捷输入 将常用的 信息 加载至输入块中
@@ -26,14 +34,56 @@ import java.util.List;
 public class  ShortcutInput {
 
     Context mContext;
-    WindowManager mWindowManager;
+    WindowManager windowManager;
+    WindowManager.LayoutParams layoutParams;
+    View displayView;
 
     ShortcutInput(Context context, WindowManager windowManager){
         this.mContext = context;
-        this.mWindowManager = windowManager;
-    }
-    public void initView(){
 
+    }
+
+    public ShortcutInput(Context mContext, WindowManager mWindowManager, WindowManager.LayoutParams layoutParams, View displayView) {
+        this.mContext = mContext;
+        this.windowManager = mWindowManager;
+        this.layoutParams = layoutParams;
+        this.displayView = displayView;
+    }
+
+    public void removeView(View zhankai){
+        windowManager.removeView(zhankai);
+    }
+    public void showShortInput(){
+        try {
+            layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            displayView.findViewById(R.id.id_float_shortinput_parent_LL).setVisibility(View.VISIBLE);
+            displayView.findViewById(R.id.id_float_shortinput_close_IV).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    displayView.findViewById(R.id.id_float_shortinput_parent_LL).setVisibility(View.GONE);
+                }
+            });
+            LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+            RecyclerView mRecyclerView=(RecyclerView)displayView.findViewById(R.id.id_float_shortinput_list_RV);
+            //调整RecyclerView的排列方向
+            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            mRecyclerView.setLayoutManager(layoutManager);
+            ArrayList<FloatShortInputEntity> floatShortInputEntities = new ArrayList<>();
+            for (int i = 0;i<20;i++){
+                floatShortInputEntities.add(new FloatShortInputEntity(i,"test"+i,"com.nuc.omeletteinputmethod"));
+            }
+//                    com.nuc.omeletteinputmethod
+            mRecyclerView.setAdapter(new FloatShortInputAdapter(floatShortInputEntities, mContext));
+//                    mRecyclerView.setAdapter(
+//                            new FloatShortInputAdapter(dbManage.getDataByPackageName(
+//                                    ShortcutInput.getLollipopRecentTask(FloatingImageDisplayService.this)),
+//                                    FloatingImageDisplayService.this));
+
+            windowManager.addView(displayView,layoutParams);
+        }catch (Exception e){
+
+        }
     }
     //检测用户是否对本app开启了“Apps with usage access”权限
     private boolean hasPermission() {
