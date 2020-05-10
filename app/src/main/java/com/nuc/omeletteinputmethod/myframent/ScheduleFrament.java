@@ -1,10 +1,15 @@
 package com.nuc.omeletteinputmethod.myframent;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ldf.calendar.Utils;
 import com.ldf.calendar.component.CalendarAttr;
@@ -14,6 +19,7 @@ import com.ldf.calendar.model.CalendarDate;
 import com.ldf.calendar.view.Calendar;
 import com.ldf.calendar.view.MonthPager;
 import com.nuc.omeletteinputmethod.R;
+import com.nuc.omeletteinputmethod.ShortInputActivity;
 import com.nuc.omeletteinputmethod.adapters.SettingScheduleAdapter;
 import com.nuc.omeletteinputmethod.entityclass.ScheduleEntity;
 import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
@@ -41,13 +47,19 @@ public class ScheduleFrament extends LazyFrament {
     TextView nextMonthBtn;
     TextView lastMonthBtn;
     RecyclerView scheduleList;
+    Button takePutButton;
+
+    int mYear;
+    int mMonth;
+    int mDay;
+
 
 
     private ArrayList<Calendar> currentCalendars = new ArrayList<>();
     private CalendarViewAdapter calendarAdapter;
     private OnSelectDateListener onSelectDateListener;
     private int mCurrentPage = MonthPager.CURRENT_DAY_INDEX;
-
+    ImageView addImageView;
     private Context context;
 
     private CalendarDate currentDate;
@@ -75,6 +87,8 @@ public class ScheduleFrament extends LazyFrament {
         nextMonthBtn = (TextView) rootView.findViewById(R.id.next_month);
         lastMonthBtn = (TextView) rootView.findViewById(R.id.last_month);
         scheduleList = (RecyclerView)rootView.findViewById(R.id.id_setting_schedule_recycler);
+        addImageView = rootView.findViewById(R.id.id_setting_schedule_add_imageview);
+        takePutButton = rootView.findViewById(R.id.id_setting_schedule_add_ok_Button);
         scheduleList.setHasFixedSize(true);
         //这里用线性显示 类似于listview
         scheduleList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -171,6 +185,7 @@ public class ScheduleFrament extends LazyFrament {
 
         Log.i("当前选择日期", "initCurrentDate: 看谁快 "+currentDate.getYear() + "年"+currentDate.getMonth() + "月"
                 +currentDate.getDay() + "日");
+
         scheduleList.setAdapter(new SettingScheduleAdapter(
                 FloatingWindowDisplayService.getDbManage().getScheduleByTime(
                         currentDate.getYear()+"-"+currentDate.getMonth()+"-"+currentDate.getDay())
@@ -232,10 +247,43 @@ public class ScheduleFrament extends LazyFrament {
      * @return void
      */
     private void initToolbarClickListener() {
+        addImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (rootView.findViewById(R.id.id_setting_schedule_add_RelativeLayout).getVisibility() == View.GONE) {
+                    rootView.findViewById(R.id.id_setting_schedule_add_RelativeLayout).setVisibility(View.VISIBLE);
+                } else {
+                    rootView.findViewById(R.id.id_setting_schedule_add_RelativeLayout).setVisibility(View.GONE);
+                }
+                // InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            }
+        });
+        takePutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues values = new ContentValues();
+                values.put("time",currentDate.getYear()+"-"+currentDate.getMonth()+"-"+currentDate.getDay());
+                values.put("info",((EditText)rootView.findViewById(R.id.id_setting_schedule_add_EditText)).getText().toString());
+                FloatingWindowDisplayService.getDbManage().getMyDBHelper().insert("schedule", null, values);
+                Toast.makeText(getContext(),"添加成功",Toast.LENGTH_SHORT).show();
+                rootView.findViewById(R.id.id_setting_schedule_add_RelativeLayout).setVisibility(View.GONE);
+                scheduleList.setAdapter(new SettingScheduleAdapter(
+                        FloatingWindowDisplayService.getDbManage().getScheduleByTime(
+                                currentDate.getYear()+"-"+currentDate.getMonth()+"-"+currentDate.getDay())
+                        ,getContext()));
+            }
+        });
         backToday.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onClickBackToDayBtn();
+            }
+        });
+
+        rootView.findViewById(R.id.id_setting_schedule_add_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rootView.findViewById(R.id.id_setting_schedule_add_RelativeLayout).setVisibility(View.GONE);
             }
         });
 //        scrollSwitch.setOnClickListener(new View.OnClickListener() {

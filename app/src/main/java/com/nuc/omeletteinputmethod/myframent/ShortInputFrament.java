@@ -15,13 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.adapters.SettingShortInputAdapter;
 import com.nuc.omeletteinputmethod.entityclass.AppInfomationEntity;
+import com.nuc.omeletteinputmethod.entityclass.FloatShortInputEntity;
+import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShortInputFrament extends LazyFrament {
     RecyclerView mRecyclerView;
-    ArrayList<AppInfomationEntity> alreadHave;
+    ArrayList<AppInfomationEntity> alreadHave = new ArrayList<>();
     ArrayList<AppInfomationEntity> all;
     ArrayList<AppInfomationEntity> nohave;
     @Override
@@ -51,8 +53,10 @@ public class ShortInputFrament extends LazyFrament {
         //调整RecyclerView的排列方向
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
+        haveShortInputRecyclerView.setNestedScrollingEnabled(false);
 
         mRecyclerView.setNestedScrollingEnabled(false);
+
         Log.i("app开始运行：", "initView: ShortInputFrament 49");
 
         new Thread(new Runnable() {
@@ -93,15 +97,6 @@ public class ShortInputFrament extends LazyFrament {
         for (PackageInfo pInfo : packageInfo) {
             appInfomationEntities.add(new AppInfomationEntity(id++,pInfo.applicationInfo.loadLabel(pckMan).toString()
                     ,pInfo.packageName,pInfo.versionName,pInfo.applicationInfo.loadIcon(pckMan)));
-//            HashMap<String, Object> item = new HashMap<String, Object>();
-//
-//            item.put("appimage", pInfo.applicationInfo.loadIcon(pckMan));
-//            item.put("packageName", pInfo.packageName);
-//            item.put("versionCode", pInfo.versionCode);
-//            item.put("versionName", pInfo.versionName);
-//            item.put("appName", pInfo.applicationInfo.loadLabel(pckMan).toString());
-//
-//            items.add(item);
             Log.i("应用信息：", "appName :" +pInfo.applicationInfo.loadLabel(pckMan).toString()+
                     "appPackageName :"+pInfo.packageName);
 //            if (id >10){
@@ -118,8 +113,23 @@ public class ShortInputFrament extends LazyFrament {
         public boolean handleMessage(@NonNull Message msg) {
             switch (msg.what){
                 case 0:
-                    haveShortInputRecyclerView.setAdapter(new SettingShortInputAdapter(all,mContext));
+                    ArrayList<FloatShortInputEntity> floatShortInputEntityArrayList =
+                    FloatingWindowDisplayService.getDbManage().getAllFloatShortInput();
+                    for (int i = 0; i < floatShortInputEntityArrayList.size(); i++) {
+                        Log.i("储存的应用包名", "handleMessage: "+floatShortInputEntityArrayList.get(i).getPackageName());
+                        for (int j = 0; j < all.size(); j++) {
+                            if (floatShortInputEntityArrayList.get(i).getPackageName().equals(all.get(j).getAppPackageName())){
+                                alreadHave.add(all.get(j));
+                                Log.i("all list 清楚了 ", "handleMessage: " + all.get(j));
+                                all.remove(j);
+                            }
+                        }
+
+                    }
+                    Log.i("现在拥有的", "handleMessage: " + all.size());
+                    haveShortInputRecyclerView.setAdapter(new SettingShortInputAdapter(alreadHave,mContext));
                     mRecyclerView.setAdapter(new SettingShortInputAdapter(all,mContext));
+
                     //刷新布局
                     break;
 

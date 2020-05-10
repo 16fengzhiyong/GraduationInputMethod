@@ -22,9 +22,9 @@
             android:background="#FFFFFF"
             >
             <TextView
+                android:id="@+id/id_float_shortinput_appname"
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="5dp"
-                android:id="@+id/id_float_shortinput_Button"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:text="整理"

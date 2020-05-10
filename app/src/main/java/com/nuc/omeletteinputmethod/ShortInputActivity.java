@@ -90,7 +90,12 @@ public class ShortInputActivity extends Activity {
                // InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             }
         });
-
+        findViewById(R.id.id_setting_change_add_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findViewById(R.id.id_setting_change_add_RelativeLayout).setVisibility(View.GONE);
+            }
+        });
         takePutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,7 +104,17 @@ public class ShortInputActivity extends Activity {
                 values.put("info",editText.getText().toString());
                 values.put("cishu",0);
                 dbManage.getMyDBHelper().insert("shortinput", null, values);
+                findViewById(R.id.id_setting_change_add_RelativeLayout).setVisibility(View.GONE);
                 Toast.makeText(ShortInputActivity.this,"添加成功",Toast.LENGTH_SHORT).show();
+                if (dbManage!=null){
+                    ArrayList<FloatShortInputEntity> ls2 = dbManage.getDataByPackageName(packageName);
+                    if (ls2 != null){
+                        SetingChangeShortInputAdapter adapter =  new SetingChangeShortInputAdapter(ls2, ShortInputActivity.this);
+                        mRecyclerView.setAdapter(adapter);
+                    }else {
+
+                    }
+                }
             }
         });
 //        ContentValues values = new ContentValues();

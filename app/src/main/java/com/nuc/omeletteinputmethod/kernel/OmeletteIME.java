@@ -3,6 +3,7 @@ package com.nuc.omeletteinputmethod.kernel;
 import android.inputmethodservice.InputMethodService;
 import android.os.Environment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;

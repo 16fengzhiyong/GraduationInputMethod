@@ -55,6 +55,23 @@
         <item name="android:textColor">#333333</item>
         <item name="android:textSize">16.0sp</item>
     </style>
+    <style name="MyContentStyle_noimg">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">43.5dp</item>
+        <item name="android:background">@drawable/content_bg</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">13dp</item>
+        <item name="android:textColor">#333333</item>
+        <item name="android:textSize">16.0sp</item>
+    </style>
+    <style name="nomalitem_noimg">
+        <item name="android:background">@drawable/content_bg</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:textColor">#333333</item>
+        <item name="android:textSize">16.0sp</item>
+    </style>
     <!--加载对话窗-->
     <style name="BaseDialog" parent="@android:style/Theme.Dialog"/>
     <style name="Theme.Light.LoadingDialog" parent="@style/BaseDialog">

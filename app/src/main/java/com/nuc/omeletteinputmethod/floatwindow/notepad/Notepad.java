@@ -83,7 +83,8 @@ public class Notepad {
                 public void onClick(View v) {
                     displayView.findViewById(R.id.id_float_notepad_partner).setVisibility(View.GONE);
                     layoutParams.flags = 16777256;
-                    windowManager.addView(displayView,layoutParams);
+                    windowManager.updateViewLayout(displayView,layoutParams);
+                    return;
                 }
             });
             windowManager.addView(displayView,layoutParams);

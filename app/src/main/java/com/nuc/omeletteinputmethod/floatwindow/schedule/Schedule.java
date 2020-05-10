@@ -159,7 +159,8 @@ public class Schedule {
                 public void onClick(View v) {
                     layoutParams.flags = 16777256;
                     displayView.findViewById(R.id.id_float_schedule_parent).setVisibility(View.GONE);
-                    windowManager.addView(displayView,layoutParams);
+                    windowManager.updateViewLayout(displayView,layoutParams);
+                    return;
                 }
             });
             layoutParams.flags = WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;

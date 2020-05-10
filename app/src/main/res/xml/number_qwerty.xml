@@ -18,9 +18,13 @@
             omelette:padding="1.3%"
             />
         <Key
+            omelette:ifimagekey = "true"
+            omelette:keyStyle = "special"
             omelette:keySpec="删除"
+            omelette:imgresource = "@drawable/keyboard_backspace_my"
             omelette:length="23%"
             omelette:padding="1.3%"
+            omelette:altCode ="-1"
             />
     </Row>
     <Row omelette:rowHeight="50dp">
@@ -63,10 +67,15 @@
             omelette:length="23%"
             omelette:padding="1.3%"
             />
+
         <Key
+            omelette:ifimagekey = "true"
+            omelette:keyStyle = "special"
+            omelette:imgresource = "@drawable/huiche"
             omelette:keySpec="确认"
             omelette:length="23%"
             omelette:padding="1.3%"
+            omelette:altCode ="-2"
             />
     </Row>
     <Row omelette:rowHeight="50dp">

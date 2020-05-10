@@ -69,7 +69,8 @@ public class Translate {
                 public void onClick(View v) {
                     displayView.findViewById(R.id.id_float_translate_parent_LL).setVisibility(View.GONE);
                     layoutParams.flags = 16777256;
-                    windowManager.addView(displayView,layoutParams);
+                    windowManager.updateViewLayout(displayView,layoutParams);
+                    return;
                 }
             });
             displayView.findViewById(R.id.id_float_translate_button).setOnClickListener(new View.OnClickListener() {

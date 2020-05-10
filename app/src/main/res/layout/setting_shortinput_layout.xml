@@ -31,7 +31,7 @@
                 android:text="空"/>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/id_setting_shortinput_have_RV"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
             <TextView
@@ -45,7 +45,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/id_setting_shortinput_RV"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
         </LinearLayout>

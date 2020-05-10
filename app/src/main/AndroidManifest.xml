@@ -29,6 +29,7 @@
         </activity>
         <activity android:name=".ShortInputActivity" />
         <activity android:name=".login.LoginActivity" />
+        <activity android:name=".login.RegistActivity" />
 
         <meta-data
             android:name="com.google.android.actions"

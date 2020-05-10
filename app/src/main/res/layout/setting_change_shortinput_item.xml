@@ -4,20 +4,25 @@
     android:layout_height="70dp">
 <!--    setting_change_shortinput_item -->
     <LinearLayout
+        android:gravity="center_vertical"
+        style="@style/nomalitem_noimg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="@dimen/dp_60">
         <TextView
+
+
             android:id="@+id/setting_change_shortinput_id"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_gravity="center"
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="@dimen/dp_20"
+            android:gravity="center"
             android:text="1"
             />
         <TextView
+
             android:id="@+id/setting_change_shortinput_info"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_gravity="center"
+            android:gravity="center"
             android:text="1"
             />
     </LinearLayout>

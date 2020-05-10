@@ -38,6 +38,7 @@ import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
 import com.nuc.omeletteinputmethod.entityclass.SinograFromDB;
 import com.nuc.omeletteinputmethod.inputC.InputC;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
+import com.nuc.omeletteinputmethod.login.SharedPreferencesUtils;
 
 import java.io.Console;
 import java.util.ArrayList;
@@ -59,6 +60,10 @@ public class MyKeyboardView extends View {
     //定义一个paint
     private Paint mPaint;
     OmeletteIME omeletteIME;
+
+    private static boolean canuseownimg =  false;
+    private static int ownsource =  0;
+    SharedPreferencesUtils helper ;
 
 
 
@@ -88,6 +93,7 @@ public class MyKeyboardView extends View {
         super(context, attrs);
         Log.i("loadKeyboard", "MyKeyboardView: 调用这里11");
         this.omeletteIME = (OmeletteIME) context;
+        helper = new SharedPreferencesUtils(omeletteIME, "setting");
     }
 
     public MyKeyboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -149,6 +155,11 @@ public class MyKeyboardView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        canuseownimg = helper.getBoolean("useownimg", false);
+        if (canuseownimg){
+            ownsource = helper.getInt("choseimage");
+            setBackgroundResource(ownsource);
+        }
         this.canvas = canvas;
         switch (KeyboardState.getInstance().getWitchKeyboardNow()) {
             case KeyboardState.ARROWS_KEYBOARD:
@@ -167,8 +178,10 @@ public class MyKeyboardView extends View {
 //                    drawNumberKeyboard(canvas);
 //                    break;
             default:
+                setBackgroundResource(R.drawable.ic_keyboard_backround_2);
                 pinyin26Keyboard.drawKeyboard(canvas,mPaint);
                 KeyboardState.getInstance().setWitchKeyboardNow(KeyboardState.ENGLISH_26_KEY_KEYBOARD);
+
                 break;
         }
     }

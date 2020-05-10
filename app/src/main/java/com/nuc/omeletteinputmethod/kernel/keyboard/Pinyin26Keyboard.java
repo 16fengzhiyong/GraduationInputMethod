@@ -8,10 +8,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.entityclass.CandidatesEntity;
 import com.nuc.omeletteinputmethod.inputC.InputC;
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
@@ -21,6 +23,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import androidx.annotation.NonNull;
 
 public class Pinyin26Keyboard {
     OmeletteIME omeletteIME;
@@ -58,17 +62,22 @@ public class Pinyin26Keyboard {
     String nowPinYin = "";
     String returnstr;
 
+
+    Paint paintbackround = new Paint();
     /**
      * 绘制键盘以0.0为起点
      *
      * @param canvas
      */
     public void drawKeyboard(Canvas canvas,Paint mPaint) {
+
         Resources r = omeletteIME.getResources();
         mPaint = new Paint();
+        //paintbackround.setColor(Color.parseColor("#00ffffff"));
         // 绘制画布背景
-        canvas.drawColor(Color.parseColor("#ECEFF1"));
+        //canvas.drawColor(Color.parseColor("#ECEFF1"));
         mPaint.setColor(Color.WHITE);
+
         KeyboardRow row;
         float drawX = 0;
         float drawY = 0;
@@ -99,7 +108,7 @@ public class Pinyin26Keyboard {
                             (key.getGap()* myKeyboard.getKeyboardWidth() / 100),
                     drawY + row.getRowHeight()+ row.getRowVerticalGap()/2);
             key.setRect(rectsave);
-            canvas.drawRoundRect(rect, 20, 20, mPaint);
+            //canvas.drawRoundRect(rect, 20, 20, paintbackround);
             //mPaint.setTypeface();
             Paint paint = new Paint();
             paint.setTextSize(50);
@@ -135,7 +144,33 @@ public class Pinyin26Keyboard {
 
     }
 
-
+    final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+             if (msg.what == 0x01){
+                dealLongClickKeyEvent(clickKey);
+            }
+        }
+    };
+    private String LongClickKey(float x, float y){
+        long nowTime = System.currentTimeMillis();
+        int waittime = 500;
+        while (LongClickState == LONGCLICKBEGIN){
+            if (System.currentTimeMillis()-nowTime>=waittime){
+                nowTime = System.currentTimeMillis();
+                Message message = Message.obtain();
+                message.what = 0x01;
+                handler.sendMessage(message);
+                if (waittime>100){
+                    waittime = waittime -200;
+                }else if (waittime>50){
+                    waittime = waittime -50;
+                }
+            }
+        }
+        return clickKey.getKeySpec();
+    }
     public boolean  pinyin26KeyboardEvent(MotionEvent event,MyKeyboardView myKeyboardView) {
         float X = event.getX();
         float Y = event.getY();
@@ -156,7 +191,7 @@ public class Pinyin26Keyboard {
                     ifOnClick = false;
                     // doLongPress(indexX, indexY);
                     LongClickState = LONGCLICKBEGIN;
-                    //LongClickKey(keyX,keyY);
+                    LongClickKey(keyX,keyY);
                     //omeletteIME.deleteText();
                 }
             };
@@ -249,6 +284,34 @@ public class Pinyin26Keyboard {
         }
     }
 
+
+    private void dealLongClickKeyEvent(Key key) {
+        switch (key.getAltCode()) {
+            case 0:
+                break;
+            case -1:
+                // 目标：删除最后一个输入的符号
+                if (nowPinYin != ""&&nowPinYin != null&&nowPinYin.length()>0){
+                    nowPinYin = "";
+                    Log.i("MyKeyboardView1", "dealKeyEvent: 现在拼音字符长度是 "+nowPinYin.length());
+                    clickAndInput(key,-1);
+                }else {
+                    omeletteIME.deleteText();
+                }
+                //clickAndInput(key,-1);
+                break;
+            case -5://大小写切换
+                break;
+            case -2://确认按键
+                break;
+            case -3://符号按键
+                break;
+            case 3://空格按键
+                break;
+            default:
+                break;
+        }
+    }
     public void clickAndInput(Key key,int altCode){
         //omeletteIME.commitText(key.getKeySpec());
         if (0 ==altCode){

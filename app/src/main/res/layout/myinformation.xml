@@ -3,95 +3,122 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_bg"
-    android:orientation="vertical">
-    <com.nuc.omeletteinputmethod.util.TitleBar
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/title_bar"
+    android:background="@color/main_bg">
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:visibility="gone"
-        android:background="#FFCCCCCC">
-    </com.nuc.omeletteinputmethod.util.TitleBar>
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:id="@+id/self_info"
+                android:layout_height="86dp"
+                android:background="@color/white">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:id="@+id/self_info"
-        android:layout_height="86dp"
-        android:background="@color/white">
+                <ImageView
+                    android:id="@+id/iv_my_header"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="10.5dp"
+                    android:src="@drawable/arrows_down"
+                    />
+                <TextView
+                    android:id="@+id/tv_my_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="15dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:layout_toLeftOf="@+id/tag"
+                    android:layout_marginRight="7dp"
+                    android:layout_toRightOf="@+id/iv_my_header"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    tools:text="夏天" />
 
-        <ImageView
-            android:id="@+id/iv_my_header"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_marginLeft="12dp"
-            android:layout_marginTop="10.5dp"
-            android:src="@drawable/arrows_down"
-            />
-        <TextView
-            android:id="@+id/tv_my_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginTop="15dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:layout_toLeftOf="@+id/tag"
-            android:layout_marginRight="7dp"
-            android:layout_toRightOf="@+id/iv_my_header"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            tools:text="夏天" />
+                <TextView
+                    android:id="@+id/tv_my_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:layout_toLeftOf="@+id/tag"
+                    android:layout_marginRight="7dp"
+                    android:layout_alignLeft="@+id/tv_my_name"
+                    android:layout_below="@+id/tv_my_name"
+                    android:layout_marginTop="15dp"
+                    android:gravity="center_vertical"
+                    android:textColor="#666666"
+                    android:textSize="13sp"
+                    tools:text="17600606588" />
 
-        <TextView
-            android:id="@+id/tv_my_phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:layout_toLeftOf="@+id/tag"
-            android:layout_marginRight="7dp"
-            android:layout_alignLeft="@+id/tv_my_name"
-            android:layout_below="@+id/tv_my_name"
-            android:layout_marginTop="15dp"
-            android:gravity="center_vertical"
-            android:textColor="#666666"
-            android:textSize="13sp"
-            tools:text="17600606588" />
+                <ImageView
+                    android:id="@+id/tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="13dp"
+                    android:src="@drawable/sym_keyboard_delete" />
+            </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="13dp"
-            android:src="@drawable/sym_keyboard_delete" />
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/tv_my_tongbu"
+                style="@style/MyContentStyle"
+                android:layout_marginTop="15.5dp"
+                android:textColor="#000000"
+                android:text="上传数据" />
 
-    <TextView
-        android:id="@+id/tv_my_tongbu"
-        style="@style/MyContentStyle"
-        android:layout_marginTop="15.5dp"
-        android:textColor="#000000"
-        android:text="上传数据" />
-
-    <TextView
-        android:id="@+id/tv_my_download"
-        style="@style/MyContentStyle"
-        android:layout_marginTop="15.5dp"
-        android:textColor="#000000"
-        android:text="下载数据" />
-    <TextView
-        android:id="@+id/tv_my_all_shedule"
-        style="@style/MyContentStyle"
-        android:layout_marginTop="15.5dp"
-        android:text="我的所有日程" />
-    <TextView
-        android:id="@+id/tv_my_local"
-        style="@style/MyContentStyle"
-        android:layout_marginTop="15.5dp"
-        android:text="退出登录" />
-
+            <TextView
+                android:id="@+id/tv_my_download"
+                style="@style/MyContentStyle"
+                android:layout_marginTop="15.5dp"
+                android:textColor="#000000"
+                android:text="下载数据" />
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/tv_my_download_chose_LL"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <Spinner
+                    android:id="@+id/tv_my_download_spinner"
+                    android:layout_weight="7"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:id="@+id/tv_my_download_chose"
+                    android:layout_weight="3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="确定下载"/>
+            </LinearLayout>
+            <Switch
+                android:id="@+id/switch1"
+                style="@style/MyContentStyle_noimg"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="15.5dp"
+                android:text="是否开启自定义背景" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/my_chose_backround_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/tv_my_all_shedule"
+                style="@style/MyContentStyle"
+                android:layout_marginTop="15.5dp"
+                android:text="我的所有日程" />
+            <TextView
+                android:id="@+id/tv_my_local"
+                style="@style/MyContentStyle"
+                android:layout_marginTop="15.5dp"
+                android:text="退出登录" />
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

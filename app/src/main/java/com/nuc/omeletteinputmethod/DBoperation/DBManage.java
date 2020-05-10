@@ -47,7 +47,7 @@ public class DBManage {
         }Log.i("数据库返回信息", "getSinogramByPinyin: 成功返回");
         if (cursor.getCount() == 0){
             Log.i("数据库返回信息", "返回信息为空");
-            return null;
+            return arrayList;
         }
         try {
             cursor.moveToFirst();
@@ -61,6 +61,13 @@ public class DBManage {
                         );
                 cursor.moveToNext();
             }
+            arrayList.add(
+                    new FloatShortInputEntity(cursor.getInt(cursor.getColumnIndex("id"))
+                            ,cursor.getString(cursor.getColumnIndex("info"))
+                            ,cursor.getString(cursor.getColumnIndex("packagename"))
+                            ,cursor.getInt(cursor.getColumnIndex("cishu"))
+                    )
+            );
             cursor.close();
         }catch (Exception e){
             Log.e("数据库返回信息错误", "getSinogramByPinyin: ", e );
@@ -93,6 +100,12 @@ public class DBManage {
                 );
                 cursor.moveToNext();
             }
+            arrayList.add(
+                    new ScheduleEntity(cursor.getInt(cursor.getColumnIndex("id"))
+                            ,cursor.getString(cursor.getColumnIndex("time"))
+                            ,cursor.getString(cursor.getColumnIndex("info"))
+                    )
+            );
             cursor.close();
         }catch (Exception e){
             Log.e("数据库返回信息错误", "getScheduleByTime: ", e );
@@ -126,6 +139,12 @@ public class DBManage {
                 );
                 cursor.moveToNext();
             }
+            arrayList.add(
+                    new NotepadEntity(cursor.getInt(cursor.getColumnIndex("id"))
+                            ,cursor.getString(cursor.getColumnIndex("text"))
+                            ,cursor.getString(cursor.getColumnIndex("image"))
+                    )
+            );
             cursor.close();
         }catch (Exception e){
             Log.e("数据库返回信息错误", "getScheduleByTime: ", e );
@@ -160,6 +179,12 @@ public class DBManage {
                 );
                 cursor.moveToNext();
             }
+            arrayList.add(
+                    new ScheduleEntity(cursor.getInt(cursor.getColumnIndex("id"))
+                            ,cursor.getString(cursor.getColumnIndex("time"))
+                            ,cursor.getString(cursor.getColumnIndex("info"))
+                    )
+            );
             cursor.close();
         }catch (Exception e){
             Log.e("数据库返回信息错误", "getScheduleByTime: ", e );
@@ -194,6 +219,13 @@ public class DBManage {
                 );
                 cursor.moveToNext();
             }
+            arrayList.add(
+                    new FloatShortInputEntity(cursor.getInt(cursor.getColumnIndex("id"))
+                            ,cursor.getString(cursor.getColumnIndex("info"))
+                            ,cursor.getString(cursor.getColumnIndex("packagename"))
+                            ,cursor.getInt(cursor.getColumnIndex("cishu"))
+                    )
+            );
             cursor.close();
         }catch (Exception e){
             Log.e("数据库返回信息错误", "getSinogramByPinyin: ", e );

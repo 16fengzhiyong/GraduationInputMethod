@@ -34,14 +34,14 @@
                 android:layout_height="30dp"
                 android:layout_gravity="top|center_horizontal"
                 style="@style/tab_main2"
-                android:src="@drawable/tab_my_sel"
+                android:src="@drawable/tab_schedule_sel"
                 />
             <TextView
                 android:id="@+id/id_tab_schedule_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"
-                android:text="test"
+                android:text="我的日程"
                 />
         </FrameLayout>
         <FrameLayout
@@ -56,14 +56,14 @@
                 android:layout_height="30dp"
                 android:layout_gravity="top|center_horizontal"
                 style="@style/tab_main2"
-                android:src="@drawable/tab_my_sel"
+                android:src="@drawable/tab_shrotinput_sel"
                 />
             <TextView
                 android:id="@+id/id_tab_shortinput_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"
-                android:text="test"
+                android:text="快捷输入"
                 />
         </FrameLayout>
         <FrameLayout
@@ -78,14 +78,14 @@
                 android:layout_height="30dp"
                 android:layout_gravity="top|center_horizontal"
                 style="@style/tab_main2"
-                android:src="@drawable/tab_my_sel"
+                android:src="@drawable/tab_notepad_sel"
                 />
             <TextView
                 android:id="@+id/id_tab_notepad_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"
-                android:text="test"
+                android:text="记事本"
                 />
         </FrameLayout>
 
@@ -109,7 +109,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:layout_gravity="bottom|center_horizontal"
-                android:text="test"
+                android:text="我"
                 />
         </FrameLayout>
 

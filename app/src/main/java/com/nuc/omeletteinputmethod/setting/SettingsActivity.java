@@ -146,24 +146,28 @@ public class SettingsActivity extends FragmentActivity {
                     index = 0;
                     tabScheduleIV.setSelected(true);
                     tabScheduleTV.setTextColor(Color.GREEN);
+                    initTooleBar(titleBar,true,"我的日程");
                     vp.setCurrentItem(index, true);
                     break;
                 case R.id.id_tab_shortinput_FL:
                     index = 1;
                     tabShortinputIV.setSelected(true);
                     tabShortinputTV.setTextColor(Color.GREEN);
+                    initTooleBar(titleBar,true,"管理快捷输入");
                     vp.setCurrentItem(index, true);
                     break;
                 case R.id.id_tab_notepad_FL:
                     index = 2;
                     tabNotepadIV.setSelected(true);
                     tabNotepadTV.setTextColor(Color.GREEN);
+                    initTooleBar(titleBar,true,"记事本");
                     vp.setCurrentItem(index, true);
                     break;
                 case R.id.id_tab_my_FL:
                     index = 3;
                     tabMyIV.setSelected(true);
                     tabMyTV.setTextColor(Color.GREEN);
+                    initTooleBar(titleBar,true,"个人信息");
                     vp.setCurrentItem(index, true);
                     break;
 
@@ -191,18 +195,22 @@ public class SettingsActivity extends FragmentActivity {
                     case 0:
                         tabScheduleIV.setSelected(true);
                         tabScheduleTV.setTextColor(Color.GREEN);
+                        initTooleBar(titleBar,true,"我的日程");
                         break;
                     case 1:
                         tabShortinputIV.setSelected(true);
                         tabShortinputTV.setTextColor(Color.GREEN);
+                        initTooleBar(titleBar,true,"快捷输入");
                         break;
                     case 2:
                         tabNotepadIV.setSelected(true);
                         tabNotepadTV.setTextColor(Color.GREEN);
+                        initTooleBar(titleBar,true,"记事本");
                         break;
                     case 3:
                         tabMyIV.setSelected(true);
                         tabMyTV.setTextColor(Color.GREEN);
+                        initTooleBar(titleBar,true,"个人信息");
                         break;
                 }
             }

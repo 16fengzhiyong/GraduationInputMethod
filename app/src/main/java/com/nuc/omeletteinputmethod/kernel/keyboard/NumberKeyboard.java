@@ -10,6 +10,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.nuc.omeletteinputmethod.kernel.OmeletteIME;
@@ -105,14 +106,15 @@ public class NumberKeyboard {
                 Log.i("onTouchEvent", "修改了" + clickKey.getKeySpec());
             }
             if (key.isIfimagekey()) {
-
+                int width_1_4 = (int) (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 200+ (key.getLength() * myKeyboard.getKeyboardWidth() / 100 /2 /2));
+                int height_1_4 = row.getRowHeight() / 2 / 2;
                 Bitmap bmp = BitmapFactory.decodeResource(r, key.getImgresource());
                 Rect rect1 = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-                Rect rect2 = new Rect((int) (drawX + (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100))
-                        , (int) drawY + row.getRowHeight() / 2
-                        , (int) (drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 200) +
-                        (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100))
-                        , (int) (drawY + row.getRowHeight()));
+                Rect rect2 = new Rect((int) (drawX + width_1_4)
+                        , (int) drawY + height_1_4
+                        , (int) (drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 100 /2 ) +
+                        (key.getGap() / 2 * myKeyboard.getKeyboardWidth() / 100)) +width_1_4
+                        , (int) (drawY + row.getRowHeight() /2 +height_1_4));
                 canvas.drawBitmap(bmp, rect1, rect2, mPaint);
             } else {
                 canvas.drawText(key.getKeySpec(), drawX + (key.getLength() * myKeyboard.getKeyboardWidth() / 200) +
@@ -206,10 +208,12 @@ public class NumberKeyboard {
                 omeletteIME.commitText(key.getKeySpec());
                 break;
             case -1:
+                omeletteIME.deleteText();
                 break;
             case -5://大小写切换
                 break;
             case -2://确认按键
+                omeletteIME.sendDownUpKeyEvents(KeyEvent.KEYCODE_ENTER);
                 break;
             case 3://空格按键
                 break;

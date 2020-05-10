@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
@@ -49,10 +50,8 @@ public class LoginActivity extends Activity
     private CheckBox checkBox_password;
     private CheckBox checkBox_login;
     private ImageView iv_see_password;
-
     private LoadingDialog mLoadingDialog; //显示正在加载的对话框
-
-
+    private TextView id_to_regist;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +59,6 @@ public class LoginActivity extends Activity
         initViews();
         setupEvents();
         initData();
-
     }
 
     private void initData() {
@@ -109,8 +107,8 @@ public class LoginActivity extends Activity
     public String getLocalName() {
         //获取SharedPreferences对象，使用自定义类的方法来获取对象
         SharedPreferencesUtils helper = new SharedPreferencesUtils(this, "setting");
-        String name = helper.getString("name");
-        return name;
+        String usernumber = helper.getString("usernumber");
+        return usernumber;
     }
 
 
@@ -154,6 +152,7 @@ public class LoginActivity extends Activity
         checkBox_password = (CheckBox) findViewById(R.id.checkBox_password);
         checkBox_login = (CheckBox) findViewById(R.id.checkBox_login);
         iv_see_password = (ImageView) findViewById(R.id.iv_see_password);
+        id_to_regist = findViewById(R.id.id_to_regist);
     }
 
     private void setupEvents() {
@@ -161,6 +160,7 @@ public class LoginActivity extends Activity
         checkBox_password.setOnCheckedChangeListener(this);
         checkBox_login.setOnCheckedChangeListener(this);
         iv_see_password.setOnClickListener(this);
+        id_to_regist.setOnClickListener(this);
 
     }
 
@@ -176,7 +176,7 @@ public class LoginActivity extends Activity
             helper.putValues(new SharedPreferencesUtils.ContentValue("first", false),
                     new SharedPreferencesUtils.ContentValue("remenberPassword", false),
                     new SharedPreferencesUtils.ContentValue("autoLogin", false),
-                    new SharedPreferencesUtils.ContentValue("name", ""),
+                    new SharedPreferencesUtils.ContentValue("usernumber", "未登录"),
                     new SharedPreferencesUtils.ContentValue("password", ""));
             return true;
         }
@@ -187,13 +187,17 @@ public class LoginActivity extends Activity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_login:
-                loadUserName();    //无论如何保存一下用户名
+                //loadUserName();    //无论如何保存一下用户名
                 login(); //登陆
                 break;
             case R.id.iv_see_password:
                 setPasswordVisibility();    //改变图片并设置输入框的文本可见或不可见
                 break;
-
+            case R.id.id_to_regist:
+                Intent intent = new Intent(this,RegistActivity.class);
+                startActivity(intent);
+                finish();
+                break;
         }
     }
 
@@ -249,12 +253,12 @@ public class LoginActivity extends Activity
     }
 
 
-    public void postForLogin(String url1, String username, String password){
-        Log.i("保存的密码", "postForLogin: 准备发送 username ="+username +"password ="+password);
+    public void postForLogin(String url1, String usernumber, String password){
+        Log.i("保存的密码", "postForLogin: 准备发送 usernumber ="+usernumber +"password ="+password);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         OkHttpClient okHttpClient = builder.build();
         FormBody.Builder formbuilder = new FormBody.Builder();
-        formbuilder.add("username", username);
+        formbuilder.add("usernumber", usernumber);
         formbuilder.add("password", password);
         FormBody body = formbuilder.build();
         Request request = new Request.Builder()
@@ -317,7 +321,7 @@ public class LoginActivity extends Activity
     public void loadUserName() {
         if (!getAccount().equals("") || !getAccount().equals("请输入登录账号")) {
             SharedPreferencesUtils helper = new SharedPreferencesUtils(this, "setting");
-            helper.putValues(new SharedPreferencesUtils.ContentValue("name", getAccount()));
+            helper.putValues(new SharedPreferencesUtils.ContentValue("usernumber", getAccount()));
         }
 
     }
@@ -373,6 +377,7 @@ public class LoginActivity extends Activity
         if (checkBox_login.isChecked()) {
             //创建记住密码和自动登录是都选择,保存密码数据
             helper.putValues(
+                    new SharedPreferencesUtils.ContentValue("usernumber", getAccount()),
                     new SharedPreferencesUtils.ContentValue("remenberPassword", true),
                     new SharedPreferencesUtils.ContentValue("autoLogin", true),
                     new SharedPreferencesUtils.ContentValue("password", remenberPassword()?getPassword():strTOmd5(getPassword())));
@@ -382,12 +387,14 @@ public class LoginActivity extends Activity
         } else if (!checkBox_password.isChecked()) { //如果没有保存密码，那么自动登录也是不选的
             //创建记住密码和自动登录是默认不选,密码为空
             helper.putValues(
+                    new SharedPreferencesUtils.ContentValue("usernumber", getAccount()),
                     new SharedPreferencesUtils.ContentValue("remenberPassword", false),
                     new SharedPreferencesUtils.ContentValue("autoLogin", false),
                     new SharedPreferencesUtils.ContentValue("password", ""));
         } else if (checkBox_password.isChecked()) {   //如果保存密码，没有自动登录
             //创建记住密码为选中和自动登录是默认不选,保存密码数据
             helper.putValues(
+                    new SharedPreferencesUtils.ContentValue("usernumber", getAccount()),
                     new SharedPreferencesUtils.ContentValue("remenberPassword", true),
                     new SharedPreferencesUtils.ContentValue("autoLogin", false),
                     new SharedPreferencesUtils.ContentValue("password", remenberPassword()?getPassword():strTOmd5(getPassword())));

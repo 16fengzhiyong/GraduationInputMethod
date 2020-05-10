@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.nuc.omeletteinputmethod.R;
 import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
@@ -70,68 +72,37 @@ public class  ShortcutInput {
             layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
             mRecyclerView.setLayoutManager(layoutManager);
             ArrayList<FloatShortInputEntity> floatShortInputEntities = new ArrayList<>();
-            for (int i = 0;i<20;i++){
-                floatShortInputEntities.add(new FloatShortInputEntity(i,"test"+i,"com.nuc.omeletteinputmethod"));
-            }
 //                    com.nuc.omeletteinputmethod
-            mRecyclerView.setAdapter(new FloatShortInputAdapter(floatShortInputEntities, mContext));
-//                    mRecyclerView.setAdapter(
-//                            new FloatShortInputAdapter(dbManage.getDataByPackageName(
-//                                    ShortcutInput.getLollipopRecentTask(FloatingImageDisplayService.this)),
-//                                    FloatingImageDisplayService.this));
+            String nowpackagename = ShortcutInput.getLollipopRecentTask(mContext);
+            mRecyclerView.setAdapter(
+                    new FloatShortInputAdapter(FloatingWindowDisplayService.getDbManage().getDataByPackageName(
+                            nowpackagename), mContext));
 
+
+            ((TextView)displayView.findViewById(R.id.id_float_shortinput_appname)).setText(getAppName(nowpackagename));
             windowManager.addView(displayView,layoutParams);
         }catch (Exception e){
 
         }
     }
-    //检测用户是否对本app开启了“Apps with usage access”权限
-    private boolean hasPermission() {
-        AppOpsManager appOps = (AppOpsManager)
-                mContext.getSystemService(Context.APP_OPS_SERVICE);
-        int mode = 0;
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                    android.os.Process.myUid(), mContext.getPackageName());
-        }
-        return mode == AppOpsManager.MODE_ALLOWED;
-    }
 
-    private static final int MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS = 1101;
 
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS) {
-//            if (!hasPermission()) {
-//                //若用户未开启权限，则引导用户开启“Apps with usage access”权限
-//                mContext.startActivityForResult(
-//                        new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),
-//                        MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS);
-//            }
-//        }
-//    }
-//    ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
-//    RunningTaskInfo runningTaskInfo = manager.getRunningTasks(1).get(0);
-//    Log.v("TAG", "getClassName:"+runningTaskInfo.baseActivity.getPackageName());
-    /**
-     * 获取应用信息
-     * @param context
-     * @return
-     */
-    public ArrayList<AppInfomationEntity> getItems(Context context) {
-        PackageManager pckMan = context.getPackageManager();
-        ArrayList<AppInfomationEntity> appInfomationEntities = new ArrayList<>();
-//        ArrayList<HashMap<String, Object>> items = new ArrayList<HashMap<String, Object>>();
+    public String getAppName(String nowpackagename){
+        PackageManager pckMan = mContext.getPackageManager();
+
         int id = 0;
         List<PackageInfo> packageInfo = pckMan.getInstalledPackages(0);
 
         for (PackageInfo pInfo : packageInfo) {
-            appInfomationEntities.add(new AppInfomationEntity(id++,pInfo.applicationInfo.loadLabel(pckMan).toString()
-                    ,pInfo.packageName,pInfo.versionName,pInfo.applicationInfo.loadIcon(pckMan)));
-            Log.i("应用信息：", "appName :" +pInfo.applicationInfo.loadLabel(pckMan).toString()+
-                    "appPackageName :"+pInfo.packageName);
+            if (nowpackagename.equals(pInfo.packageName)){
+                return pInfo.applicationInfo.loadLabel(pckMan).toString();
+            }
         }
-        return appInfomationEntities;
+        Log.i("app开始运行 ", "getItems: 结束");
+        return "app名字";
     }
+
+
 
     public static String getLollipopRecentTask(Context context) {
         final int PROCESS_STATE_TOP = 2;
