@@ -21,7 +21,7 @@ import com.nuc.omeletteinputmethod.DBoperation.DBManage;
 import com.nuc.omeletteinputmethod.adapters.SetingChangeShortInputAdapter;
 import com.nuc.omeletteinputmethod.entityclass.FloatShortInputEntity;
 import com.nuc.omeletteinputmethod.floatwindow.FloatingWindowDisplayService;
-import com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView;
+import com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView;
 import com.nuc.omeletteinputmethod.util.MyItemTouchHelper;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ShortInputActivity extends Activity {
     RecyclerView mRecyclerView;
-    NiceImageView niceImageView;
+    CircularImageView circularImageView;
     TextView nameText;
     DBManage dbManage;
     EditText editText;
@@ -50,7 +50,7 @@ public class ShortInputActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setting_change_shortinput_layout);
         mRecyclerView = findViewById(R.id.id_setting_change_shortinput_list);
-        niceImageView = findViewById(R.id.id_setting_change_shortinput_icon);
+        circularImageView = findViewById(R.id.id_setting_change_shortinput_icon);
         nameText = findViewById(R.id.id_setting_change_shortinput_name);
         addImageView = findViewById(R.id.id_setting_change_add_imageview);
         takePutButton = findViewById(R.id.id_setting_change_add_ok_Button);
@@ -61,7 +61,7 @@ public class ShortInputActivity extends Activity {
         Intent intent = getIntent();
         appIcon = intent.getByteArrayExtra("appIcon");
         icon = BitmapFactory.decodeByteArray(appIcon,0,appIcon.length);
-        niceImageView.setImageBitmap(icon);
+        circularImageView.setImageBitmap(icon);
         nameText.setText(intent.getStringExtra("appName"));
         packageName = intent.getStringExtra("packageName");
         if (dbManage!=null){

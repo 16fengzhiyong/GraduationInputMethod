@@ -75,8 +75,8 @@ public class Pinyin26Keyboard {
         mPaint = new Paint();
         //paintbackround.setColor(Color.parseColor("#00ffffff"));
         // 绘制画布背景
-        //canvas.drawColor(Color.parseColor("#ECEFF1"));
-        mPaint.setColor(Color.WHITE);
+        canvas.drawColor(Color.parseColor("#ECEFF1"));
+        paintbackround.setColor(Color.WHITE);
 
         KeyboardRow row;
         float drawX = 0;
@@ -108,7 +108,7 @@ public class Pinyin26Keyboard {
                             (key.getGap()* myKeyboard.getKeyboardWidth() / 100),
                     drawY + row.getRowHeight()+ row.getRowVerticalGap()/2);
             key.setRect(rectsave);
-            //canvas.drawRoundRect(rect, 20, 20, paintbackround);
+            canvas.drawRoundRect(rect, 20, 20, paintbackround);
             //mPaint.setTypeface();
             Paint paint = new Paint();
             paint.setTextSize(50);

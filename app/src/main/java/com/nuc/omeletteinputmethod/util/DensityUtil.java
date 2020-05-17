@@ -16,10 +16,6 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-
-/**
- * Created by Jorstin on 2018/8/18.
- */
 public class DensityUtil {
 
     // 根据屏幕密度转换

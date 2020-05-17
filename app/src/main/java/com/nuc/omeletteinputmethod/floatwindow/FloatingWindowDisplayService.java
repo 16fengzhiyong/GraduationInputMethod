@@ -1,6 +1,5 @@
 package com.nuc.omeletteinputmethod.floatwindow;
 
-import android.app.DatePickerDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,20 +17,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.nuc.omeletteinputmethod.DBoperation.DBManage;
-import com.nuc.omeletteinputmethod.MainActivity;
 import com.nuc.omeletteinputmethod.R;
-import com.nuc.omeletteinputmethod.adapters.FloatShortInputAdapter;
 import com.nuc.omeletteinputmethod.entityclass.AppInfomationEntity;
-import com.nuc.omeletteinputmethod.entityclass.FloatShortInputEntity;
 import com.nuc.omeletteinputmethod.floatwindow.notepad.Notepad;
 import com.nuc.omeletteinputmethod.floatwindow.schedule.Schedule;
 import com.nuc.omeletteinputmethod.floatwindow.shortcutinput.ShortcutInput;
@@ -39,16 +32,12 @@ import com.nuc.omeletteinputmethod.floatwindow.translate.Translate;
 import com.nuc.omeletteinputmethod.floatwindow.view.FloatWindowLayout;
 import com.nuc.omeletteinputmethod.floatwindow.view.PathMenu;
 import com.nuc.omeletteinputmethod.floatwindow.view.StateMenu;
-import com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView;
+import com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.FormatFlagsConversionMismatchException;
 import java.util.List;
 
-/**
- * Created by dongzhong on 2018/5/30.
- */
+
 
 public class FloatingWindowDisplayService extends Service {
     public static boolean isStarted = false;
@@ -61,7 +50,7 @@ public class FloatingWindowDisplayService extends Service {
 
     private View displayView;
     private View zhankai;
-    NiceImageView centerImage;
+    CircularImageView centerImage;
 
     private int[] images;
     private int imageIndex = 0;

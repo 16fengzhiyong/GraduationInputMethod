@@ -12,11 +12,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Scroller;
 
-
-/**
- * Created by lsp on 2017/2/24.
- */
-
 public class SymbolScrollChooseView extends View {
     private String[] titles = new String[]{"0", "1", "2", "3", "4", "5", "6"};
     private Paint paint;

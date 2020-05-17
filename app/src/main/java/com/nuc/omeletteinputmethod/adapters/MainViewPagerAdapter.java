@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
 /**
- * Created by zlk on 2017/7/24.
+ * Created by fzy on 2017/7/24.
  */
 
 public class MainViewPagerAdapter extends FragmentStatePagerAdapter {

@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by daofa on 2016/4/10.
- * 字符串的处理方法
- */
 public class StringUtil {
 
     /**

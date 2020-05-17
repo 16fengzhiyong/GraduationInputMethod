@@ -144,6 +144,13 @@ public class LoginActivity extends Activity
         return remenberPassword;
     }
 
+    public void te(){
+        if (autoLogin()){
+            if (!remenberPassword()){
+                postForLogin(HttpUrls.URL+"/userlogin.do",getAccount(),strTOmd5(getPassword()));
+            }else  startActivity(new Intent(this,LoginActivity.class));
+        }
+    }
 
     private void initViews() {
         mLoginBtn = (Button) findViewById(R.id.btn_login);

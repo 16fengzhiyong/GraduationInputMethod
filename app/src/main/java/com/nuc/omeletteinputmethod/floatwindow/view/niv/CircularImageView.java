@@ -21,7 +21,7 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 import com.nuc.omeletteinputmethod.R;
 
-public class NiceImageView extends AppCompatImageView {
+public class CircularImageView extends AppCompatImageView {
     private Context context;
 
     private boolean isCircle; // 是否显示为圆形，如果为圆形则设置的corner无效
@@ -55,45 +55,45 @@ public class NiceImageView extends AppCompatImageView {
     private Path path; // 用来裁剪图片的ptah
     private Path srcPath; // 图片区域大小的path
 
-    public NiceImageView(Context context) {
+    public CircularImageView(Context context) {
         this(context, null);
     }
 
-    public NiceImageView(Context context, @Nullable AttributeSet attrs) {
+    public CircularImageView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public NiceImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CircularImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         this.context = context;
 
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.NiceImageView, 0, 0);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CircularImageView, 0, 0);
         for (int i = 0; i < ta.getIndexCount(); i++) {
             int attr = ta.getIndex(i);
-            if (attr == R.styleable.NiceImageView_is_cover_src) {
+            if (attr == R.styleable.CircularImageView_is_cover_src) {
                 isCoverSrc = ta.getBoolean(attr, isCoverSrc);
-            } else if (attr == R.styleable.NiceImageView_is_circle) {
+            } else if (attr == R.styleable.CircularImageView_is_circle) {
                 isCircle = ta.getBoolean(attr, isCircle);
-            } else if (attr == R.styleable.NiceImageView_border_width) {
+            } else if (attr == R.styleable.CircularImageView_border_width) {
                 borderWidth = ta.getDimensionPixelSize(attr, borderWidth);
-            } else if (attr == R.styleable.NiceImageView_border_color) {
+            } else if (attr == R.styleable.CircularImageView_border_color) {
                 borderColor = ta.getColor(attr, borderColor);
-            } else if (attr == R.styleable.NiceImageView_inner_border_width) {
+            } else if (attr == R.styleable.CircularImageView_inner_border_width) {
                 innerBorderWidth = ta.getDimensionPixelSize(attr, innerBorderWidth);
-            } else if (attr == R.styleable.NiceImageView_inner_border_color) {
+            } else if (attr == R.styleable.CircularImageView_inner_border_color) {
                 innerBorderColor = ta.getColor(attr, innerBorderColor);
-            } else if (attr == R.styleable.NiceImageView_corner_radius) {
+            } else if (attr == R.styleable.CircularImageView_corner_radius) {
                 cornerRadius = ta.getDimensionPixelSize(attr, cornerRadius);
-            } else if (attr == R.styleable.NiceImageView_corner_top_left_radius) {
+            } else if (attr == R.styleable.CircularImageView_corner_top_left_radius) {
                 cornerTopLeftRadius = ta.getDimensionPixelSize(attr, cornerTopLeftRadius);
-            } else if (attr == R.styleable.NiceImageView_corner_top_right_radius) {
+            } else if (attr == R.styleable.CircularImageView_corner_top_right_radius) {
                 cornerTopRightRadius = ta.getDimensionPixelSize(attr, cornerTopRightRadius);
-            } else if (attr == R.styleable.NiceImageView_corner_bottom_left_radius) {
+            } else if (attr == R.styleable.CircularImageView_corner_bottom_left_radius) {
                 cornerBottomLeftRadius = ta.getDimensionPixelSize(attr, cornerBottomLeftRadius);
-            } else if (attr == R.styleable.NiceImageView_corner_bottom_right_radius) {
+            } else if (attr == R.styleable.CircularImageView_corner_bottom_right_radius) {
                 cornerBottomRightRadius = ta.getDimensionPixelSize(attr, cornerBottomRightRadius);
-            } else if (attr == R.styleable.NiceImageView_mask_color) {
+            } else if (attr == R.styleable.CircularImageView_mask_color) {
                 maskColor = ta.getColor(attr, maskColor);
             }
         }

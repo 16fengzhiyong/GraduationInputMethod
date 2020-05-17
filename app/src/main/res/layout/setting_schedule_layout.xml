@@ -254,7 +254,7 @@ android:layout_height="match_parent">
             />
     </RelativeLayout>
 
-    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView
         android:id="@+id/id_setting_schedule_add_imageview"
         android:src="@drawable/setting_add_button_128"
         android:layout_width="60dp"

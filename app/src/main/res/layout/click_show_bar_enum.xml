@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView
         android:id="@+id/bar_image_1"
         android:layout_width="200dp"
         android:layout_height="200dp"
@@ -19,7 +19,7 @@
         app:corner_radius="20dp"
         app:inner_border_width="1dp"
         app:is_circle="true" />
-    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView
         android:id="@+id/bar_image_2"
         android:layout_width="200dp"
         android:layout_height="200dp"
@@ -31,7 +31,7 @@
         app:corner_radius="20dp"
         app:inner_border_width="1dp"
         app:is_circle="true" />
-    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView
         android:id="@+id/bar_image_3"
         android:layout_width="200dp"
         android:layout_height="200dp"
@@ -43,7 +43,7 @@
         app:corner_radius="20dp"
         app:inner_border_width="1dp"
         app:is_circle="true" />
-    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView
         android:id="@+id/bar_image_4"
         android:layout_width="200dp"
         android:layout_height="200dp"
@@ -56,7 +56,7 @@
         app:inner_border_width="1dp"
         app:is_circle="true" />
 
-    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView
         android:id="@+id/bar_image_center"
         android:layout_width="200dp"
         android:layout_height="200dp"

@@ -15,11 +15,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * Created by francisbingo on 2019-08-22 10:34
- * <p>
- * 实现RecyclerView 上线拖拽工具类
- */
 public class MyItemTouchHelper extends androidx.recyclerview.widget.ItemTouchHelper.Callback {
     private SetingChangeShortInputAdapter adapter;
 

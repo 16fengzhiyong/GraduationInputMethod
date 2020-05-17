@@ -36,7 +36,7 @@
         <attr name="height" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="NiceImageView">
+    <declare-styleable name="CircularImageView">
         <attr name="is_circle" format="boolean" />
         <attr name="is_cover_src" format="boolean" />
         <attr name="corner_radius" format="dimension" />

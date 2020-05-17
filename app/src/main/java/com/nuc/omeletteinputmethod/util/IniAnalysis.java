@@ -7,9 +7,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by admin on 2015/10/28.
- */
 public class IniAnalysis {
     private String path = "symbols";
     private Context context;

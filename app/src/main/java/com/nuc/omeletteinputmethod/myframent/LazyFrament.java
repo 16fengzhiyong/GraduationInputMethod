@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.View;
 
 /**
- * Created by zlk on 2017/7/24.
  * 避免activity刚创建的时候初始化大量资源。
  * 实现Fragment懒加载
  */

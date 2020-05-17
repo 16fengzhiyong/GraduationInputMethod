@@ -178,7 +178,7 @@ public class MyKeyboardView extends View {
 //                    drawNumberKeyboard(canvas);
 //                    break;
             default:
-                setBackgroundResource(R.drawable.ic_keyboard_backround_2);
+                //setBackgroundResource(R.drawable.ic_keyboard_backround_2);
                 pinyin26Keyboard.drawKeyboard(canvas,mPaint);
                 KeyboardState.getInstance().setWitchKeyboardNow(KeyboardState.ENGLISH_26_KEY_KEYBOARD);
 

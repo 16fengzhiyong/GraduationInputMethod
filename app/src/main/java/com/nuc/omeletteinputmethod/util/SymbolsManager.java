@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by admin on 2015/10/30.
- */
 public class SymbolsManager {
 
     public String[] SMILE;

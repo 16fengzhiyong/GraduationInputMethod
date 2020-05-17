@@ -7,4 +7,5 @@ public class InputC {
     public native String stringFromJNI();
     public native String getStringOfScendFromJNI(String put,int cishu);
     public native String getStringForReadyFromJNI(String wenzi);
+    public native String updateData(String wenzi);
 }

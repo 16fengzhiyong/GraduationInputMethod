@@ -148,13 +148,13 @@ public class ArrowKeyboard {
         paint.setTextSize(50);
         paint.setColor(Color.BLACK);
         paint.setTextAlign(Paint.Align.CENTER);//对其方式
-        canvas.drawText("复制", 680, 165, paint);
+        canvas.drawText("复制", 680, 120, paint);
         arrows.add(new Rect(600, 50, 760, 150));//复制
 
 
         rectf = new RectF(800, 50, 960, 150);
         canvas.drawRoundRect(rectf, 20, 20, mPaint);
-        canvas.drawText("粘贴", 880, 165, paint);
+        canvas.drawText("粘贴", 880, 120, paint);
         arrows.add(new Rect(800, 50, 960, 150));//粘贴
 
 

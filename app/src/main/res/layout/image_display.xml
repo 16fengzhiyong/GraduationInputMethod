@@ -11,7 +11,7 @@
 <!--        android:layout_height="wrap_content"-->
 
 <!--        />-->
-    <com.nuc.omeletteinputmethod.floatwindow.view.niv.NiceImageView
+    <com.nuc.omeletteinputmethod.floatwindow.view.niv.CircularImageView
         android:id="@+id/image_display_imageview"
         android:layout_width="30dp"
         android:layout_height="30dp"

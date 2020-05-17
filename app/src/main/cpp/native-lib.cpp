@@ -224,3 +224,9 @@ Java_com_nuc_omeletteinputmethod_inputC_InputC_getStringForReadyFromJNI(JNIEnv *
 
     // TODO: implement getStringForReadyFromJNI()
 }
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_nuc_omeletteinputmethod_inputC_InputC_updateData(JNIEnv *env, jobject thiz,
+                                                          jstring wenzi) {
+    // TODO: implement updateData()
+}

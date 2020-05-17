@@ -16,11 +16,6 @@ import java.io.Serializable;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-
-/**
- * Created by zlk on 2017/7/24.
- */
-
 public abstract  class BaseFrament extends Fragment {
     protected Context mContext;
     protected View rootView;

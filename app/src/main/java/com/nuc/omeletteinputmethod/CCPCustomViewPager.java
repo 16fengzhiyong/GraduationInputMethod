@@ -6,10 +6,6 @@ import android.view.MotionEvent;
 
 import androidx.viewpager.widget.ViewPager;
 
-/**
- * 重载接口增加设置主界面是否可以进行滑动
- * Created by Jorstin on 2015/3/18.
- */
 public class CCPCustomViewPager extends ViewPager {
 
     /**
