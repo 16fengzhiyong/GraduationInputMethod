@@ -3,13 +3,9 @@
     package="com.nuc.omeletteinputmethod">
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
+        android:name=".OmeletteApplication"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@drawable/jiandan"
@@ -17,24 +13,13 @@
         android:roundIcon="@drawable/jiandan"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity" />
-
-        <activity android:name=".FirstActivity" />
-        <activity android:name=".setting.SettingsActivity">
+        <activity android:name=".ui.settings.SettingsActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShortInputActivity" />
-        <activity android:name=".login.LoginActivity" />
-        <activity android:name=".login.RegistActivity" />
-
-        <meta-data
-            android:name="com.google.android.actions"
-            android:resource="@xml/number_qwerty" />
-
         <service
             android:name=".kernel.OmeletteIME"
             android:label="@string/Chinese_ime_name"
@@ -42,13 +27,10 @@
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
-
             <meta-data
                 android:name="android.view.im"
                 android:resource="@xml/method" />
         </service>
-        <service android:name=".floatwindow.FloatingWindowDisplayService" />
+        <service android:name=".ui.floating.FloatingService" />
     </application>
-
-
 </manifest>
