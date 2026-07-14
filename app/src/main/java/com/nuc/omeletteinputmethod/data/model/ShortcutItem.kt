@@ -7,7 +7,10 @@ import androidx.room.PrimaryKey
 data class ShortcutItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val packageName: String, // Associated App Package
-    val content: String, // The text shortcut
-    val label: String // Display label
+    val packageName: String = "global",
+    val content: String,
+    val label: String,
+    val category: String = "",
+    val sortOrder: Int = 0,
+    val updatedAt: Long = System.currentTimeMillis(),
 )

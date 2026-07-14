@@ -7,8 +7,26 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/AndroidProjectSystem.xml
+/.idea/compiler.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/migrations.xml
+/.idea/.name
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
+
+# opencode / editor tooling
+node_modules/
+package.json
+package-lock.json
+opencode.json
+.opencode/
+.reasonix/
+.windsurfrules
+.editorconfig
+
+# Python cache
+__pycache__/

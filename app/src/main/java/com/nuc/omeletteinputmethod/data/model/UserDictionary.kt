@@ -9,5 +9,5 @@ data class UserDictionary(
     val id: Long = 0,
     val word: String,
     val frequency: Int = 0,
-    val lastUsedTimestamp: Long = System.currentTimeMillis()
+    val lastUsedTimestamp: Long = System.currentTimeMillis(),
 )

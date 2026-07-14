@@ -7,12 +7,34 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ShortcutRepository @Inject constructor(
-    private val shortcutDao: ShortcutDao
-) {
-    fun getShortcuts(packageName: String): Flow<List<ShortcutItem>> = 
-        shortcutDao.getShortcutsForPackage(packageName)
+class ShortcutRepository
+    @Inject
+    constructor(
+        private val shortcutDao: ShortcutDao,
+    ) {
+        fun getShortcuts(packageName: String = "global"): Flow<List<ShortcutItem>> = shortcutDao.getShortcutsForPackage(packageName)
 
-    suspend fun addShortcut(item: ShortcutItem) = shortcutDao.insertShortcut(item)
-    suspend fun deleteShortcut(item: ShortcutItem) = shortcutDao.deleteShortcut(item)
-}
+        fun getAllShortcuts(): Flow<List<ShortcutItem>> = shortcutDao.getAllShortcuts()
+
+        fun searchShortcuts(
+            query: String,
+            packageName: String = "global",
+        ): Flow<List<ShortcutItem>> =
+            if (query.isBlank()) {
+                getShortcuts(packageName)
+            } else {
+                shortcutDao.searchShortcuts(packageName, query.trim())
+            }
+
+        fun getAllCategories(): Flow<List<String>> = shortcutDao.getAllCategories()
+
+        suspend fun addShortcut(item: ShortcutItem): Long = shortcutDao.insertShortcut(item.copy(updatedAt = System.currentTimeMillis()))
+
+        suspend fun updateShortcut(item: ShortcutItem) {
+            shortcutDao.updateShortcut(item.copy(updatedAt = System.currentTimeMillis()))
+        }
+
+        suspend fun deleteShortcut(item: ShortcutItem) {
+            shortcutDao.deleteShortcut(item)
+        }
+    }

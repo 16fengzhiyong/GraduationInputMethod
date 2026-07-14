@@ -7,24 +7,35 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import com.nuc.omeletteinputmethod.ui.theme.OmeletteIMETheme
+import com.nuc.omeletteinputmethod.ui.keyboard.KeyboardViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SettingsActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var keyboardViewModel: KeyboardViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         checkOverlayPermission()
-        
+
+        val startScreen = intent.getStringExtra("start_screen") ?: Routes.DASHBOARD
+
         setContent {
             OmeletteIMETheme {
-                // Determine starting screen from intent
-                val startScreen = intent.getStringExtra("start_screen") ?: "dashboard"
-                SettingsScreen(
-                    startDestination = startScreen,
-                    onCheckPermission = { checkOverlayPermission() }
-                )
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    SettingsScreen(
+                        startDestination = startScreen,
+                        onCheckPermission = { checkOverlayPermission() },
+                        keyboardViewModel = keyboardViewModel
+                    )
+                }
             }
         }
     }

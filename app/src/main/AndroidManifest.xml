@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nuc.omeletteinputmethod">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Agent D: for voice input -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <application
         android:name=".OmeletteApplication"
         android:usesCleartextTraffic="true"
@@ -23,7 +24,8 @@
         <service
             android:name=".kernel.OmeletteIME"
             android:label="@string/Chinese_ime_name"
-            android:permission="android.permission.BIND_INPUT_METHOD">
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
@@ -31,6 +33,6 @@
                 android:name="android.view.im"
                 android:resource="@xml/method" />
         </service>
-        <service android:name=".ui.floating.FloatingService" />
+        <service android:name=".ui.floating.FloatingService" android:exported="false" />
     </application>
 </manifest>

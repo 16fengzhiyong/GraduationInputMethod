@@ -1,0 +1,61 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+  weights:
+    complexity: 2
+    formatting: 1
+
+config:
+  validation: true
+  warningsAsErrors: false
+  checkExhaustiveness: false
+
+complexity:
+  active: true
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+    thresholdInInterfaces: 10
+    thresholdInObjects: 10
+    thresholdInEnums: 10
+  LongParameterList:
+    active: true
+    functionThreshold: 8
+    constructorThreshold: 8
+
+style:
+  active: true
+  MagicNumber:
+    active: false
+  WildcardImport:
+    active: false
+  ForbiddenComment:
+    active: true
+    values: 'TODO:,FIXME:,STOPSHIP:'
+    allowedPatterns: ''
+
+comments:
+  active: true
+  CommentOverPrivateFunction:
+    active: false
+  CommentOverPrivateProperty:
+    active: false
+
+exceptions:
+  active: true
+  TooGenericExceptionCaught:
+    active: true
+    exceptions:
+      - Exception
+      - Throwable
+
+potential-bugs:
+  UnsafeCast:
+    active: true
+
+performance:
+  active: true
+
+formatting:
+  active: false
