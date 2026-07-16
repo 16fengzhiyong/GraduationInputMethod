@@ -5,13 +5,14 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <map>
 #include <android/log.h>
 
 #include "darts.h"
 #include "trie.h"
 
 // SQLite3 C API (NDK built-in)
-#include <sqlite3.h>
+#include "sqlite3.h"
 
 #define LOG_TAG "DictEngine"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -234,6 +235,17 @@ Java_com_nuc_omeletteinputmethod_inputC_DictEngine_initialize(
     if (DictTrie::loadFromFile(g_trieDatPath)) {
         trieReady = true;
         LOGI("Loaded existing trie.dat (%d units)", DictTrie::getTrieSize());
+
+        // 从文件加载 Trie 后, 仍需从 dict.db 加载拼音条目列表,
+        // 否则 prefixSearch 无法将 Trie 匹配结果映射到 dict.db 的 id 范围
+        std::vector<DictTrie::PinyinEntry> entries;
+        if (loadPinyinEntriesFromDB(entries)) {
+            DictTrie::setPinyinEntries(entries);
+            LOGI("Reloaded %zu pinyin entries from dict.db", entries.size());
+        } else {
+            LOGE("Failed to reload pinyin entries from dict.db");
+            return JNI_FALSE;
+        }
     }
 
     // Step 3: 如果 Trie 未加载, 从 dict.db 构建
@@ -280,7 +292,7 @@ Java_com_nuc_omeletteinputmethod_inputC_DictEngine_search(
     std::string query = jstringToUtf8(env, pinyin);
     if (query.empty()) return utf8ToJstring(env, "[]");
 
-    auto matches = DictTrie::prefixSearch(query, 10);
+    auto matches = DictTrie::prefixSearch(query, 200);
     if (matches.empty()) {
         return utf8ToJstring(env, "[]");
     }
@@ -326,7 +338,7 @@ Java_com_nuc_omeletteinputmethod_inputC_DictEngine_searchWithBigram(
     std::string query = jstringToUtf8(env, pinyin);
     std::string prev = jstringToUtf8(env, prevWord);
 
-    auto matches = DictTrie::prefixSearch(query, 10);
+    auto matches = DictTrie::prefixSearch(query, 50);
     if (matches.empty()) {
         return utf8ToJstring(env, "[]");
     }
@@ -473,7 +485,7 @@ Java_com_nuc_omeletteinputmethod_inputC_DictEngine_searchWithCategories(
     std::string query = jstringToUtf8(env, pinyin);
     if (query.empty()) return utf8ToJstring(env, "[]");
 
-    auto matches = DictTrie::prefixSearch(query, 10);
+    auto matches = DictTrie::prefixSearch(query, 50);
     if (matches.empty()) {
         return utf8ToJstring(env, "[]");
     }

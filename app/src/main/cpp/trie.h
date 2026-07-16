@@ -41,6 +41,12 @@ bool loadFromFile(const std::string& path);
  */
 std::vector<PinyinMatchResult> prefixSearch(const std::string& prefix, int maxResults);
 
+/**
+ * 设置拼音条目列表 (从外部加载, 如从 dict.db 读取)
+ * 用于 loadFromFile 后补充 entries, 使 prefixSearch 能正常工作
+ */
+void setPinyinEntries(const std::vector<PinyinEntry>& entries);
+
 bool isLoaded();
 void clear();
 int getTrieSize();

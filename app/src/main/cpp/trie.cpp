@@ -1,4 +1,5 @@
 #include "trie.h"
+#include <algorithm>
 
 namespace DictTrie {
 
@@ -60,21 +61,24 @@ std::vector<PinyinMatchResult> prefixSearch(const std::string& prefix, int maxRe
         return results;
     }
 
-    Darts::DoubleArray::result_pair_type tmp[256];
-    size_t num = g_trie.commonPrefixSearch(prefix.c_str(), tmp, 256, prefix.size());
-    if (num == 0 || num > 256) {
-        if (num > 256) num = 256;
-    }
+    // 二分查找第一个 pinyin >= prefix 的条目
+    // g_pinyin_entries 已按 pinyin 字典序排列 (loadPinyinEntriesFromDB ORDER BY pinyin ASC)
+    auto it = std::lower_bound(g_pinyin_entries.begin(), g_pinyin_entries.end(), prefix,
+        [](const PinyinEntry& entry, const std::string& pref) {
+            return entry.pinyin < pref;
+        });
 
-    for (size_t i = 0; i < num && (int)results.size() < maxResults; i++) {
-        int entryIdx = tmp[i].value;
-        if (entryIdx < 0 || entryIdx >= (int)g_pinyin_entries.size()) continue;
-
+    // 线性收集所有以 prefix 开头的条目, 最多 maxResults 个
+    for (; it != g_pinyin_entries.end() && (int)results.size() < maxResults; ++it) {
+        // compare(0, n, s) 检查前 n 个字符是否等于 s
+        if (it->pinyin.compare(0, prefix.size(), prefix) != 0) {
+            break;  // 不再以 prefix 开头, 停止
+        }
         PinyinMatchResult r;
-        r.pinyin = g_pinyin_entries[entryIdx].pinyin;
-        r.startId = g_pinyin_entries[entryIdx].startId;
-        r.endId = g_pinyin_entries[entryIdx].endId;
-        r.matchLength = tmp[i].length;
+        r.pinyin = it->pinyin;
+        r.startId = it->startId;
+        r.endId = it->endId;
+        r.matchLength = (int)it->pinyin.size();
         results.push_back(r);
     }
 
@@ -83,6 +87,10 @@ std::vector<PinyinMatchResult> prefixSearch(const std::string& prefix, int maxRe
 
 bool isLoaded() {
     return g_trie_loaded;
+}
+
+void setPinyinEntries(const std::vector<PinyinEntry>& entries) {
+    g_pinyin_entries = entries;
 }
 
 void clear() {
