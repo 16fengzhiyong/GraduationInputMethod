@@ -11,13 +11,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.nuc.omeletteinputmethod.data.repository.ClipboardRepository
 import com.nuc.omeletteinputmethod.ui.keyboard.KeyType
 import com.nuc.omeletteinputmethod.ui.keyboard.KeyboardEffect
@@ -27,7 +27,9 @@ import com.nuc.omeletteinputmethod.ui.multimodal.HandwritingViewModel
 import com.nuc.omeletteinputmethod.ui.multimodal.StrokeInputViewModel
 import com.nuc.omeletteinputmethod.ui.multimodal.VoiceInputViewModel
 import com.nuc.omeletteinputmethod.ui.theme.OmeletteIMETheme
+import com.nuc.omeletteinputmethod.ui.theme.ThemeManager
 import dagger.hilt.android.AndroidEntryPoint
+import com.nuc.omeletteinputmethod.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,6 +50,9 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
 
     @Inject
     lateinit var clipboardRepository: ClipboardRepository
+
+    @Inject
+    lateinit var themeManager: ThemeManager
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
@@ -102,11 +107,28 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
                         KeyType.NORMAL -> HapticFeedbackConstants.KEYBOARD_TAP
                         KeyType.SPECIAL -> HapticFeedbackConstants.KEYBOARD_PRESS
                         KeyType.LONG_PRESS -> HapticFeedbackConstants.LONG_PRESS
+                        KeyType.SWIPE -> HapticFeedbackConstants.KEYBOARD_PRESS  // distinct feedback for swipe-up
                     }
                 composeView?.performHapticFeedback(hapticConstant)
             }
             is KeyboardEffect.PlaySound -> {
                 soundPool?.play(tickSoundId, effect.volume, effect.volume, 1, 0, 1.0f)
+            }
+            is KeyboardEffect.SwitchIME -> {
+                // In-app IME switcher: open system input method picker
+                window?.window?.also {
+                    val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+                    imm?.showInputMethodPicker()
+                }
+            }
+            is KeyboardEffect.OpenSettings -> {
+                // Open the app's settings / dashboard activity
+                val intent = android.content.Intent(this, com.nuc.omeletteinputmethod.ui.settings.SettingsActivity::class.java)
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+            is KeyboardEffect.HideKeyboard -> {
+                requestHideSelf(0)
             }
         }
     }
@@ -115,16 +137,57 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
         val cv = ComposeView(this)
         composeView = cv
 
-        ViewTreeLifecycleOwner.set(cv, this)
-        ViewTreeViewModelStoreOwner.set(cv, this)
-        ViewTreeSavedStateRegistryOwner.set(cv, this)
+        // Set on ComposeView itself
+        cv.setViewTreeLifecycleOwner(this)
+        cv.setViewTreeViewModelStoreOwner(this)
+        cv.setViewTreeSavedStateRegistryOwner(this)
+
+        // Give the keyboard a minimum height so the system allocates
+        // enough vertical space for the IME window.
+        cv.minimumHeight = 240.dpToPx()
+
+        // Eagerly apply lifecycle owners to the IME window root decor view.
+        // InputMethodService creates its Dialog lazily — touching `window`
+        // here forces creation so decorView exists before setInputView→addView
+        // triggers ComposeView.onAttachedToWindow, which traverses the
+        // ancestor chain looking for ViewTreeLifecycleOwner.
+        applyOwnerToWindow()
 
         cv.setContent {
             OmeletteIMETheme {
-                KeyboardScreen(viewModel = viewModel)
+                KeyboardScreen(
+                    viewModel = viewModel,
+                    handwritingViewModel = handwritingViewModel,
+                    voiceViewModel = voiceViewModel,
+                    strokeViewModel = strokeViewModel,
+                    themeManager = themeManager,
+                )
             }
         }
         return cv
+    }
+
+    private fun Int.dpToPx(): Int =
+        (this * resources.displayMetrics.density).toInt()
+
+/**
+     * Spread our LifecycleOwner / ViewModelStoreOwner / SavedStateRegistryOwner
+     * to the IME window's root decor view so Compose can find them when traversing
+     * the view-tree ancestor chain (parentPanel → … → ComposeView).
+     *
+     * Called both from onCreate (pre-apply for the initial Dialog window) and
+     * onWindowShown (re-apply whenever the IME window is reshown).
+     */
+    private fun applyOwnerToWindow() {
+        val decorView = window?.window?.decorView ?: return
+        decorView.setViewTreeLifecycleOwner(this)
+        decorView.setViewTreeViewModelStoreOwner(this)
+        decorView.setViewTreeSavedStateRegistryOwner(this)
+    }
+
+    override fun onWindowShown() {
+        super.onWindowShown()
+        applyOwnerToWindow()
     }
 
     override fun onStartInput(
@@ -138,7 +201,7 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
 
         effectCollectionJob?.cancel()
         effectCollectionJob =
-            lifecycleRegistry.lifecycleScope.launch {
+            lifecycleScope.launch {
                 launch {
                     viewModel.effects.collect { effect -> handleEffect(effect) }
                 }
@@ -153,6 +216,8 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
                 }
             }
     }
+
+override fun onEvaluateInputViewShown(): Boolean = true
 
     override fun onFinishInput() {
         super.onFinishInput()
@@ -172,9 +237,9 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
         soundPool = null
     }
 
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
+    override val lifecycle: Lifecycle get() = lifecycleRegistry
 
-    override fun getViewModelStore(): ViewModelStore = store
+    override val viewModelStore: ViewModelStore get() = store
 
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry

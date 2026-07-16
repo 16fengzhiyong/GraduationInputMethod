@@ -25,7 +25,7 @@ interface UserDictionaryDao {
         timestamp: Long,
     )
 
-    @Query("SELECT word, frequency, lastUsedTimestamp FROM user_dictionary WHERE word IN (:words)")
+    @Query("SELECT * FROM user_dictionary WHERE word IN (:words)")
     suspend fun getFrequencies(words: List<String>): List<UserDictionary>
 
     @Query("SELECT * FROM user_dictionary WHERE frequency >= :threshold ORDER BY frequency DESC")

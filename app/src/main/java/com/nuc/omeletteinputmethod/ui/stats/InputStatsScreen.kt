@@ -267,6 +267,7 @@ fun TrendLineChart(dailyStats: List<DailyStatItem>) {
     }
 
     val maxChars = dailyStats.maxOf { it.totalChars }.coerceAtLeast(1)
+    val lineColor = MaterialTheme.colorScheme.primary
 
     Canvas(
         modifier =
@@ -300,7 +301,7 @@ fun TrendLineChart(dailyStats: List<DailyStatItem>) {
 
         drawPath(
             path = path,
-            color = MaterialTheme.colorScheme.primary,
+            color = lineColor,
             style = Stroke(width = 3f),
         )
     }

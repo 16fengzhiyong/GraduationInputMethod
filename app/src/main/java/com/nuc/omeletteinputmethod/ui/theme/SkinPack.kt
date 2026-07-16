@@ -1,6 +1,7 @@
 package com.nuc.omeletteinputmethod.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import kotlin.math.pow
 
 data class SkinPack(
     val skinId: String,
@@ -291,10 +292,29 @@ data class SkinPack(
             }
             return Color((r1 + m).coerceIn(0f, 1f), (g1 + m).coerceIn(0f, 1f), (b1 + m).coerceIn(0f, 1f), 1f)
         }
+
+        fun fromJson(json: String): SkinPack? {
+            return try {
+                val gson = com.google.gson.Gson()
+                val map = gson.fromJson(json, Map::class.java) as? Map<*, *> ?: return null
+                val skinId = map["skinId"] as? String ?: "custom"
+                val skinName = map["skinName"] as? String ?: "导入皮肤"
+                val author = map["author"] as? String ?: "Unknown"
+                val colorsRaw = map["colors"] as? Map<*, *> ?: return null
+                val colors = mutableMapOf<String, Color>()
+                for ((k, v) in colorsRaw) {
+                    val hex = v as? String ?: continue
+                    colors[k as String] = Color(hex.toLong(16) or 0xFF000000)
+                }
+                SkinPack(skinId = skinId, skinName = skinName, author = author, colors = colors)
+            } catch (_: Exception) {
+                null
+            }
+        }
     }
 
     fun toColorScheme(): androidx.compose.material3.ColorScheme {
-        val isDark = (colors["surface"]?.let { ColorUtils.estimateLuminance(it) < 0.5f } ?: false)
+        val isDark = (colors["surface"]?.let { estimateLuminance(it) < 0.5f } ?: false)
         return if (isDark) {
             androidx.compose.material3.darkColorScheme(
                 primary = colors["primary"]!!,
@@ -359,37 +379,16 @@ data class SkinPack(
         return sb.toString()
     }
 
-    companion object JsonParser {
-        fun fromJson(json: String): SkinPack? {
-            return try {
-                val gson = com.google.gson.Gson()
-                val map = gson.fromJson(json, Map::class.java) as? Map<*, *> ?: return null
-                val skinId = map["skinId"] as? String ?: "custom"
-                val skinName = map["skinName"] as? String ?: "导入皮肤"
-                val author = map["author"] as? String ?: "Unknown"
-                val colorsRaw = map["colors"] as? Map<*, *> ?: return null
-                val colors = mutableMapOf<String, Color>()
-                for ((k, v) in colorsRaw) {
-                    val hex = v as? String ?: continue
-                    colors[k as String] = Color(hex.toLong(16) or 0xFF000000)
-                }
-                SkinPack(skinId = skinId, skinName = skinName, author = author, colors = colors)
-            } catch (_: Exception) {
-                null
-            }
-        }
     }
+
+fun estimateLuminance(color: Color): Float {
+    val r = linearize(color.red)
+    val g = linearize(color.green)
+    val b = linearize(color.blue)
+    return 0.2126f * r + 0.7152f * g + 0.0722f * b
 }
 
-private object ColorUtils {
-    fun estimateLuminance(color: Color): Float {
-        val r = linearize(color.red)
-        val g = linearize(color.green)
-        val b = linearize(color.blue)
-        return 0.2126f * r + 0.7152f * g + 0.0722f * b
-    }
-    private fun linearize(c: Float): Float {
-        val v = c.coerceIn(0f, 1f)
-        return if (v <= 0.04045f) v / 12.92f else kotlin.math.pow(((v + 0.055f) / 1.055f), 2.4f).toFloat()
-    }
+private fun linearize(c: Float): Float {
+    val v = c.coerceIn(0f, 1f)
+    return if (v <= 0.04045f) v / 12.92f else ((v + 0.055f) / 1.055f).toDouble().pow(2.4).toFloat()
 }

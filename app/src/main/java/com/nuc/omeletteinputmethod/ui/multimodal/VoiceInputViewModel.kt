@@ -31,7 +31,6 @@ data class VoiceState(
     val errorMessage: String? = null,
 )
 
-@HiltViewModel
 class VoiceInputViewModel
 @Inject
 constructor(

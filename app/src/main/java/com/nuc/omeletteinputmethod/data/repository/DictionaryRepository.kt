@@ -55,18 +55,27 @@ class DictionaryRepository
                         dictEngine.searchWithCategories(pinyin, activeCats.toTypedArray())
                     }
                 val items = parseCandidates(json)
-                val candidates = items.map { it.w }
+                val rawCandidates = items.map { it.w }
 
-                if (activeCats.isNotEmpty()) {
-                    val fallbackCandidates = mutableListOf<String>()
-                    for (cat in activeCats) {
-                        fallbackCandidates.addAll(cellDictManager.searchCategoryWords(cat, pinyin))
+                // 构建词频映射
+                val dictFreqMap = items.associate { it.w to it.f }
+
+                android.util.Log.i("DictionaryRepo", "getInitialCandidates: pinyin=\"$pinyin\" jsonLen=${json.length} rawCount=${rawCandidates.size}")
+
+                val result =
+                    if (activeCats.isNotEmpty()) {
+                        val fallbackCandidates = mutableListOf<String>()
+                        for (cat in activeCats) {
+                            fallbackCandidates.addAll(cellDictManager.searchCategoryWords(cat, pinyin))
+                        }
+                        val merged = (rawCandidates + fallbackCandidates).distinct()
+                        sortCandidatesByUserFrequency(merged, dictFreqMap)
+                    } else {
+                        sortCandidatesByUserFrequency(rawCandidates, dictFreqMap)
                     }
-                    val merged = (candidates + fallbackCandidates).distinct()
-                    sortCandidatesByUserFrequency(merged)
-                } else {
-                    sortCandidatesByUserFrequency(candidates)
-                }
+
+                android.util.Log.i("DictionaryRepo", "getInitialCandidates: resultCount=${result.size} first=\"${result.firstOrNull() ?: ""}\"")
+                result
             }
 
         suspend fun getCandidatesWithBigram(
@@ -153,7 +162,10 @@ class DictionaryRepository
             }
         }
 
-        private suspend fun sortCandidatesByUserFrequency(candidates: List<String>): List<String> {
+        private suspend fun sortCandidatesByUserFrequency(
+            candidates: List<String>,
+            dictFreqMap: Map<String, Int> = emptyMap()
+        ): List<String> {
             if (candidates.isEmpty()) return emptyList()
 
             val userEntries = userDictionaryDao.getFrequencies(candidates)
@@ -165,7 +177,7 @@ class DictionaryRepository
                 candidates.map { word ->
                     val entry = userFreqMap[word]
                     val userFreq = entry?.frequency ?: 0
-                    val score =
+                    val userScore =
                         if (userFreq > 0 && entry != null) {
                             val hoursSinceLastUse = (now - entry.lastUsedTimestamp).toDouble() / 3600000.0
                             val recentBoost = if (hoursSinceLastUse <= 1.0) 2.0 else 1.0
@@ -175,7 +187,20 @@ class DictionaryRepository
                         } else {
                             0.0
                         }
-                    word to score
+
+                    // 获取词库词频
+                    val dictFreq = dictFreqMap[word] ?: 0
+
+                    // 综合评分：用户词频权重更高，词库词频作为基础分
+                    // 如果用户词频 > 0，使用用户词频 * 1000 + 词库词频
+                    // 如果用户词频 = 0，使用词库词频
+                    val finalScore = if (userScore > 0) {
+                        userScore * 1000 + dictFreq
+                    } else {
+                        dictFreq.toDouble()
+                    }
+
+                    word to finalScore
                 }
 
             return scorched.sortedByDescending { it.second }.map { it.first }

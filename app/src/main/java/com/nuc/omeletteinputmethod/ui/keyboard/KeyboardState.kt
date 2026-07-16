@@ -28,6 +28,8 @@ enum class KeyType {
     NORMAL,
     SPECIAL,
     LONG_PRESS,
+    // Added by Agent H — swipe-up gesture feedback
+    SWIPE,
 }
 
 data class KeyboardState(
@@ -56,4 +58,8 @@ data class KeyboardState(
     val doubleBuffer: String = "",
     // Added by Agent E — last committed word for user bigram learning context
     val lastCommittedWord: String = "",
+    // Added by Agent H — English input mode toggle
+    val isEnglishMode: Boolean = false,
+    // Candidate bar expanded mode — shows all candidates when true, paginated when false
+    val expandedCandidates: Boolean = false,
 )

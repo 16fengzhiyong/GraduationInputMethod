@@ -15,7 +15,7 @@ interface ShortcutDao {
     fun getShortcutsForPackage(packageName: String): Flow<List<ShortcutItem>>
 
     @Query("SELECT * FROM shortcuts WHERE packageName = :packageName OR packageName = 'global' ORDER BY sortOrder ASC, updatedAt DESC")
-    fun getAllShortcuts(): Flow<List<ShortcutItem>>
+    fun getAllShortcuts(packageName: String): Flow<List<ShortcutItem>>
 
     @Query(
         "SELECT * FROM shortcuts WHERE (packageName = :packageName OR packageName = 'global') AND (label LIKE '%' || :query || '%' OR content LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%') ORDER BY sortOrder ASC, updatedAt DESC",

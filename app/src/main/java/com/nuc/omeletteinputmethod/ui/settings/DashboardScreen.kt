@@ -52,7 +52,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nuc.omeletteinputmethod.ui.clipboard.ClipboardViewModel
 import com.nuc.omeletteinputmethod.ui.keyboard.KeyboardViewModel
 import com.nuc.omeletteinputmethod.ui.notepad.NotepadViewModel
@@ -72,9 +72,9 @@ fun DashboardScreen(
     onNavigateInputStats: () -> Unit,
     onCheckPermission: () -> Unit,
     keyboardViewModel: KeyboardViewModel? = null,
-    clipboardViewModel: ClipboardViewModel = viewModel(),
-    notepadViewModel: NotepadViewModel = viewModel(),
-    shortcutViewModel: ShortcutViewModel = viewModel()
+    clipboardViewModel: ClipboardViewModel = hiltViewModel(),
+    notepadViewModel: NotepadViewModel = hiltViewModel(),
+    shortcutViewModel: ShortcutViewModel = hiltViewModel()
 ) {
     val notes by notepadViewModel.notes.collectAsState()
     val shortcuts by shortcutViewModel.shortcuts.collectAsState()
@@ -331,13 +331,14 @@ fun DashboardScreen(
                                     horizontal = 4.dp,
                                     vertical = 8.dp
                                 )
-                            ) {
+) {
                                 Text(
                                     "$option",
                                     style = MaterialTheme.typography.labelSmall,
-color = if (option == maxItems) Color.White
+                                    color = if (option == maxItems) Color.White
                                 else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                                )
+                            }
                         }
                     }
                 }

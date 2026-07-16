@@ -27,7 +27,7 @@ interface InputStatDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun batchInsert(stats: List<InputStat>)
 
-    @Query("SELECT date, totalChars FROM input_stats WHERE date LIKE :monthPrefix || '%' ORDER BY date ASC")
+    @Query("SELECT date, totalChars, 0 AS totalWords, 0 AS uniqueChars, 0 AS sessionCount, 0.0 AS avgSpeed FROM input_stats WHERE date LIKE :monthPrefix || '%' ORDER BY date ASC")
     fun getHeatmapData(monthPrefix: String): Flow<List<InputStat>>
 
     @Query("SELECT * FROM input_stats ORDER BY date DESC LIMIT :limit")

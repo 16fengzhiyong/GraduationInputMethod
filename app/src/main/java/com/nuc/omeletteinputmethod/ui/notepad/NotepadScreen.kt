@@ -36,13 +36,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotepadListScreen(
     onEditNote: (Long) -> Unit,
-    viewModel: NotepadViewModel = viewModel(),
+    viewModel: NotepadViewModel = hiltViewModel(),
 ) {
     val notes by viewModel.notes.collectAsState()
     val searchText by viewModel.searchText.collectAsState()

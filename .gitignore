@@ -24,9 +24,11 @@ package.json
 package-lock.json
 opencode.json
 .opencode/
+.opencode.zip
 .reasonix/
 .windsurfrules
 .editorconfig
+.zcode/
 
 # Python cache
 __pycache__/

@@ -1,11 +1,14 @@
 package com.nuc.omeletteinputmethod.ui.keyboard
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +21,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -48,35 +57,46 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import android.widget.Toast
 import com.nuc.omeletteinputmethod.ui.multimodal.HandwritingPanel
 import com.nuc.omeletteinputmethod.ui.multimodal.HandwritingViewModel
 import com.nuc.omeletteinputmethod.ui.multimodal.StrokeInputPanel
 import com.nuc.omeletteinputmethod.ui.multimodal.StrokeInputViewModel
 import com.nuc.omeletteinputmethod.ui.multimodal.VoiceInputPanel
 import com.nuc.omeletteinputmethod.ui.multimodal.VoiceInputViewModel
+import com.nuc.omeletteinputmethod.ui.theme.ThemeManager
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @Composable
-fun KeyboardScreen(viewModel: KeyboardViewModel) {
+fun KeyboardScreen(
+    viewModel: KeyboardViewModel,
+    handwritingViewModel: HandwritingViewModel,
+    voiceViewModel: VoiceInputViewModel,
+    strokeViewModel: StrokeInputViewModel,
+    themeManager: ThemeManager,
+) {
     val state by viewModel.state.collectAsState()
     val keyColors = MaterialTheme.colorScheme
-
-    val handwritingViewModel: HandwritingViewModel = hiltViewModel()
-    val voiceViewModel: VoiceInputViewModel = hiltViewModel()
-    val strokeViewModel: StrokeInputViewModel = hiltViewModel()
 
     // Added by Agent B — global key position map for swipe path calculation
     val keyPositionMap = remember { mutableStateMapOf<Char, Rect>() }
@@ -91,22 +111,27 @@ fun KeyboardScreen(viewModel: KeyboardViewModel) {
         modifier =
             Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(state.keyboardHeightPercent)
                 .background(keyColors.surface),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Added by Agent A — one-hand mode switch bar
-        OneHandModeBar(
-            currentMode = state.oneHandMode,
-            onSetMode = viewModel::setOneHandMode,
+        // Added by Agent H — top toolbar (replaces OneHandModeBar)
+        ToolBar(
+            modifier = Modifier.fillMaxWidth().height(36.dp),
+            onKeyboardSwitch = { viewModel.onSwitchIME() },
+            onAiAction = { /* placeholder — AI feature WIP */ },
+            onSettings = { viewModel.onOpenSettings() },
+            onTextEdit = { /* placeholder — text selection mode */ },
+            onClipboard = { /* handled by ClipboardQuickButton in bottom row */ },
+            onHideKeyboard = { viewModel.onHideKeyboard() },
         )
 
         CandidateBar(
             candidates = state.candidates,
+            inputBuffer = state.inputBuffer,
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(60.dp),
             onSelect = { viewModel.onCandidateSelected(it) },
         )
 
@@ -143,12 +168,30 @@ fun KeyboardScreen(viewModel: KeyboardViewModel) {
                         highlightedKeys.clear()
                     },
                     onClipboardPasteText = viewModel::onPasteText,
+                    // Added by Agent H — new bottom-row callbacks
+                    onToggleLanguageMode = viewModel::toggleLanguageMode,
+                    onSearch = viewModel::onSearch,
+                    onSwipeUp = viewModel::onSwipeUp,
+                    onLongPressActionVoice = {
+                        // Step 6: space bar long-press → voice input
+                        if (voiceViewModel.state.value.hasPermission || voiceViewModel.checkPermission()) {
+                            voiceViewModel.startListening()
+                        }
+                    },
+                    onPressReleaseVoice = {
+                        // Step 6: finger release → stop listening and commit recognized text
+                        voiceViewModel.stopListening()
+                        val recognized = voiceViewModel.state.value.recognizedText
+                        if (recognized.isNotEmpty()) {
+                            voiceViewModel.commitText()
+                        }
+                    },
                 )
 
             // Added by Agent F — emoji panel mode
             KeyboardMode.EMOJI ->
                 EmojiPanel(
-                    themeManager = hiltViewModel(),
+                    themeManager = themeManager,
                     onEmojiSelected = { emoji ->
                         viewModel.onCandidateSelected(emoji)
                     },
@@ -228,45 +271,57 @@ fun KeyboardScreen(viewModel: KeyboardViewModel) {
 @Composable
 fun CandidateBar(
     candidates: List<String>,
+    inputBuffer: String = "",
     modifier: Modifier = Modifier,
     onSelect: (String) -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
+
     Box(
-        modifier =
-            modifier
-                .background(colors.surfaceVariant),
+        modifier = modifier.background(colors.surfaceVariant),
         contentAlignment = Alignment.CenterStart,
     ) {
         if (candidates.isEmpty()) {
+            // 空状态：显示用户输入的原始拼音作为灰色提示
             Text(
-                text = "Omelette IME",
+                text = inputBuffer.ifEmpty { "" },
                 modifier = Modifier.padding(horizontal = 12.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant,
+                color = colors.onSurfaceVariant.copy(alpha = 0.5f),
             )
         } else {
-            LazyRow(
-                modifier = Modifier.padding(horizontal = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp),
             ) {
-                itemsIndexed(candidates) { index, candidate ->
-                    val isFirst = index == 0
-                    Surface(
-                        onClick = { onSelect(candidate) },
-                        shape = RoundedCornerShape(6.dp),
-                        color = if (isFirst) colors.primaryContainer else colors.surface,
-                        tonalElevation = if (isFirst) 2.dp else 0.dp,
-                    ) {
-                        Text(
-                            text = candidate,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            color = if (isFirst) colors.onPrimaryContainer else colors.onSurface,
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                // 拼音显示行
+                Text(
+                    text = inputBuffer,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(start = 4.dp, bottom = 1.dp),
+                )
+                // 候选词行
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    itemsIndexed(candidates) { index, candidate ->
+                        val isFirst = index == 0
+                        Surface(
+                            onClick = { onSelect(candidate) },
+                            shape = RoundedCornerShape(6.dp),
+                            color = if (isFirst) colors.primaryContainer else colors.surface,
+                            tonalElevation = if (isFirst) 2.dp else 0.dp,
+                        ) {
+                            Text(
+                                text = candidate,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                color = if (isFirst) colors.onPrimaryContainer else colors.onSurface,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     }
                 }
             }
@@ -283,9 +338,7 @@ fun PinyinKeyboard(
     onEnter: () -> Unit,
     onToggleShift: () -> Unit,
     onSetMode: (KeyboardMode) -> Unit,
-    // Added by Agent A
     oneHandMode: OneHandMode,
-    // Added by Agent B — swipe/glide parameters
     keyPositionMap: MutableMap<Char, Rect>,
     onLongPressAlt: (baseChar: Char, selectedAlt: Char) -> Unit,
     onDeleteRepeat: () -> Unit,
@@ -295,29 +348,41 @@ fun PinyinKeyboard(
     traversedKeys: MutableList<Char>,
     highlightedKeys: MutableList<Char>,
     onSwipeEnd: () -> Unit,
-    // Added by Agent G — clipboard quick paste from keyboard
     onClipboardPasteText: (String) -> Unit = {},
+    // Added by Agent H — new bottom-row actions
+    onToggleLanguageMode: () -> Unit = {},
+    onSearch: () -> Unit = {},
+    onSwipeUp: (Char) -> Unit = {},
+    // voice input trigger from space bar long-press
+    onLongPressActionVoice: (() -> Unit)? = null,
+    // voice input stop+commit on finger release
+    onPressReleaseVoice: (() -> Unit)? = null,
 ) {
     val keys =
         remember(state.isShifted) {
             val alpha = if (state.isShifted) "QWERTYUIOPASDFGHJKLZXCVBNM" else "qwertyuiopasdfghjklzxcvbnm"
             listOf(
-                alpha.substring(0, 10).toList(),
-                alpha.substring(10, 19).toList(),
-                alpha.substring(19, 26).toList(),
+                alpha.substring(0, 10).toList(),  // row 0: 10 keys
+                alpha.substring(10, 19).toList(), // row 1: 9 keys
+                alpha.substring(19, 26).toList(), // row 2: 7 keys
             )
         }
 
     val keyHeight = 44.dp
     val spacerHeight = 4.dp
 
-    // Added by Agent A
     val scale = oneHandScale(oneHandMode)
     val handModifier = oneHandPaddingModifier(oneHandMode)
 
     val swipeColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
 
-    Box(
+    // Popup menu state for "符" key long-press
+    var showModeMenu by remember { mutableStateOf(false) }
+
+    // Added by Agent H — voice recording state for space bar press-and-hold
+    var voiceRecording by remember { mutableStateOf(false) }
+
+    BoxWithConstraints(
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -370,163 +435,248 @@ fun PinyinKeyboard(
                     )
                 },
     ) {
+        // Half a key width for row 2 indentation: fullWidth / 10keys / 2
+        val halfKeyWidth = maxWidth / 10 / 2
+
         Column(
-            verticalArrangement = Arrangement.spacedBy(spacerHeight),
+            verticalArrangement = Arrangement.spacedBy(spacerHeight * scale),
         ) {
-            repeat(3) { rowIndex ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement =
-                        when (rowIndex) {
-                            0 -> Arrangement.SpaceEvenly
-                            1 -> Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
-                            2 -> Arrangement.SpaceEvenly
-                            else -> Arrangement.SpaceEvenly
-                        },
-                ) {
-                    if (rowIndex == 2) {
-                        KeyButton(
-                            label = "⇧",
-                            width = 40.dp * scale,
-                            height = keyHeight * scale,
-                            action = { onToggleShift() },
-                            keyChar = null,
-                            keyPositionMap = keyPositionMap,
-                            highlighted = false,
-                            onLongPressAlt = null,
-                            onDeleteRepeat = null,
-                            longPressAlts = null,
-                            sizeScale = scale,
-                        )
-                    }
-                    keys[rowIndex].forEach { char ->
-                        val isHighlighted = highlightedKeys.contains(char)
-                        KeyButton(
-                            label = char.toString(),
-                            width = (
-                                (
-                                    (
-                                        if (rowIndex == 0) {
-                                            8.6f
-                                        } else if (rowIndex == 1) {
-                                            10.0f
-                                        } else {
-                                            7.5f
-                                        }
-                                    ) / keys[rowIndex].size
-                                ).dp * scale
-                            ),
-                            height = keyHeight * scale,
-                            action = { onKey(char) },
-                            keyChar = char,
-                            keyPositionMap = keyPositionMap,
-                            highlighted = isHighlighted,
-                            onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
-                            onDeleteRepeat = null,
-                            longPressAlts = LONG_PRESS_ALTERNATES[char],
-                            sizeScale = scale,
-                        )
-                    }
-                    if (rowIndex == 2) {
-                        KeyButton(
-                            label = "⌫",
-                            width = 40.dp * scale,
-                            height = keyHeight * scale,
-                            action = { onDelete() },
-                            keyChar = null,
-                            keyPositionMap = keyPositionMap,
-                            highlighted = false,
-                            onLongPressAlt = null,
-                            onDeleteRepeat = onDeleteRepeat,
-                            longPressAlts = null,
-                            sizeScale = scale,
-                        )
-                    }
+            // Row 0: Q W E R T Y U I O P — 10 keys, equal width via weight(1f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(2.dp * scale),
+            ) {
+                keys[0].forEach { char ->
+                    val isHighlighted = highlightedKeys.contains(char)
+                    val swipeSym = SWIPE_UP_SYMBOLS[char]
+                    KeyButton(
+                        label = char.toString(),
+                        modifier = Modifier.weight(1f),
+                        height = keyHeight * scale,
+                        action = { onKey(char) },
+                        keyChar = char,
+                        keyPositionMap = keyPositionMap,
+                        highlighted = isHighlighted,
+                        onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
+                        onDeleteRepeat = null,
+                        longPressAlts = LONG_PRESS_ALTERNATES[char],
+                        sizeScale = scale,
+                        swipeUpSymbol = swipeSym,
+                        onSwipeUp = { onSwipeUp(char) },
+                    )
                 }
             }
 
+            // Row 1: A S D F G H J K L — 9 keys, equal width, indented left+right by halfKeyWidth
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = halfKeyWidth),
+                horizontalArrangement = Arrangement.spacedBy(2.dp * scale),
+            ) {
+                keys[1].forEach { char ->
+                    val isHighlighted = highlightedKeys.contains(char)
+                    val swipeSym = SWIPE_UP_SYMBOLS[char]
+                    KeyButton(
+                        label = char.toString(),
+                        modifier = Modifier.weight(1f),
+                        height = keyHeight * scale,
+                        action = { onKey(char) },
+                        keyChar = char,
+                        keyPositionMap = keyPositionMap,
+                        highlighted = isHighlighted,
+                        onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
+                        onDeleteRepeat = null,
+                        longPressAlts = LONG_PRESS_ALTERNATES[char],
+                        sizeScale = scale,
+                        swipeUpSymbol = swipeSym,
+                        onSwipeUp = { onSwipeUp(char) },
+                    )
+                }
+            }
+
+            // Row 2: ⇧ Z X C V B N M ⌫ — shift 1.2x, 7 letter keys 1x, delete 1.2x
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(2.dp * scale),
+            ) {
+                KeyButton(
+                    label = "⇧",
+                    modifier = Modifier.weight(1.2f),
+                    height = keyHeight * scale,
+                    action = { onToggleShift() },
+                    keyChar = null,
+                    keyPositionMap = keyPositionMap,
+                    highlighted = false,
+                    onLongPressAlt = null,
+                    onDeleteRepeat = null,
+                    longPressAlts = null,
+                    sizeScale = scale,
+                )
+                keys[2].forEach { char ->
+                    val isHighlighted = highlightedKeys.contains(char)
+                    val swipeSym = SWIPE_UP_SYMBOLS[char]
+                    KeyButton(
+                        label = char.toString(),
+                        modifier = Modifier.weight(1f),
+                        height = keyHeight * scale,
+                        action = { onKey(char) },
+                        keyChar = char,
+                        keyPositionMap = keyPositionMap,
+                        highlighted = isHighlighted,
+                        onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
+                        onDeleteRepeat = null,
+                        longPressAlts = LONG_PRESS_ALTERNATES[char],
+                        sizeScale = scale,
+                        swipeUpSymbol = swipeSym,
+                        onSwipeUp = { onSwipeUp(char) },
+                    )
+                }
+                KeyButton(
+                    label = "⌫",
+                    modifier = Modifier.weight(1.2f),
+                    height = keyHeight * scale,
+                    action = { onDelete() },
+                    keyChar = null,
+                    keyPositionMap = keyPositionMap,
+                    highlighted = false,
+                    onLongPressAlt = null,
+                    onDeleteRepeat = onDeleteRepeat,
+                    longPressAlts = null,
+                    sizeScale = scale,
+                )
+            }
+
+            // Bottom row: 符  中/En  ! ,  ─── 空格(语音) ───  ? 。  🔵搜索
             Row(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        .padding(vertical = 4.dp * scale),
+                horizontalArrangement = Arrangement.spacedBy(3.dp * scale),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Added by Agent F — emoji mode button
+                // 1. "符" key — tap → symbol mode, long-press → mode menu
+                Box {
+                    KeyButton(
+                        label = "符",
+                        width = 42.dp * scale,
+                        height = 36.dp * scale,
+                        action = { onSetMode(KeyboardMode.SYMBOL) },
+                        keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
+                        onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
+                        onLongPressAction = { showModeMenu = true },
+                        sizeScale = scale,
+                    )
+                    DropdownMenu(
+                        expanded = showModeMenu,
+                        onDismissRequest = { showModeMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("😄 Emoji") },
+                            onClick = { showModeMenu = false; onSetMode(KeyboardMode.EMOJI) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("123 数字") },
+                            onClick = { showModeMenu = false; onSetMode(KeyboardMode.NUMBER) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("✍ 手写") },
+                            onClick = { showModeMenu = false; onSetMode(KeyboardMode.HANDWRITING) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("🎤 语音") },
+                            onClick = { showModeMenu = false; onSetMode(KeyboardMode.VOICE) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("笔画") },
+                            onClick = { showModeMenu = false; onSetMode(KeyboardMode.STROKE) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("九宫格") },
+                            onClick = { showModeMenu = false; onSetMode(KeyboardMode.T9) },
+                        )
+                    }
+                }
+
+                // 2. 中/En — language toggle
                 KeyButton(
-                    label = "\uD83D\uDE04", width = 36.dp * scale, height = 36.dp * scale,
-                    action = { onSetMode(KeyboardMode.EMOJI) },
+                    label = if (state.isEnglishMode) "En" else "中",
+                    width = 42.dp * scale,
+                    height = 36.dp * scale,
+                    action = { onToggleLanguageMode() },
                     keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                     onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
                     sizeScale = scale,
+                    customBgColor = if (state.isEnglishMode)
+                        MaterialTheme.colorScheme.primaryContainer
+                    else
+                        null,
                 )
+
+                // 3. ! , — tap comma, long-press exclamation
                 KeyButton(
-                    label = "符", width = 40.dp * scale, height = 36.dp * scale,
-                    action = { onSetMode(KeyboardMode.SYMBOL) },
-                    keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                    onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
+                    label = "! ,",
+                    width = 32.dp * scale,
+                    height = 36.dp * scale,
+                    action = { onKey(',') },
+                    keyChar = ',', keyPositionMap = keyPositionMap, highlighted = false,
+                    onLongPressAlt = { alt -> onLongPressAlt(',', alt) },
+                    onDeleteRepeat = null,
+                    longPressAlts = listOf('!'),
                     sizeScale = scale,
                 )
-                // Added by Agent D — handwriting mode button
+
+                // 4. Space bar — tap = space/candidate, long-press = voice input (press-and-hold to talk)
                 KeyButton(
-                    label = "手写", width = 40.dp * scale, height = 36.dp * scale,
-                    action = { onSetMode(KeyboardMode.HANDWRITING) },
-                    keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                    onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                    sizeScale = scale,
-                )
-                // Added by Agent D — voice input mode button
-                KeyButton(
-                    label = "\uD83C\uDF99", width = 36.dp * scale, height = 36.dp * scale,
-                    action = { onSetMode(KeyboardMode.VOICE) },
-                    keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                    onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                    sizeScale = scale,
-                )
-                // Added by Agent D — stroke input mode button
-                KeyButton(
-                    label = "笔画", width = 40.dp * scale, height = 36.dp * scale,
-                    action = { onSetMode(KeyboardMode.STROKE) },
-                    keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                    onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                    sizeScale = scale,
-                )
-                // Added by Agent A — nine-grid mode button
-                KeyButton(
-                    label = "九宫", width = 40.dp * scale, height = 36.dp * scale,
-                    action = { onSetMode(KeyboardMode.T9) },
-                    keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                    onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                    sizeScale = scale,
-                )
-                // Added by Agent G — clipboard quick paste popup
-                ClipboardQuickButton(
-                    onPaste = onClipboardPasteText,
-                    scale = scale,
-                )
-                KeyButton(
-                    label = "123", width = 40.dp * scale, height = 36.dp * scale,
-                    action = { onSetMode(KeyboardMode.NUMBER) },
-                    keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                    onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                    sizeScale = scale,
-                )
-                KeyButton(
-                    label = "空格", modifier = Modifier.weight(1f), height = 36.dp * scale,
+                    label = if (voiceRecording) "🎤 录音中…" else "🎤 空格",
+                    modifier = Modifier.weight(1f),
+                    height = 36.dp * scale,
                     action = { onSpace() },
                     keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                     onLongPressAlt = null, onDeleteRepeat = null,
                     longPressAlts = null,
-                    onLongPressAction = { onSetMode(KeyboardMode.SYMBOL) },
+                    onLongPressAction = {
+                        voiceRecording = true
+                        onLongPressActionVoice?.invoke()
+                    },
+                    onPressRelease = {
+                        if (voiceRecording) {
+                            voiceRecording = false
+                            onPressReleaseVoice?.invoke()
+                        }
+                    },
+                    sizeScale = scale,
+                    customBgColor = if (voiceRecording)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+                    else
+                        null,
+                )
+
+                // 5. ? . — tap period, long-press question mark
+                KeyButton(
+                    label = "? 。",
+                    width = 32.dp * scale,
+                    height = 36.dp * scale,
+                    action = { onKey('.') },
+                    keyChar = '.', keyPositionMap = keyPositionMap, highlighted = false,
+                    onLongPressAlt = { alt -> onLongPressAlt('.', alt) },
+                    onDeleteRepeat = null,
+                    longPressAlts = listOf('?'),
                     sizeScale = scale,
                 )
+
+                // 6. 🔵 Search — blue action button
                 KeyButton(
-                    label = "↵", width = 48.dp * scale, height = 36.dp * scale,
-                    action = { onEnter() },
+                    label = "搜索",
+                    width = 52.dp * scale,
+                    height = 36.dp * scale,
+                    action = { onSearch() },
                     keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                     onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
                     sizeScale = scale,
+                    customBgColor = MaterialTheme.colorScheme.primary,
+                    customContentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             }
         }
@@ -540,9 +690,7 @@ fun SymbolKeyboard(
     onSpace: () -> Unit,
     onEnter: () -> Unit,
     onSetMode: (KeyboardMode) -> Unit,
-    // Added by Agent A
     oneHandMode: OneHandMode,
-    // Added by Agent B
     keyPositionMap: MutableMap<Char, Rect>,
     onLongPressAlt: (baseChar: Char, selectedAlt: Char) -> Unit,
     onDeleteRepeat: () -> Unit,
@@ -555,7 +703,6 @@ fun SymbolKeyboard(
         )
     val keyHeight = 44.dp
 
-    // Added by Agent A
     val scale = oneHandScale(oneHandMode)
     val handModifier = oneHandPaddingModifier(oneHandMode)
 
@@ -565,71 +712,115 @@ fun SymbolKeyboard(
                 .fillMaxWidth()
                 .then(handModifier)
                 .padding(horizontal = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp * scale),
     ) {
-        repeat(3) { rowIndex ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-            ) {
-                if (rowIndex == 2) {
-                    KeyButton(
-                        label = "⌫", width = 36.dp * scale, height = keyHeight * scale,
-                        action = { onDelete() },
-                        keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                        onLongPressAlt = null, onDeleteRepeat = onDeleteRepeat, longPressAlts = null,
-                        sizeScale = scale,
-                    )
-                }
-                symbols[rowIndex].forEach { char ->
-                    KeyButton(
-                        label = char.toString(),
-                        width = (if (rowIndex == 0) 30.dp else 28.dp) * scale,
-                        height = keyHeight * scale,
-                        action = { onKey(char) },
-                        keyChar = char,
-                        keyPositionMap = keyPositionMap,
-                        highlighted = false,
-                        onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
-                        onDeleteRepeat = null,
-                        longPressAlts = LONG_PRESS_ALTERNATES[char],
-                        sizeScale = scale,
-                    )
-                }
+        // Row 0: 1 2 3 4 5 6 7 8 9 0 — weight(1f) equal width
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(2.dp * scale),
+        ) {
+            symbols[0].forEach { char ->
+                KeyButton(
+                    label = char.toString(),
+                    modifier = Modifier.weight(1f),
+                    height = keyHeight * scale,
+                    action = { onKey(char) },
+                    keyChar = char,
+                    keyPositionMap = keyPositionMap,
+                    highlighted = false,
+                    onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
+                    onDeleteRepeat = null,
+                    longPressAlts = LONG_PRESS_ALTERNATES[char],
+                    sizeScale = scale,
+                )
             }
         }
 
+        // Row 1: @ # $ % & * - + ( ) — weight(1f) equal width
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.spacedBy(2.dp * scale),
+        ) {
+            symbols[1].forEach { char ->
+                KeyButton(
+                    label = char.toString(),
+                    modifier = Modifier.weight(1f),
+                    height = keyHeight * scale,
+                    action = { onKey(char) },
+                    keyChar = char,
+                    keyPositionMap = keyPositionMap,
+                    highlighted = false,
+                    onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
+                    onDeleteRepeat = null,
+                    longPressAlts = LONG_PRESS_ALTERNATES[char],
+                    sizeScale = scale,
+                )
+            }
+        }
+
+        // Row 2: ⇧ ! " ' : ; / ? . , ⌫ — shift weight(1f), 9 symbols weight(1f), delete weight(1f)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(2.dp * scale),
         ) {
             KeyButton(
-                "ABC", width = 56.dp * scale, height = keyHeight * scale, action = { onSetMode(KeyboardMode.ALPHA) },
+                label = "⇧",
+                modifier = Modifier.weight(1f),
+                height = keyHeight * scale,
+                action = {},
                 keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                 onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
                 sizeScale = scale,
             )
-            // Added by Agent A — nine-grid mode button
+            symbols[2].forEach { char ->
+                KeyButton(
+                    label = char.toString(),
+                    modifier = Modifier.weight(1f),
+                    height = keyHeight * scale,
+                    action = { onKey(char) },
+                    keyChar = char,
+                    keyPositionMap = keyPositionMap,
+                    highlighted = false,
+                    onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
+                    onDeleteRepeat = null,
+                    longPressAlts = LONG_PRESS_ALTERNATES[char],
+                    sizeScale = scale,
+                )
+            }
             KeyButton(
-                "九宫", width = 56.dp * scale, height = keyHeight * scale, action = { onSetMode(KeyboardMode.T9) },
+                label = "⌫",
+                modifier = Modifier.weight(1f),
+                height = keyHeight * scale,
+                action = { onDelete() },
+                keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
+                onLongPressAlt = null, onDeleteRepeat = onDeleteRepeat, longPressAlts = null,
+                sizeScale = scale,
+            )
+        }
+
+        // Bottom: ABC — space(weight) — ↵
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp * scale),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            KeyButton(
+                "ABC", width = 48.dp * scale, height = 36.dp * scale,
+                action = { onSetMode(KeyboardMode.ALPHA) },
                 keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                 onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
                 sizeScale = scale,
             )
             KeyButton(
-                "123", width = 56.dp * scale, height = keyHeight * scale, action = { onSetMode(KeyboardMode.NUMBER) },
+                "空格", modifier = Modifier.weight(1f), height = 36.dp * scale,
+                action = { onSpace() },
                 keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                 onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
                 sizeScale = scale,
             )
             KeyButton(
-                "空格", modifier = Modifier.weight(1f), height = keyHeight * scale, action = { onSpace() },
-                keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                sizeScale = scale,
-            )
-            KeyButton(
-                "↵", width = 56.dp * scale, height = keyHeight * scale, action = { onEnter() },
+                "↵", width = 48.dp * scale, height = 36.dp * scale,
+                action = { onEnter() },
                 keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                 onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
                 sizeScale = scale,
@@ -645,9 +836,7 @@ fun NumberKeyboard(
     onEnter: () -> Unit,
     onSpace: () -> Unit,
     onSetMode: (KeyboardMode) -> Unit,
-    // Added by Agent A
     oneHandMode: OneHandMode,
-    // Added by Agent B
     keyPositionMap: MutableMap<Char, Rect>,
     onLongPressAlt: (baseChar: Char, selectedAlt: Char) -> Unit,
     onDeleteRepeat: () -> Unit,
@@ -657,11 +846,10 @@ fun NumberKeyboard(
             listOf('1', '2', '3'),
             listOf('4', '5', '6'),
             listOf('7', '8', '9'),
-            listOf(null, '0', null),
+            listOf(null, '0', null),  // null slots filled as spacers
         )
     val keyHeight = 44.dp
 
-    // Added by Agent A
     val scale = oneHandScale(oneHandMode)
     val handModifier = oneHandPaddingModifier(oneHandMode)
 
@@ -671,34 +859,20 @@ fun NumberKeyboard(
                 .fillMaxWidth()
                 .then(handModifier)
                 .padding(horizontal = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp * scale),
     ) {
-        repeat(4) { rowIndex ->
+        // Rows 0-2: pure 3×3 digit grid — all weight(1f) equal width
+        repeat(3) { rowIndex ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.spacedBy(4.dp * scale),
             ) {
-                if (rowIndex == 3) {
-                    KeyButton(
-                        "符", width = 56.dp * scale, height = keyHeight * scale,
-                        action = { onSetMode(KeyboardMode.SYMBOL) },
-                        keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                        onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                        sizeScale = scale,
-                    )
-                } else {
-                    KeyButton(
-                        "⌫", width = 44.dp * scale, height = keyHeight * scale,
-                        action = { onDelete() },
-                        keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                        onLongPressAlt = null, onDeleteRepeat = onDeleteRepeat, longPressAlts = null,
-                        sizeScale = scale,
-                    )
-                }
                 nums[rowIndex].forEach { char ->
                     if (char != null) {
                         KeyButton(
-                            char.toString(), width = 52.dp * scale, height = keyHeight * scale,
+                            char.toString(),
+                            modifier = Modifier.weight(1f),
+                            height = keyHeight * scale,
                             action = { onKey(char) },
                             keyChar = char, keyPositionMap = keyPositionMap, highlighted = false,
                             onLongPressAlt = { alt -> onLongPressAlt(char, alt) },
@@ -707,29 +881,50 @@ fun NumberKeyboard(
                             sizeScale = scale,
                         )
                     } else {
-                        Spacer(modifier = Modifier.width(52.dp * scale))
+                        Spacer(modifier = Modifier.weight(1f))
                     }
-                }
-                if (rowIndex == 3) {
-                    KeyButton(
-                        "↵", width = 56.dp * scale, height = keyHeight * scale,
-                        action = { onEnter() },
-                        keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
-                        onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
-                        sizeScale = scale,
-                    )
-                } else {
-                    Spacer(modifier = Modifier.width(44.dp * scale))
                 }
             }
         }
 
+        // Row 3: 符 — 0 — ⌫
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.spacedBy(4.dp * scale),
         ) {
             KeyButton(
-                "ABC", width = 80.dp * scale, height = 36.dp * scale,
+                "符", modifier = Modifier.weight(1f), height = keyHeight * scale,
+                action = { onSetMode(KeyboardMode.SYMBOL) },
+                keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
+                onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
+                sizeScale = scale,
+            )
+            KeyButton(
+                "0", modifier = Modifier.weight(1f), height = keyHeight * scale,
+                action = { onKey('0') },
+                keyChar = '0', keyPositionMap = keyPositionMap, highlighted = false,
+                onLongPressAlt = { alt -> onLongPressAlt('0', alt) },
+                onDeleteRepeat = null,
+                longPressAlts = LONG_PRESS_ALTERNATES['0'],
+                sizeScale = scale,
+            )
+            KeyButton(
+                "⌫", modifier = Modifier.weight(1f), height = keyHeight * scale,
+                action = { onDelete() },
+                keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
+                onLongPressAlt = null, onDeleteRepeat = onDeleteRepeat, longPressAlts = null,
+                sizeScale = scale,
+            )
+        }
+
+        // Bottom: ABC — space(weight)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp * scale),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            KeyButton(
+                "ABC", width = 48.dp * scale, height = 36.dp * scale,
                 action = { onSetMode(KeyboardMode.ALPHA) },
                 keyChar = null, keyPositionMap = keyPositionMap, highlighted = false,
                 onLongPressAlt = null, onDeleteRepeat = null, longPressAlts = null,
@@ -767,8 +962,10 @@ private fun resolveKeyForPoint(
 }
 
 /**
- * KeyButton — same public API signature (label, modifier, width, height, action).
- * Agent B extensions: long-press popup, delete repeat, key position registration.
+ * KeyButton — supports tap, long-press (alt chars / action), swipe-up, delete repeat,
+ * key position registration, and press animation.
+ *
+ * Added by Agent H: swipe-up gesture, press scale animation, floating symbol overlay.
  */
 @Composable
 fun KeyButton(
@@ -787,6 +984,14 @@ fun KeyButton(
     onLongPressAction: (() -> Unit)? = null,
     // Added by Agent A
     sizeScale: Float = 1f,
+    // Added by Agent H — swipe-up gesture support
+    swipeUpSymbol: Char? = null,
+    onSwipeUp: ((Char) -> Unit)? = null,
+    // Added by Agent H — custom background color override
+    customBgColor: Color? = null,
+    customContentColor: Color? = null,
+    // Added by Agent H — callback when press is released (for voice input press-and-hold)
+    onPressRelease: (() -> Unit)? = null,
 ) {
     var pressed by remember { mutableStateOf(false) }
     val colors = MaterialTheme.colorScheme
@@ -797,20 +1002,41 @@ fun KeyButton(
     var popupHoveredIndex by remember { mutableStateOf(-1) }
     val isDeleteKey = label == "⌫"
 
+    // Added by Agent H — press scale animation
+    val pressScale by animateFloatAsState(
+        targetValue = if (pressed) 0.92f else 1f,
+        animationSpec = tween(durationMillis = 150),
+        label = "pressScale",
+    )
+
     val bgColor =
         when {
             showLongPressPopup -> colors.tertiaryContainer
             highlighted -> colors.primaryContainer
             pressed -> colors.tertiaryContainer
-            else -> colors.surfaceVariant
+            else -> customBgColor ?: colors.surfaceVariant
         }
+    val contentColor = customContentColor ?: colors.onSurfaceVariant
     val shape = RoundedCornerShape(6.dp * sizeScale)
+
+    // Added by Agent H — swipe-up threshold in pixels (approx 12dp)
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val swipeUpThresholdPx = with(density) { 18.dp.toPx() }
+    // Long-press popup item dimensions in pixels (captured in composable context)
+    val popupItemWidthPx = with(density) { 30.dp.toPx() }
+    val popupSpacingPx = with(density) { 2.dp.toPx() }
+    val popupPaddingPx = with(density) { 4.dp.toPx() }
 
     Box(
         modifier =
             modifier
                 .width(width)
                 .height(height)
+                .graphicsLayer {
+                    scaleX = pressScale
+                    scaleY = pressScale
+                    translationY = if (pressed) 2.dp.toPx() else 0f
+                }
                 .clip(shape)
                 .background(bgColor)
                 .onGloballyPositioned { coords ->
@@ -818,74 +1044,129 @@ fun KeyButton(
                         val rect = coords.boundsInParent()
                         keyPositionMap[keyChar] = rect
                     }
-                }.pointerInput(isDeleteKey, longPressAlts, onLongPressAction) {
-                    detectTapGestures(
-                        onPress = {
+                }
+                .pointerInput(keyChar, isDeleteKey, longPressAlts, onLongPressAction, swipeUpSymbol, onSwipeUp) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val downEvent = awaitPointerEvent(PointerEventPass.Initial)
+                            val down = downEvent.changes.firstOrNull() ?: continue
+                            val downPos = down.position
+
+                            // consume down to take ownership
+                            down.consume()
                             pressed = true
-                            tryAwaitRelease()
+                            showLongPressPopup = false
+                            popupHoveredIndex = -1
+
+                            var isLongPressTriggered = false
+                            var isSwipeUpTriggered = false
+                            val longPressTimeoutMs = if (isDeleteKey) 150L else 350L
+                            val startTime = System.currentTimeMillis()
+                            var fingerX = downPos.x
+
+                            // Wait for up, drag, or long-press timeout
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Main)
+                                val elapsed = System.currentTimeMillis() - startTime
+
+                                // Check if all pointers are up
+                                if (event.changes.all { !it.pressed }) {
+                                    event.changes.forEach { it.consume() }
+                                    // Determine what happened
+                                    if (showLongPressPopup && longPressAlts != null && onLongPressAlt != null && popupHoveredIndex >= 0 && popupHoveredIndex < longPressAlts.size) {
+                                        // Long-press popup: select the hovered item
+                                        onLongPressAlt(longPressAlts[popupHoveredIndex])
+                                    } else if (!isSwipeUpTriggered && !isLongPressTriggered && elapsed < longPressTimeoutMs) {
+                                        // Normal tap
+                                        action()
+                                    }
+                                    break
+                                }
+
+                                // Check for drag (swipe up detection)
+                                val change = event.changes.firstOrNull() ?: break
+                                val currentPos = change.position
+                                fingerX = currentPos.x
+                                val dy = downPos.y - currentPos.y // positive = upward
+
+                                if (dy > swipeUpThresholdPx && !isSwipeUpTriggered && !isLongPressTriggered) {
+                                    // Swipe-up detected
+                                    isSwipeUpTriggered = true
+                                    if (swipeUpSymbol != null && onSwipeUp != null) {
+                                        onSwipeUp(swipeUpSymbol)
+                                    } else if (swipeUpSymbol != null && keyChar != null && onSwipeUp != null) {
+                                        onSwipeUp(keyChar)
+                                    }
+                                    change.consume()
+                                }
+
+                                // Track finger position over long-press popup items
+                                if (showLongPressPopup && longPressAlts != null) {
+                                    val popupTotalWidth = longPressAlts.size * popupItemWidthPx + (longPressAlts.size - 1) * popupSpacingPx
+                                    val keyCenterX = downPos.x // finger started at key center
+                                    val popupLeft = keyCenterX - popupTotalWidth / 2 - popupPaddingPx
+                                    val relX = fingerX - popupLeft
+                                    val idx = ((relX - popupPaddingPx) / (popupItemWidthPx + popupSpacingPx)).toInt()
+                                    popupHoveredIndex = if (idx in longPressAlts.indices) idx else -1
+                                }
+
+                                // Check long-press timeout
+                                if (elapsed >= longPressTimeoutMs && !isLongPressTriggered && !isSwipeUpTriggered) {
+                                    isLongPressTriggered = true
+                                    if (isDeleteKey && onDeleteRepeat != null) {
+                                        scope.launch {
+                                            onDeleteRepeat()
+                                            delay(50L)
+                                            pressed = false
+                                        }
+                                    } else if (onLongPressAction != null) {
+                                        onLongPressAction()
+                                        pressed = false
+                                    } else if (longPressAlts != null && onLongPressAlt != null) {
+                                        showLongPressPopup = true
+                                        popupHoveredIndex = -1
+                                    } else {
+                                        pressed = false
+                                    }
+                                    // Don't break — continue tracking for release
+                                }
+
+                                change.consume()
+                            }
+
                             pressed = false
                             showLongPressPopup = false
                             popupHoveredIndex = -1
-                        },
-                        onTap = {
-                            action()
-                        },
-                        onLongPress = { pos ->
-                            pressed = true
-                            if (isDeleteKey && onDeleteRepeat != null) {
-                                var keepRepeating = true
-                                scope.launch {
-                                    while (keepRepeating && isActive) {
-                                        onDeleteRepeat()
-                                        delay(50L)
-                                    }
-                                }
-                                do {
-                                    val e = awaitPointerEvent()
-                                    val anyPressed = e.changes.any { it.pressed }
-                                } while (anyPressed)
-                                keepRepeating = false
-                                pressed = false
-                            } else if (onLongPressAction != null) {
-                                onLongPressAction()
-                                pressed = false
-                            } else if (longPressAlts != null && onLongPressAlt != null) {
-                                showLongPressPopup = true
-                                popupHoveredIndex = -1
-                                val slotWidthPx = 30.dp.toPx() + 2.dp.toPx()
-                                val altCount = longPressAlts.size
-                                do {
-                                    val e = awaitPointerEvent()
-                                    val ptr = e.changes.firstOrNull()
-                                    if (ptr != null && ptr.pressed) {
-                                        ptr.consume()
-                                        val relX = ptr.position.x - (size.width / 2f - altCount * slotWidthPx / 2f)
-                                        popupHoveredIndex = ((relX / slotWidthPx).toInt()).coerceIn(0, altCount - 1)
-                                    } else {
-                                        break
-                                    }
-                                } while (true)
-                                if (popupHoveredIndex >= 0 && popupHoveredIndex < altCount) {
-                                    onLongPressAlt(longPressAlts[popupHoveredIndex])
-                                }
-                                pressed = false
-                                showLongPressPopup = false
-                                popupHoveredIndex = -1
-                            } else {
-                                pressed = false
-                            }
-                        },
-                    )
+                            // Added by Agent H — notify press release (for voice input hold-to-talk)
+                            onPressRelease?.invoke()
+                        }
+                    }
                 },
         contentAlignment = Alignment.Center,
     ) {
+        // Main label
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = colors.onSurfaceVariant,
+            color = contentColor,
             textAlign = TextAlign.Center,
             maxLines = 2,
         )
+
+        // Added by Agent H — floating swipe-up symbol overlay at top of key
+        if (swipeUpSymbol != null && !pressed) {
+            Text(
+                text = swipeUpSymbol.toString(),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = 2.dp),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 7.sp,
+                color = contentColor.copy(alpha = 0.45f),
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
+        }
 
         // Added by Agent B — long-press alternate characters popup
         if (showLongPressPopup && longPressAlts != null && longPressAlts.isNotEmpty()) {
@@ -983,6 +1264,114 @@ fun OneHandModeBar(
     }
 }
 
+// Added by Agent H — top toolbar with circular icon buttons
+@Composable
+fun ToolBar(
+    modifier: Modifier = Modifier,
+    onKeyboardSwitch: () -> Unit,
+    onAiAction: () -> Unit,
+    onSettings: () -> Unit,
+    onTextEdit: () -> Unit,
+    onClipboard: () -> Unit,
+    onHideKeyboard: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    val view = LocalView.current
+
+    Row(
+        modifier =
+            modifier
+                .background(colors.surface)
+                .padding(horizontal = 4.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // 1. Keyboard switch → system IME switcher
+        IconButton(
+            onClick = onKeyboardSwitch,
+            modifier = Modifier.size(32.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Keyboard,
+                contentDescription = "切换键盘",
+                tint = colors.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+
+        // 2. AI magic tool
+        IconButton(
+            onClick = {
+                Toast.makeText(view.context, "AI功能开发中，敬请期待 ✨", Toast.LENGTH_SHORT).show()
+                onAiAction()
+            },
+            modifier = Modifier.size(32.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.AutoAwesome,
+                contentDescription = "AI 辅助",
+                tint = colors.primary.copy(alpha = 0.8f),
+                modifier = Modifier.size(18.dp),
+            )
+        }
+
+        // 3. Settings
+        IconButton(
+            onClick = onSettings,
+            modifier = Modifier.size(32.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Settings,
+                contentDescription = "设置",
+                tint = colors.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+
+        // 4. Text edit / selection mode
+        IconButton(
+            onClick = {
+                Toast.makeText(view.context, "文本编辑模式开发中", Toast.LENGTH_SHORT).show()
+                onTextEdit()
+            },
+            modifier = Modifier.size(32.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.SelectAll,
+                contentDescription = "文本编辑",
+                tint = colors.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+
+        // 5. Clipboard quick access
+        IconButton(
+            onClick = onClipboard,
+            modifier = Modifier.size(32.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ContentPaste,
+                contentDescription = "剪贴板",
+                tint = colors.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+
+        // 6. Hide keyboard — emphasized with primary color
+        IconButton(
+            onClick = onHideKeyboard,
+            modifier = Modifier.size(32.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = "收起键盘",
+                tint = colors.primary,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
+
 @Composable
 fun HeightSlider(
     currentPercent: Float,
@@ -1017,11 +1406,12 @@ fun HeightSlider(
                     },
             contentAlignment = Alignment.CenterStart,
         ) {
-            val filledWidth = ((dragFraction - 0.3f) / 0.3f) * trackWidth
+            val filledWidth = ((dragFraction - 0.3f) / 0.3f) * trackWidth.value
+            val filledWidthDp = Dp(filledWidth)
             Box(
                 modifier =
                     Modifier
-                        .width(filledWidth)
+                        .width(filledWidthDp)
                         .height(8.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(colors.primary),
@@ -1089,7 +1479,7 @@ fun T9Keyboard(
                             in '2'..'9', '0' -> {
                                 { onKey(digit) }
                             }
-                            else -> {}
+                            else -> ({})
                         }
                     KeyButton(
                         label = label,
@@ -1104,7 +1494,7 @@ fun T9Keyboard(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp * scale),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             KeyButton(
@@ -1112,13 +1502,6 @@ fun T9Keyboard(
                 width = 48.dp * scale,
                 height = 36.dp * scale,
                 action = { onSetMode(KeyboardMode.ALPHA) },
-                sizeScale = scale,
-            )
-            KeyButton(
-                "符",
-                width = 40.dp * scale,
-                height = 36.dp * scale,
-                action = { onSetMode(KeyboardMode.SYMBOL) },
                 sizeScale = scale,
             )
             KeyButton(

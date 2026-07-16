@@ -14,7 +14,7 @@ class ShortcutRepository
     ) {
         fun getShortcuts(packageName: String = "global"): Flow<List<ShortcutItem>> = shortcutDao.getShortcutsForPackage(packageName)
 
-        fun getAllShortcuts(): Flow<List<ShortcutItem>> = shortcutDao.getAllShortcuts()
+        fun getAllShortcuts(packageName: String): Flow<List<ShortcutItem>> = shortcutDao.getAllShortcuts(packageName)
 
         fun searchShortcuts(
             query: String,

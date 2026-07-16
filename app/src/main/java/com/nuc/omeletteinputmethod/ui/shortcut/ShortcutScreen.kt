@@ -45,7 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nuc.omeletteinputmethod.ui.notepad.EmptyState
 import com.nuc.omeletteinputmethod.ui.notepad.NotepadTopBar
 
@@ -53,7 +53,7 @@ import com.nuc.omeletteinputmethod.ui.notepad.NotepadTopBar
 @Composable
 fun ShortcutListScreen(
     onEditShortcut: (Long) -> Unit,
-    viewModel: ShortcutViewModel = viewModel()
+    viewModel: ShortcutViewModel = hiltViewModel()
 ) {
     val shortcuts by viewModel.shortcuts.collectAsState()
     val categories by viewModel.categories.collectAsState()

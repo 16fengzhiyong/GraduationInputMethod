@@ -24,7 +24,6 @@ data class StrokeState(
     val currentPage: Int = 0,
 )
 
-@HiltViewModel
 class StrokeInputViewModel
 @Inject
 constructor(

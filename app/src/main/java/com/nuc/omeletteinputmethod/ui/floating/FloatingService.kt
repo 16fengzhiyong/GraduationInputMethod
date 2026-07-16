@@ -7,20 +7,30 @@ import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import android.provider.Settings
+import android.widget.Toast
 import com.nuc.omeletteinputmethod.ui.theme.OmeletteIMETheme
-import dagger.hilt.android.AndroidEntryPoint
+class FloatingService : LifecycleService(), ViewModelStoreOwner, SavedStateRegistryOwner {
+    private val store = ViewModelStore()
+    private val savedStateRegistryController = SavedStateRegistryController.create(this)
 
-@AndroidEntryPoint
-class FloatingService : LifecycleService() {
+    override val viewModelStore: ViewModelStore get() = store
+    override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
     private lateinit var windowManager: WindowManager
     private lateinit var layoutParams: WindowManager.LayoutParams
     private lateinit var composeView: ComposeView
 
     override fun onCreate() {
         super.onCreate()
+        savedStateRegistryController.performRestore(null)
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
         layoutParams =
@@ -42,17 +52,18 @@ class FloatingService : LifecycleService() {
 
         composeView =
             ComposeView(this).apply {
-                ViewTreeLifecycleOwner.set(this, this@FloatingService)
-                ViewTreeViewModelStoreOwner.set(this, this@FloatingService)
-                ViewTreeSavedStateRegistryOwner.set(this, this@FloatingService)
+                setViewTreeLifecycleOwner(this@FloatingService)
+                setViewTreeViewModelStoreOwner(this@FloatingService)
+                setViewTreeSavedStateRegistryOwner(this@FloatingService)
 
                 setContent {
                     OmeletteIMETheme {
                         FloatingWindowContent(
-                            onDrag = { x, y ->
-                                layoutParams.x += x.toInt()
-                                layoutParams.y += y.toInt()
-                                windowManager.updateViewLayout(composeView, layoutParams)
+                            onDrag = { dx, dy ->
+                                val lp = this@FloatingService.layoutParams
+                                lp.x += dx.toInt()
+                                lp.y += dy.toInt()
+                                this@FloatingService.windowManager.updateViewLayout(this@FloatingService.composeView, lp)
                             },
                             onClick = { /* Expand logic inside content for now */ },
                             onClose = { stopSelf() },
@@ -79,6 +90,11 @@ class FloatingService : LifecycleService() {
                 }
             }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+            Toast.makeText(this, "需要「悬浮窗」权限才能使用此功能", Toast.LENGTH_LONG).show()
+            stopSelf()
+            return
+        }
         windowManager.addView(composeView, layoutParams)
     }
 
@@ -94,7 +110,10 @@ class FloatingService : LifecycleService() {
     override fun onDestroy() {
         super.onDestroy()
         if (::composeView.isInitialized) {
-            windowManager.removeView(composeView)
+            try {
+                windowManager.removeView(composeView)
+            } catch (_: Exception) { }
         }
+        store.clear()
     }
 }

@@ -39,7 +39,6 @@ data class HandwritingState(
     val isRecognizing: Boolean = false,
 )
 
-@HiltViewModel
 class HandwritingViewModel
 @Inject
 constructor(

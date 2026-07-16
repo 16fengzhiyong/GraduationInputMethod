@@ -179,7 +179,7 @@ private fun SwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = if (indent) 32.dp else 0.dp, vertical = 6.dp),
+            .padding(start = if (indent) 32.dp else 0.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -221,7 +221,7 @@ private fun DoubleSchemeDropdown(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 32.dp, vertical = 6.dp),
+            .padding(start = 32.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

@@ -1,5 +1,7 @@
 package com.nuc.omeletteinputmethod.ui.multimodal
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,7 +49,7 @@ fun VoiceInputPanel(
         infiniteTransition.animateFloat(
             initialValue = 1f,
             targetValue = 1.15f,
-            animationSpec = infiniteRepeatable(tween(600), tween(0)),
+            animationSpec = infiniteRepeatable<Float>(tween(600), RepeatMode.Restart),
             label = "pulseScale",
         )
     val pulseAlpha by

@@ -37,6 +37,11 @@ sealed class KeyboardEffect {
     data class PlaySound(val volume: Float = 1.0f) : KeyboardEffect()
     // Added by Agent G — paste clipboard text to target input field
     data class Paste(val text: String) : KeyboardEffect()
+
+    // Added by Agent H — toolbar action effects
+    object SwitchIME : KeyboardEffect()
+    object OpenSettings : KeyboardEffect()
+    object HideKeyboard : KeyboardEffect()
 }
 
 // Added by Agent A — T9 mapping: digit → sequence of chars to cycle through
@@ -77,11 +82,25 @@ val LONG_PRESS_ALTERNATES: Map<Char, List<Char>> =
         '9' to listOf('九'),
     )
 
-// Added by Agent B — SharedPreferences keys for haptic and sound
-private const val PREFS_KEY_HAPTIC = "haptic_enabled"
-private const val PREFS_KEY_SOUND = "sound_enabled"
-private const val DEFAULT_HAPTIC = true
-private const val DEFAULT_SOUND = true
+// Added by Agent H — swipe-up alt character map: key char -> swipe-up symbol
+    val SWIPE_UP_SYMBOLS: Map<Char, Char> =
+        mapOf(
+            // Row 0: QWERTYUIOP → 1-9,0
+            'q' to '1', 'w' to '2', 'e' to '3', 'r' to '4', 't' to '5',
+            'y' to '6', 'u' to '7', 'i' to '8', 'o' to '9', 'p' to '0',
+            // Row 1: ASDFGHJKL → ~@#$%&*()
+            'a' to '~', 's' to '@', 'd' to '#', 'f' to '$', 'g' to '%',
+            'h' to '&', 'j' to '*', 'k' to '(', 'l' to ')',
+            // Row 2: ZXCVBNM → -+=|\<> 
+            'z' to '-', 'x' to '+', 'c' to '=', 'v' to '|', 'b' to '\\',
+            'n' to '<', 'm' to '>',
+        )
+
+    // Added by Agent B — SharedPreferences keys for haptic and sound
+    private const val PREFS_KEY_HAPTIC = "haptic_enabled"
+    private const val PREFS_KEY_SOUND = "sound_enabled"
+    private const val DEFAULT_HAPTIC = true
+    private const val DEFAULT_SOUND = true
 
 @Singleton
 class KeyboardViewModel
@@ -139,13 +158,28 @@ class KeyboardViewModel
             }
 
             scope.launch {
-                dictionaryRepository.initializeDictionary()
+                val ok = dictionaryRepository.initializeDictionary()
+                if (!ok) {
+                    android.util.Log.e("KeyboardVM", "Dictionary init FAILED — candidates will be empty!")
+                } else {
+                    android.util.Log.i("KeyboardVM", "Dictionary init OK")
+                }
             }
         }
 
         // Updated by Agent C — fuzzy/double/mixed-input support
+        // Updated by Agent H — English mode: letters commit directly
         fun onKeyChar(char: Char) {
             val st = _state.value
+
+            // Added by Agent H — English mode: letters directly commit to editor
+            if (st.isEnglishMode && st.mode == KeyboardMode.ALPHA && char.isLetter()) {
+                scope.launch { _effects.emit(KeyboardEffect.CommitText(char.toString())) }
+                emitHaptic(KeyType.NORMAL)
+                emitSound()
+                return
+            }
+
             if (st.mode != KeyboardMode.ALPHA) {
                 scope.launch { _effects.emit(KeyboardEffect.CommitText(char.toString())) }
                 emitHaptic(KeyType.NORMAL)
@@ -322,9 +356,34 @@ class KeyboardViewModel
                     listOf(buffer)
                 }
 
+            // 拼音音节切分：将 "nihao" → "ni hao" 等空格分隔形式，匹配 dict.db 存储格式
+            // 注意：即使输入是合法单音节（如 "xian"），也要尝试多音节切分（"xi an"），
+            // 因为 dict.db 中多字词的拼音是带空格的（"xi an" → 西安）
+            val segmentedVariants = mutableListOf<String>()
+            if (!isDouble) {
+                for (variant in variants.distinct()) {
+                    val segmentations = PinyinProcessor.segmentPinyin(variant)
+                    for (seg in segmentations) {
+                        if (seg != variant && seg.contains(" ")) {
+                            segmentedVariants.add(seg)
+                        }
+                    }
+                    // 模糊展开后的变体也需要切分
+                    if (variant != buffer) {
+                        val segVariants = PinyinProcessor.segmentPinyin(variant)
+                        for (seg in segVariants) {
+                            if (seg.contains(" ") && seg !in segmentedVariants) {
+                                segmentedVariants.add(seg)
+                            }
+                        }
+                    }
+                }
+            }
+            val allQueryVariants = (variants + segmentedVariants).distinct()
+
             val allCandidates = mutableListOf<String>()
             val seenCandidates = mutableSetOf<String>()
-            for (variant in variants) {
+            for (variant in allQueryVariants) {
                 val candidates = dictionaryRepository.getInitialCandidates(variant)
                 for (c in candidates) {
                     if (seenCandidates.add(c)) {
@@ -351,8 +410,10 @@ class KeyboardViewModel
                 it.copy(
                     inputBuffer = if (isDouble) it.doubleBuffer else buffer,
                     candidates = allCandidates,
+                    expandedCandidates = false,
                 )
             }
+            android.util.Log.i("KeyboardVM", "updateCandidates: buffer=\"$buffer\" variants=${variants.size} segVariants=${segmentedVariants.size} finalCandidates=${allCandidates.size} first=\"${allCandidates.firstOrNull() ?: ""}\"")
         }
 
         fun setMode(mode: KeyboardMode) {
@@ -421,6 +482,14 @@ class KeyboardViewModel
 
         fun onSpace() {
             val st = _state.value
+            // Added by Agent H — English mode: always commit space
+            if (st.isEnglishMode) {
+                _state.update { it.copy(inputBuffer = "", doubleBuffer = "", lastCommittedWord = " ") }
+                scope.launch { _effects.emit(KeyboardEffect.CommitText(" ")) }
+                emitHaptic(KeyType.NORMAL)
+                emitSound()
+                return
+            }
             if (st.candidates.isNotEmpty()) {
                 onCandidateSelected(st.candidates[0])
             } else {
@@ -556,6 +625,52 @@ class KeyboardViewModel
 
         fun onPasteText(text: String) {
             scope.launch { _effects.emit(KeyboardEffect.Paste(text)) }
+        }
+
+        // Added by Agent H — toggle Chinese/English input mode
+        fun toggleLanguageMode() {
+            val newMode = !_state.value.isEnglishMode
+            _state.update { it.copy(isEnglishMode = newMode) }
+            emitHaptic(KeyType.SPECIAL)
+            // Toast will be shown by KeyboardScreen observing state change
+        }
+
+        // Added by Agent H — search/enter action key (blue button)
+        fun onSearch() {
+            val st = _state.value
+            if (st.inputBuffer.isNotEmpty()) {
+                // Force commit pinyin buffer content
+                scope.launch { _effects.emit(KeyboardEffect.CommitText(st.inputBuffer)) }
+                _state.update { it.copy(inputBuffer = "", doubleBuffer = "", candidates = emptyList()) }
+            } else {
+                scope.launch { _effects.emit(KeyboardEffect.CommitText("\n")) }
+            }
+            emitHaptic(KeyType.SPECIAL)
+            emitSound()
+        }
+
+        // Added by Agent H — toolbar actions forwarded to IME
+        fun onSwitchIME() {
+            scope.launch { _effects.emit(KeyboardEffect.SwitchIME) }
+        }
+
+        fun onOpenSettings() {
+            scope.launch { _effects.emit(KeyboardEffect.OpenSettings) }
+        }
+
+        fun onHideKeyboard() {
+            scope.launch { _effects.emit(KeyboardEffect.HideKeyboard) }
+        }
+
+        // Added by Agent H — handle swipe-up on a letter key
+        fun onSwipeUp(baseChar: Char) {
+            val symbol = SWIPE_UP_SYMBOLS[baseChar]
+            if (symbol != null) {
+                emitHaptic(KeyType.SWIPE)
+                emitSound()
+                // Commit the symbol directly — swipe-up always outputs the mapped symbol
+                scope.launch { _effects.emit(KeyboardEffect.CommitText(symbol.toString())) }
+            }
         }
 
         // Added by Agent D — multimodal input mode switchers

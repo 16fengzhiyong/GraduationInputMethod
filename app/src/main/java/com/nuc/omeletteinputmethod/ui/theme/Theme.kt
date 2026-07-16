@@ -85,10 +85,13 @@ fun OmeletteIMETheme(
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        val context = view.context
+        if (context is Activity) {
+            SideEffect {
+                val window = context.window
+                window.statusBarColor = colorScheme.background.toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            }
         }
     }
 
@@ -143,7 +146,7 @@ private fun animateColorScheme(target: androidx.compose.material3.ColorScheme): 
     val error by animateColorAsState(target.error, animSpec, "error")
     val onError by animateColorAsState(target.onError, animSpec, "onError")
 
-    return if (target.background.value < 0.5f) {
+    return if (estimateLuminance(target.background) < 0.5f) {
         darkColorScheme(
             primary, onPrimary, primaryContainer, onPrimaryContainer,
             secondary, onSecondary, secondaryContainer, onSecondaryContainer,

@@ -1,6 +1,7 @@
 package com.nuc.omeletteinputmethod.ui.notepad
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,14 +38,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotepadEditScreen(
     noteId: Long,
     onNavigateBack: () -> Unit,
-    viewModel: NotepadViewModel = viewModel(),
+    viewModel: NotepadViewModel = hiltViewModel(),
 ) {
     val existingNotes by viewModel.notes.collectAsState()
     val existingNote = if (noteId > 0) existingNotes.find { it.id == noteId } else null

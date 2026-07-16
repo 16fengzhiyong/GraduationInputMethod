@@ -1,6 +1,7 @@
 package com.nuc.omeletteinputmethod.ui.shortcut
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nuc.omeletteinputmethod.data.model.ShortcutItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +45,7 @@ import com.nuc.omeletteinputmethod.data.model.ShortcutItem
 fun ShortcutEditScreen(
     shortcutId: Long,
     onNavigateBack: () -> Unit,
-    viewModel: ShortcutViewModel = viewModel()
+    viewModel: ShortcutViewModel = hiltViewModel()
 ) {
     val shortcuts by viewModel.shortcuts.collectAsState()
     val existingItem = if (shortcutId > 0) shortcuts.find { it.id == shortcutId } else null

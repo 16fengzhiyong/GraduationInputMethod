@@ -47,7 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nuc.omeletteinputmethod.data.model.ClipboardItem
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,7 +56,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ClipboardPanel(
-    viewModel: ClipboardViewModel = viewModel(),
+    viewModel: ClipboardViewModel = hiltViewModel(),
     onNavigateBack: () -> Unit = {},
 ) {
     val items by viewModel.items.collectAsState()

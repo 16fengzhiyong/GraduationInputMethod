@@ -100,6 +100,209 @@ object PinyinProcessor {
     }
 
     // ====================================================================
+    // 拼音音节切分 (Pinyin Syllable Segmentation)
+    // ====================================================================
+    // 解决 "nihao" 无法查到 "你好" 的问题：
+    // dict.db 存储拼音时用空格分隔音节 ("ni hao")，而用户连续输入无分隔符 ("nihao")。
+    // 本模块将无分隔符拼音自动切分为空格分隔的多音节形式，匹配词库格式。
+
+    /** 所有合法拼音音节的完整集合（含声母+韵母组合以及零声母纯韵母） */
+    val ALL_PINYIN_SYLLABLES: Set<String> by lazy {
+        val set = mutableSetOf<String>()
+        // 纯韵母（零声母音节）：如 a, ai, an, ang, ao, e, ei, en, eng, er, o, ou
+        for (fin in validFinals) {
+            set.add(fin)
+        }
+        // 声母+韵母组合：如 ba, zhong, nü, lve ...
+        for (init in validInitials) {
+            for (fin in validFinals) {
+                val syl = init + fin
+                // 非法组合过滤：汉语拼音不存在 b+ong, f+ong, g+iu, k+iu, q+ong, x+ong 等
+                if (!isInvalidSyllable(syl)) {
+                    set.add(syl)
+                }
+            }
+        }
+        // 额外添加几个带 ü 的特殊音节（validFinals 用 v/ue 表示 ü 相关）
+        set.addAll(listOf("nü", "lü", "nüe", "lüe", "jü", "qü", "xü", "yü"))
+        set.toSet()
+    }
+
+    /** 汉语拼音中不存在的声母+韵母组合 */
+    private fun isInvalidSyllable(syl: String): Boolean {
+        val invalidCombos = setOf(
+            // 唇音 b/p/m/f + ong 不存在
+            "bong", "pong", "mong", "fong",
+            // 软腭音 g/k/h + ong → gong/kong/hong 合法，不在此列
+            // 腭音 j/q/x + ong → jiong/qiong/xiong 合法（用 iong），但 j/q/x + ong 不合法
+            "jong", "qong", "xong",
+            // 软腭音 g/k/h + iu 不合法（giu/kiu/hiu 不存在）
+            "giu", "kiu", "hiu",
+            // 唇齿音 f + ai/ao/ou/iu/ie/ia → 大多不合法（fou 合法）
+            "fai", "fao", "fiu", "fie", "fia",
+            // d/t + uai/uo/uang 不合法
+            "duai", "tuai", "duang", "tuang",
+            // n/l + uai/uang 不合法
+            "nuai", "nuang", "luai", "luang",
+            // j/q/x + uai/uang 不合法
+            "juai", "juang", "quai", "quang", "xuai", "xuang",
+            // zh/ch/sh/r + ong → zhong/chong/rong 合法，不在此列
+            "shong",
+            // z/c/s + ong → zong/cong/song 合法，zh/ch/sh + ong → zhong/chong/ 合法
+            // r + uai/uang 不合法
+            "ruai", "ruang",
+            // b/p/m/f/d/t/n/l/g/k/h/zh/ch/sh/r/z/c/s + iong 均不合法（仅 j/q/x + iong 合法）
+            "biong", "piong", "miong", "fiong",
+            "diong", "tiong", "niong", "liong",
+            "giong", "kiong", "hiong",
+            "zhiong", "chiong", "shiong", "riong",
+            "ziong", "ciong", "siong",
+            // 各类声母 + van(v表示ü) 不合法
+            "bvan", "pvan", "mvan", "fvan",
+            "dvan", "tvan", "nvan", "lvan",
+            "gvan", "kvan", "hvan",
+            "zhvan", "chvan", "shvan", "rvan",
+            "zvan", "cvan", "svan",
+        )
+        return syl in invalidCombos
+    }
+
+    /** 切分缓存，避免重复计算 */
+    private val segmentationCache = java.util.concurrent.ConcurrentHashMap<String, List<String>>()
+
+    /**
+     * 将连续拼音字符串切分为所有可能的空格分隔音节组合。
+     *
+     * 例：
+     *   "nihao"    → ["ni hao"]
+     *   "xian"     → ["xian", "xi an"]     （全返回策略）
+     *   "nihaoa"   → ["ni hao a"]
+     *   "women"    → ["wo men"]
+     *   "zhongguo" → ["zhong guo"]
+     *   "nih"      → ["ni h"]              （不完全切分，末尾残留作为前缀）
+     *
+     * @param raw 无分隔符的连续拼音字符串（小写）
+     * @return 所有有效切分结果，每个结果用空格连接音节；支持不完全切分（末尾残留字母）
+     */
+    fun segmentPinyin(raw: String): List<String> {
+        if (raw.isEmpty()) return emptyList()
+
+        // 缓存命中
+        segmentationCache[raw]?.let { return it }
+
+        // 快速路径：本身就是合法单音节
+        val syllables = ALL_PINYIN_SYLLABLES
+        if (raw in syllables) {
+            val result = listOf(raw)
+            segmentationCache[raw] = result
+            return result
+        }
+
+        val results = mutableListOf<String>()
+        // 先尝试完全切分
+        segmentRecursive(raw, 0, mutableListOf(), results, syllables)
+
+        // 如果完全切分失败，尝试不完全切分（允许末尾有残留前缀）
+        if (results.isEmpty()) {
+            segmentPrefixRecursive(raw, 0, mutableListOf(), results, syllables)
+        }
+
+        val final = results.distinct()
+
+        segmentationCache[raw] = final
+        return final
+    }
+
+    /**
+     * 回溯递归切分（完全切分）：
+     * - 从位置 [pos] 开始尝试所有匹配音节
+     * - 切下一个音节后递归处理剩余部分
+     * - 到达末尾时记录完整切分路径
+     */
+    private fun segmentRecursive(
+        raw: String,
+        pos: Int,
+        path: MutableList<String>,
+        results: MutableList<String>,
+        syllables: Set<String>,
+    ) {
+        if (pos >= raw.length) {
+            // 完全切分成功，记录结果
+            results.add(path.joinToString(" "))
+            return
+        }
+
+        val remaining = raw.length - pos
+        // 尝试从 pos 开始的每种可能音节长度（最长6字符：zhuang）
+        val maxSylLen = minOf(6, remaining)
+        for (len in 1..maxSylLen) {
+            val candidate = raw.substring(pos, pos + len)
+            if (candidate in syllables) {
+                path.add(candidate)
+                segmentRecursive(raw, pos + len, path, results, syllables)
+                path.removeAt(path.size - 1)
+            }
+        }
+    }
+
+    /**
+     * 不完全切分（前缀切分）：
+     * - 允许末尾有未切分的残留字母（作为前缀匹配）
+     * - 用于处理用户正在输入拼音中间的情况，如 "nih" → "ni h"
+     */
+    private fun segmentPrefixRecursive(
+        raw: String,
+        pos: Int,
+        path: MutableList<String>,
+        results: MutableList<String>,
+        syllables: Set<String>,
+    ) {
+        if (pos >= raw.length) {
+            // 完全切分成功
+            results.add(path.joinToString(" "))
+            return
+        }
+
+        val remaining = raw.length - pos
+
+        // 尝试匹配完整音节
+        var foundSyllable = false
+        val maxSylLen = minOf(6, remaining)
+        for (len in 1..maxSylLen) {
+            val candidate = raw.substring(pos, pos + len)
+            if (candidate in syllables) {
+                foundSyllable = true
+                path.add(candidate)
+                segmentPrefixRecursive(raw, pos + len, path, results, syllables)
+                path.removeAt(path.size - 1)
+            }
+        }
+
+        // 如果没有匹配到完整音节，或者剩余部分不是任何音节的前缀，
+        // 则将剩余部分作为残留前缀加入
+        if (!foundSyllable || !couldBeSyllablePrefix(raw.substring(pos), syllables)) {
+            val remainder = raw.substring(pos)
+            if (remainder.isNotEmpty()) {
+                path.add(remainder)
+                results.add(path.joinToString(" "))
+                path.removeAt(path.size - 1)
+            }
+        }
+    }
+
+    /**
+     * 检查字符串是否是某个合法音节的前缀
+     */
+    private fun couldBeSyllablePrefix(s: String, syllables: Set<String>): Boolean {
+        if (s.isEmpty()) return false
+        // 检查是否是任何音节的前缀
+        for (syl in syllables) {
+            if (syl.startsWith(s)) return true
+        }
+        return false
+    }
+
+    // ====================================================================
     // 拼音纠错 (Pinyin Typo Correction)
     // ====================================================================
 
