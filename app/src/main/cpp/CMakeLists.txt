@@ -5,13 +5,17 @@ add_library(
     SHARED
     dict_engine.cpp
     trie.cpp
+    sqlite3.c
 )
 
 find_library(log-lib log)
-find_library(sqlite3-lib sqlite3)
+
+target_compile_options(dict_engine PRIVATE -DSQLITE_THREADSAFE=2 -DSQLITE_OMIT_DEPRECATED)
+set_source_files_properties(sqlite3.c PROPERTIES COMPILE_FLAGS "-w -Os")
+
+target_include_directories(dict_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
     dict_engine
     ${log-lib}
-    ${sqlite3-lib}
 )

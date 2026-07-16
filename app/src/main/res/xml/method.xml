@@ -5,7 +5,7 @@
         android:isDefault="true"
         android:supportsSwitchingToNextInputMethod="true">
     <subtype
-        android:imeSubtypeLocale="煎蛋输入法"
+        android:imeSubtypeLocale="zh-CN"
         android:imeSubtypeMode="keyboard" />
 
 </input-method>
