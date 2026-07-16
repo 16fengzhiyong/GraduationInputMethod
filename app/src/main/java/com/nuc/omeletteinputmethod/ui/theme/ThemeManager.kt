@@ -51,10 +51,10 @@ class ThemeManager @Inject constructor(
     private val _nightSkinId = MutableStateFlow("night")
     val nightSkinId: StateFlow<String> = _nightSkinId.asStateFlow()
 
-    private val _keyShape = MutableStateFlow(KeyShapeConfig(KeyShapeType.ROUNDED, 6f))
+    private val _keyShape = MutableStateFlow(KeyShapeConfig(KeyShapeType.ROUNDED, 16f))
     val keyShape: StateFlow<KeyShapeConfig> = _keyShape.asStateFlow()
 
-    private val _keySpacing = MutableStateFlow(4)
+    private val _keySpacing = MutableStateFlow(5)
     val keySpacingDp: StateFlow<Int> = _keySpacing.asStateFlow()
 
     private var lightSensorListener: SensorEventListener? = null
@@ -75,8 +75,8 @@ class ThemeManager @Inject constructor(
         val strategyStr = prefs.getString(PREF_NIGHT_STRATEGY, "SYSTEM") ?: "SYSTEM"
         val autoNight = prefs.getBoolean(PREF_AUTO_NIGHT, true)
         val shapeStr = prefs.getString(PREF_KEY_SHAPE, "ROUNDED") ?: "ROUNDED"
-        val shapeRadius = prefs.getFloat(PREF_KEY_RADIUS, 6f)
-        val spacing = prefs.getInt(PREF_KEY_SPACING, 4)
+        val shapeRadius = prefs.getFloat(PREF_KEY_RADIUS, 16f)
+        val spacing = prefs.getInt(PREF_KEY_SPACING, 5)
 
         val shapeType = try { KeyShapeType.valueOf(shapeStr) } catch (_: Exception) { KeyShapeType.ROUNDED }
         val strategy = try { NightModeStrategy.valueOf(strategyStr) } catch (_: Exception) { NightModeStrategy.SYSTEM }
@@ -111,7 +111,7 @@ class ThemeManager @Inject constructor(
         }
     }
 
-    fun setCustomColors(primary: Color, surface: Color = Color(0xFFFAFAFA)) {
+    fun setCustomColors(primary: Color, surface: Color = Color(0xFF1A2332)) {
         val colors = SkinPack.deriveFromPrimary(primary, surface)
         val customSkin = SkinPack(skinId = "custom", skinName = "自定义", colors = colors)
         setSkin(customSkin)
