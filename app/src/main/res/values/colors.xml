@@ -1,21 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
-    <color name="keyboardBackround">#ECEFF1</color>
-    <!-- 红紫 -->
-    <color name="red01">#F9B2C0</color>
-    <color name="red02">#F6728C</color>
-    <color name="redViolet01">#F6D1F3</color>
-    <color name="redViolet02">#F6728C</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="main_bg">#F2F4F9</color>
-    <color name="list_devider_color">#fff2f2f2</color>
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- 赛博朋克深空主题色板                         -->
+    <!-- 参照 doc/新设计文档/02_色彩系统.md            -->
+    <!-- ═══════════════════════════════════════════════ -->
 
-    <color name="tv_gray_deep">#818181</color>
-    <color name="top_bar_normal_bg">#ec6f1a</color>
-    <color name="orange_light">#ffd39b</color>
-    <color name="orange_most">#C76114</color>
-    <color name="transparent_half">#a0000000</color>
+    <!-- 主色调 -->
+    <color name="cyber_blue">#FF00D4FF</color>
+    <color name="neon_purple">#FF7C3AED</color>
+    <color name="electric_cyan">#FF06FFC8</color>
+    <color name="energy_orange">#FFFF6B35</color>
+
+    <!-- 中性色 -->
+    <color name="deep_space_black">#FF0A0E1A</color>
+    <color name="dark_gray_900">#FF0F1923</color>
+    <color name="dark_gray_800">#FF1A2332</color>
+    <color name="dark_gray_700">#FF2A3545</color>
+    <color name="dark_gray_600">#FF3A4555</color>
+
+    <!-- 文字色 -->
+    <color name="text_primary">#FFF8FAFC</color>
+    <color name="text_secondary">#FF94A3B8</color>
+    <color name="text_placeholder">#FF64748B</color>
+
+    <!-- 语义色 -->
+    <color name="success">#FF10B981</color>
+    <color name="warning">#FFF59E0B</color>
+    <color name="error">#FFEF4444</color>
+    <color name="info">#FF3B82F6</color>
+
+    <!-- 兼容旧版引用 -->
+    <color name="colorPrimary">#FF00D4FF</color>
+    <color name="colorPrimaryDark">#FF0F1923</color>
+    <color name="colorAccent">#FF7C3AED</color>
+    <color name="keyboardBackround">#FF0A0E1A</color>
+    <color name="main_bg">#FF0A0E1A</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="list_devider_color">#FF2A3545</color>
+    <color name="tv_gray_deep">#FF94A3B8</color>
+    <color name="top_bar_normal_bg">#FF1A2332</color>
+    <color name="orange_light">#FFFF6B35</color>
+    <color name="orange_most">#FF7C3AED</color>
+    <color name="transparent_half">#A0000000</color>
+
+    <!-- 移除的旧颜色占位 -->
+    <color name="red01">#FF00D4FF</color>
+    <color name="red02">#FF7C3AED</color>
+    <color name="redViolet01">#FF1A2332</color>
+    <color name="redViolet02">#FF7C3AED</color>
 </resources>
