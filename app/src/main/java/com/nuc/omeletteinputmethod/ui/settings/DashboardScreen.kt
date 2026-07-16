@@ -22,8 +22,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.NoteAlt
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TextSnippet
 import androidx.compose.material.icons.outlined.ChevronRight
@@ -57,6 +60,7 @@ import com.nuc.omeletteinputmethod.ui.clipboard.ClipboardViewModel
 import com.nuc.omeletteinputmethod.ui.keyboard.KeyboardViewModel
 import com.nuc.omeletteinputmethod.ui.notepad.NotepadViewModel
 import com.nuc.omeletteinputmethod.ui.shortcut.ShortcutViewModel
+import com.nuc.omeletteinputmethod.ui.theme.KeyboardColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -70,6 +74,10 @@ fun DashboardScreen(
     onNavigateClipboard: () -> Unit,
     onNavigatePinyinSettings: () -> Unit,
     onNavigateInputStats: () -> Unit,
+    onNavigateThemeSettings: () -> Unit,
+    onNavigateAccount: () -> Unit,
+    onNavigateThemeStore: () -> Unit,
+    onNavigateCloudSync: () -> Unit,
     onCheckPermission: () -> Unit,
     keyboardViewModel: KeyboardViewModel? = null,
     clipboardViewModel: ClipboardViewModel = hiltViewModel(),
@@ -98,27 +106,37 @@ fun DashboardScreen(
         Text(
             text = dateFormat.format(Date()),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = KeyboardColors.TextSecondary
         )
         Text(
             text = "煎蛋输入法",
             style = MaterialTheme.typography.displayLarge,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = KeyboardColors.CyberBlue
         )
         Text(
             text = "更简洁，更高效",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = KeyboardColors.TextSecondary
         )
 
         Spacer(modifier = Modifier.height(4.dp))
+
+        // 个人中心卡片
+        FeatureCard(
+            icon = Icons.Filled.Person,
+            title = "个人中心",
+            subtitle = "登录账号，开启云同步",
+            gradientBrush = KeyboardColors.NeonGradient,
+            onClick = onNavigateAccount
+        )
 
         // 功能卡片区域
         Text(
             text = "功能",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = KeyboardColors.CyberBlue
         )
 
         FeatureCard(
@@ -126,12 +144,7 @@ fun DashboardScreen(
             title = "记事本",
             subtitle = "记录点滴，随手即得",
             badge = "${notes.size} 条",
-            gradientBrush = Brush.verticalGradient(
-                colors = listOf(
-                    Color(0xFFE8F0FE),
-                    Color(0xFFF5F8FD)
-                )
-            ),
+            gradientBrush = KeyboardColors.DeepSpaceGradient,
             onClick = onNavigateNotepad
         )
 
@@ -140,12 +153,7 @@ fun DashboardScreen(
             title = "快捷短语",
             subtitle = "常用文本，一键输入",
             badge = "${shortcuts.size} 条",
-            gradientBrush = Brush.verticalGradient(
-                colors = listOf(
-                    Color(0xFFFEF3E8),
-                    Color(0xFFFEFBF7)
-                )
-            ),
+            gradientBrush = KeyboardColors.EnergyGradient,
             onClick = onNavigateShortcut
         )
 
@@ -153,12 +161,7 @@ fun DashboardScreen(
             icon = Icons.Filled.Share,
             title = "翻译工具",
             subtitle = "英汉互译，快速便捷",
-            gradientBrush = Brush.verticalGradient(
-                colors = listOf(
-                    Color(0xFFF0F0F8),
-                    Color(0xFFF8F7FC)
-                )
-            ),
+            gradientBrush = KeyboardColors.DeepSpaceGradient,
             onClick = onNavigateTranslate
         )
 
@@ -167,12 +170,7 @@ fun DashboardScreen(
             title = "剪贴板",
             subtitle = "历史记录，随时粘贴",
             badge = "${clipboardItems.size} 条",
-            gradientBrush = Brush.verticalGradient(
-                colors = listOf(
-                    Color(0xFFF0FEF0),
-                    Color(0xFFF8FFF8)
-                )
-            ),
+            gradientBrush = KeyboardColors.ElectricGradient,
             onClick = onNavigateClipboard
         )
 
@@ -182,7 +180,8 @@ fun DashboardScreen(
         Text(
             text = "设置",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = KeyboardColors.CyberBlue
         )
 
         SettingRow(
@@ -205,9 +204,29 @@ fun DashboardScreen(
         )
 
         SettingRow(
+            label = "皮肤与主题",
+            description = "切换皮肤、自定义颜色、夜间模式",
+            onClick = onNavigateThemeSettings
+        )
+
+        SettingRow(
             label = "剪贴板历史上限",
             description = "当前上限：${maxItems} 条（超出时自动清理）",
             onClick = { showMaxItemsDialog = true }
+        )
+
+        SettingRow(
+            label = "主题商店",
+            description = "发现更多精美皮肤与主题",
+            icon = Icons.Filled.Palette,
+            onClick = onNavigateThemeStore
+        )
+
+        SettingRow(
+            label = "云同步管理",
+            description = "备份与恢复您的输入数据",
+            icon = Icons.Filled.CloudSync,
+            onClick = onNavigateCloudSync
         )
 
         // Added by Agent B — haptic feedback toggle
@@ -245,7 +264,7 @@ fun DashboardScreen(
                 modifier = Modifier
                     .shadow(16.dp, RoundedCornerShape(20.dp))
                     .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(KeyboardColors.DarkGray800)
                     .padding(24.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -253,32 +272,33 @@ fun DashboardScreen(
                         text = "煎蛋输入法",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = KeyboardColors.CyberBlue
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "版本 1.0",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = KeyboardColors.TextSecondary
                     )
                     Text(
                         text = "基于 Kotlin + Jetpack Compose 构建",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = KeyboardColors.TextSecondary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "集成记事本、快捷短语、翻译等实用工具\n致力于提供简洁高效的输入体验",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = KeyboardColors.TextSecondary
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = { showAboutDialog = false },
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = KeyboardColors.CyberBlue
                         )
                     ) {
                         Text("关闭", color = Color.White)
@@ -297,16 +317,16 @@ fun DashboardScreen(
                 modifier = Modifier
                     .shadow(16.dp, RoundedCornerShape(20.dp))
                     .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(KeyboardColors.DarkGray800)
                     .padding(24.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("剪贴板历史上限", fontWeight = FontWeight.SemiBold)
+                    Text("剪贴板历史上限", fontWeight = FontWeight.SemiBold, color = KeyboardColors.TextPrimary)
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         "超出上限时将自动清理最旧的未置顶项",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = KeyboardColors.TextSecondary
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(
@@ -323,20 +343,20 @@ fun DashboardScreen(
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (option == maxItems)
-                                        MaterialTheme.colorScheme.primary
+                                        KeyboardColors.CyberBlue
                                     else
-                                        MaterialTheme.colorScheme.surfaceVariant
+                                        KeyboardColors.DarkGray700
                                 ),
                                 contentPadding = PaddingValues(
                                     horizontal = 4.dp,
                                     vertical = 8.dp
                                 )
-) {
+                            ) {
                                 Text(
                                     "$option",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = if (option == maxItems) Color.White
-                                else MaterialTheme.colorScheme.onSurfaceVariant
+                                else KeyboardColors.TextSecondary
                                 )
                             }
                         }
@@ -379,13 +399,13 @@ fun FeatureCard(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White.copy(alpha = 0.7f)),
+                    .background(Color.White.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = title,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -397,12 +417,12 @@ fun FeatureCard(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = Color.White
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.White.copy(alpha = 0.8f)
                 )
             }
 
@@ -410,13 +430,13 @@ fun FeatureCard(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
+                        .background(KeyboardColors.DarkGray900.copy(alpha = 0.6f))
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = badge,
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = KeyboardColors.ElectricCyan,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -425,7 +445,7 @@ fun FeatureCard(
             Icon(
                 imageVector = Icons.Outlined.ChevronRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                tint = Color.White.copy(alpha = 0.6f),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -436,13 +456,14 @@ fun FeatureCard(
 fun SettingRow(
     label: String,
     description: String,
+    icon: ImageVector? = null,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .background(KeyboardColors.DarkGray900)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -451,23 +472,32 @@ fun SettingRow(
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                modifier = Modifier.size(24.dp),
+                tint = KeyboardColors.CyberBlue
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = KeyboardColors.TextPrimary
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = KeyboardColors.TextSecondary
             )
         }
         Icon(
             imageVector = Icons.Outlined.ChevronRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+            tint = KeyboardColors.TextSecondary.copy(alpha = 0.5f),
             modifier = Modifier.size(20.dp)
         )
     }
@@ -484,7 +514,7 @@ fun ToggleRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .background(KeyboardColors.DarkGray900)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -498,20 +528,20 @@ fun ToggleRow(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = KeyboardColors.TextPrimary
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = KeyboardColors.TextSecondary
             )
         }
         Switch(
             checked = checked,
             onCheckedChange = { onToggle() },
             colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                checkedThumbColor = Color.White,
+                checkedTrackColor = KeyboardColors.CyberBlue
             )
         )
     }
