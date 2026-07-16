@@ -399,7 +399,7 @@ fun KeyboardScreen(
     }  // end Box
 }
 
-// ── UI 重构：候选栏 — 与键盘背景融合，大圆角候选词 ──
+// ── 赛博：候选栏 — 毛玻璃深色底 ──
 @Composable
 fun CandidateBar(
     candidates: List<String>,
@@ -411,7 +411,6 @@ fun CandidateBar(
     onDelete: (String) -> Unit,
     onExpand: () -> Unit,
 ) {
-    val colors = MaterialTheme.colorScheme
 
     Box(
         modifier = modifier.background(KeyboardColors.CandidateBackground),
@@ -431,7 +430,7 @@ fun CandidateBar(
                 Text(
                     text = inputBuffer,
                     style = MaterialTheme.typography.labelSmall,
-                    color = KeyboardColors.TextSecondary.copy(alpha = 0.6f),
+                    color = KeyboardColors.TextSecondary.copy(alpha = 0.5f),
                     modifier = Modifier.padding(start = 4.dp, bottom = 2.dp),
                 )
                 LazyRow(
@@ -473,13 +472,13 @@ fun CandidateBar(
                             ) {
                                 Surface(
                                     shape = RoundedCornerShape(12.dp),
-                                    color = if (isFirst) KeyboardColors.CandidateSelected else KeyboardColors.KeyBackground,
+                                    color = if (isFirst) KeyboardColors.CyberBlue.copy(alpha = 0.2f) else KeyboardColors.DarkGray800,
                                     shadowElevation = if (isFirst) 1.dp else 0.dp,
                                 ) {
                                     Text(
                                         text = item.word,
                                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                                        color = if (isFirst) KeyboardColors.PrimaryAction else KeyboardColors.TextPrimary,
+                                        color = if (isFirst) KeyboardColors.CyberBlue else KeyboardColors.TextPrimary,
                                         style = MaterialTheme.typography.bodyMedium,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
@@ -496,11 +495,11 @@ fun CandidateBar(
                                         Icon(
                                             Icons.Filled.Star,
                                             contentDescription = "Pin",
-                                            tint = if (item.isPinned) colors.primary else colors.onSurfaceVariant
+                                            tint = if (item.isPinned) KeyboardColors.CyberBlue else KeyboardColors.TextSecondary
                                         )
                                     }
                                     IconButton(onClick = { onDelete(item.word) }, modifier = Modifier.size(20.dp)) {
-                                        Icon(Icons.Filled.Close, contentDescription = "Delete", tint = colors.error)
+                                        Icon(Icons.Filled.Close, contentDescription = "Delete", tint = KeyboardColors.Error)
                                     }
                                 }
                             }
@@ -532,7 +531,7 @@ fun CandidateBar(
                             Surface(
                                 onClick = onExpand,
                                 shape = RoundedCornerShape(12.dp),
-                                color = KeyboardColors.KeyBackground,
+                                color = KeyboardColors.DarkGray800,
                             ) {
                                 Text(
                                     text = "☁️更多",
@@ -1721,13 +1720,12 @@ fun OneHandModeBar(
     currentMode: OneHandMode,
     onSetMode: (OneHandMode) -> Unit,
 ) {
-    val colors = MaterialTheme.colorScheme
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .height(32.dp)
-                .background(colors.surfaceVariant),
+                .background(KeyboardColors.DarkGray900),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1738,7 +1736,7 @@ fun OneHandModeBar(
             Icon(
                 imageVector = Icons.Filled.ArrowBack,
                 contentDescription = "左手模式",
-                tint = if (currentMode == OneHandMode.LEFT) colors.primary else colors.onSurfaceVariant,
+                tint = if (currentMode == OneHandMode.LEFT) KeyboardColors.CyberBlue else KeyboardColors.TextSecondary,
                 modifier = Modifier.height(20.dp),
             )
         }
@@ -1749,7 +1747,7 @@ fun OneHandModeBar(
             Icon(
                 imageVector = Icons.Filled.DragHandle,
                 contentDescription = "全尺寸",
-                tint = if (currentMode == OneHandMode.OFF) colors.primary else colors.onSurfaceVariant,
+                tint = if (currentMode == OneHandMode.OFF) KeyboardColors.CyberBlue else KeyboardColors.TextSecondary,
                 modifier = Modifier.height(20.dp),
             )
         }
@@ -1760,7 +1758,7 @@ fun OneHandModeBar(
             Icon(
                 imageVector = Icons.Filled.ArrowForward,
                 contentDescription = "右手模式",
-                tint = if (currentMode == OneHandMode.RIGHT) colors.primary else colors.onSurfaceVariant,
+                tint = if (currentMode == OneHandMode.RIGHT) KeyboardColors.CyberBlue else KeyboardColors.TextSecondary,
                 modifier = Modifier.height(20.dp),
             )
         }
@@ -1778,7 +1776,6 @@ fun ToolBar(
     onClipboard: () -> Unit,
     onHideKeyboard: () -> Unit,
 ) {
-    val colors = MaterialTheme.colorScheme
     val view = LocalView.current
 
     Column(modifier = modifier) {
@@ -1788,58 +1785,65 @@ fun ToolBar(
                 Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .background(KeyboardColors.Background)
+                    .background(KeyboardColors.ToolbarBackground)
                     .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 1. 键盘切换 — 圆形浅灰底
+            // 1. 键盘切换
             ToolBarIcon(
                 icon = Icons.Filled.Keyboard,
                 contentDescription = "切换键盘",
                 onClick = onKeyboardSwitch,
             )
 
-            // 2. 设置
+            // 2. AI
+            ToolBarIcon(
+                icon = Icons.Filled.AutoAwesome,
+                contentDescription = "AI",
+                onClick = onAiAction,
+            )
+
+            // 3. 设置
             ToolBarIcon(
                 icon = Icons.Filled.Settings,
                 contentDescription = "设置",
                 onClick = onSettings,
             )
 
-            // 3. 剪贴板
-            ToolBarIcon(
-                icon = Icons.Filled.ContentPaste,
-                contentDescription = "剪贴板",
-                onClick = onClipboard,
-            )
-
-            // 4. 文本编辑工具面板
+            // 4. 文本编辑
             ToolBarIcon(
                 icon = Icons.Filled.SelectAll,
                 contentDescription = "文本编辑",
                 onClick = onTextEdit,
             )
 
-            // 5. 收起键盘 — 强调色
+            // 5. 剪贴板
+            ToolBarIcon(
+                icon = Icons.Filled.ContentPaste,
+                contentDescription = "剪贴板",
+                onClick = onClipboard,
+            )
+
+            // 6. 收起键盘 — 强调色
             ToolBarIcon(
                 icon = Icons.Filled.KeyboardArrowDown,
                 contentDescription = "收起键盘",
                 onClick = onHideKeyboard,
-                iconTint = KeyboardColors.PrimaryAction,
+                iconTint = KeyboardColors.CyberBlue,
             )
         }
 
-        // ── 极浅灰分割线 ──
+        // ── 分隔线 ──
         HorizontalDivider(
-            color = KeyboardColors.Divider,
+            color = KeyboardColors.DarkGray700,
             thickness = 0.5.dp,
         )
     }
 }
 
 /**
- * 顶栏图标按钮 — 32dp 圆形浅灰底，按压时变深，MD3 风格
+ * 顶栏图标按钮 — 32dp 圆形深色底，霓虹按压态
  */
 @Composable
 private fun ToolBarIcon(
@@ -1849,11 +1853,6 @@ private fun ToolBarIcon(
     iconTint: Color? = null,
 ) {
     var pressed by remember { mutableStateOf(false) }
-    val bgColor by animateFloatAsState(
-        targetValue = if (pressed) 1f else 0f,
-        animationSpec = tween(150),
-        label = "toolBarIconBg",
-    )
 
     Box(
         modifier =
@@ -1861,8 +1860,8 @@ private fun ToolBarIcon(
                 .size(32.dp)
                 .clip(CircleShape)
                 .background(
-                    if (pressed) KeyboardColors.ToolbarIconBackgroundPressed
-                    else KeyboardColors.ToolbarIconBackground
+                    if (pressed) KeyboardColors.CyberBlue.copy(alpha = 0.2f)
+                    else Color.Transparent
                 )
                 .pointerInput(Unit) {
                     awaitPointerEventScope {
@@ -1886,7 +1885,7 @@ private fun ToolBarIcon(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = iconTint ?: KeyboardColors.ToolbarIcon,
+            tint = iconTint ?: KeyboardColors.TextSecondary,
             modifier = Modifier.size(18.dp),
         )
     }
