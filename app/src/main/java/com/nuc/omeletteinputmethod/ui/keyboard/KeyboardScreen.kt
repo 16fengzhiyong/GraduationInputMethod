@@ -82,7 +82,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -1481,8 +1480,6 @@ fun KeyButton(
         else -> 0.15f
     }
     // ── 大圆角 16dp（设计规范），或胶囊形 ──
-    val roundCorner = 16f
-    val shapeRadius = 16.dp.toPx()
     val shape = if (capsuleShape)
         RoundedCornerShape(percent = 50)
     else

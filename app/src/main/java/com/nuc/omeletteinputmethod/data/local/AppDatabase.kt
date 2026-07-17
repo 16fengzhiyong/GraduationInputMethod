@@ -14,10 +14,11 @@ import com.nuc.omeletteinputmethod.data.model.ShortcutItem
 import com.nuc.omeletteinputmethod.data.model.UserBigram
 import com.nuc.omeletteinputmethod.data.model.UserBigramDao
 import com.nuc.omeletteinputmethod.data.model.UserDictionary
+import com.nuc.omeletteinputmethod.data.model.UserEntity
 
-@Database(
-    entities = [UserDictionary::class, Note::class, ShortcutItem::class, ClipboardItem::class, InputStat::class, UserBigram::class, CategoryDictionary::class],
-    version = 7,
+    @Database(
+    entities = [UserDictionary::class, Note::class, ShortcutItem::class, ClipboardItem::class, InputStat::class, UserBigram::class, CategoryDictionary::class, UserEntity::class],
+    version = 9,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,6 +35,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userBigramDao(): UserBigramDao
 
     abstract fun categoryDictionaryDao(): CategoryDictionaryDao
+
+    abstract fun userDao(): UserDao
 
     companion object {
         val MIGRATION_4_5 =
@@ -101,6 +104,32 @@ abstract class AppDatabase : RoomDatabase() {
                         pinyin TEXT NOT NULL,
                         freq INTEGER NOT NULL DEFAULT 0,
                         source TEXT NOT NULL DEFAULT ''
+                    )
+                """,
+                    )
+                }
+            }
+
+        val MIGRATION_7_8 =
+            object : Migration(7, 8) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL("ALTER TABLE user_dictionary ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0")
+                    database.execSQL("ALTER TABLE user_dictionary ADD COLUMN createdTime INTEGER NOT NULL DEFAULT 0")
+                }
+            }
+
+        val MIGRATION_8_9 =
+            object : Migration(8, 9) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    database.execSQL(
+                        """
+                    CREATE TABLE IF NOT EXISTS user_profile (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        phone TEXT NOT NULL,
+                        nickname TEXT,
+                        avatarUrl TEXT,
+                        createdAt INTEGER NOT NULL DEFAULT 0,
+                        lastSyncAt INTEGER
                     )
                 """,
                     )

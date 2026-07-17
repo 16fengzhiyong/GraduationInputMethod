@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Key background with rounded corners -->
+    <path
+        android:pathData="M8,12 L40,12 Q42,12 42,14 L40,34 Q40,36 38,36 L10,36 Q8,36 8,34 L6,14 Q6,12 8,12 Z"
+        android:fillColor="#E8E8EC" />
+
+    <!-- Top highlight for 3D effect -->
+    <path
+        android:pathData="M8,13 L40,13 Q41.5,13 41.5,14.5 L39.5,34 Q39.5,35.5 38,35.5 L10,35.5 Q8.5,35.5 8.5,34 L6.5,14.5 Q6.5,13 8,13 Z"
+        android:fillColor="#F5F5F7" />
+
+    <!-- Spacebar center indicator line -->
+    <path
+        android:pathData="M16,24 L32,24"
+        android:strokeColor="#AAAAAA"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round" />
+
+    <!-- Small vertical ticks on the line ends -->
+    <path
+        android:pathData="M17,21 L17,27"
+        android:strokeColor="#AAAAAA"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+
+    <path
+        android:pathData="M31,21 L31,27"
+        android:strokeColor="#AAAAAA"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+
+</vector>

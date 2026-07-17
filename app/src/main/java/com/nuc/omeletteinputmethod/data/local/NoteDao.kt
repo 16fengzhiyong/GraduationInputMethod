@@ -25,4 +25,9 @@ interface NoteDao {
 
     @Delete
     suspend fun deleteNote(note: Note)
+
+    // ── 云同步用：返回 List 而非 Flow ──
+
+    @Query("SELECT * FROM notes")
+    suspend fun getAllNotesList(): List<Note>
 }

@@ -13,6 +13,15 @@ enum class KeyboardMode {
     HANDWRITING,
     VOICE,
     STROKE,
+
+    // Text editing / arrow keys panel
+    ARROWS,
+    // Clipboard history panel
+    CLIPBOARD,
+    // 文本编辑工具面板（摇杆 + 操作网格）
+    EDIT_TOOL,
+    // 五笔输入模式
+    WUBI,
 }
 
 // Added by Agent A
@@ -62,4 +71,23 @@ data class KeyboardState(
     val isEnglishMode: Boolean = false,
     // Candidate bar expanded mode — shows all candidates when true, paginated when false
     val expandedCandidates: Boolean = false,
+    // Whether the dictionary engine has been initialized successfully
+    val dictionaryReady: Boolean = false,
+    // 键盘切换面板是否可见
+    val switchPanelVisible: Boolean = false,
+    // Updated candidates list with metadata for gestures and pinning
+    val candidatesMeta: List<CandidateItem> = emptyList(),
+    // Whether to show all candidates in a grid overlay
+    val expandedCandidatesGrid: Boolean = false,
+    // Whether the current input field is a password field
+    val isSecureMode: Boolean = false,
+    // 五笔：当前已输入的字根编码缓冲区（纯字母）
+    val wubiBuffer: String = "",
+    // 五笔：当前编码对应的候选字词列表
+    val wubiCandidates: List<String> = emptyList(),
+)
+
+data class CandidateItem(
+    val word: String,
+    val isPinned: Boolean = false,
 )

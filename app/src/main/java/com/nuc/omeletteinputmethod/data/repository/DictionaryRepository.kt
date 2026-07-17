@@ -153,6 +153,27 @@ class DictionaryRepository
                 }
             }
 
+        suspend fun togglePin(word: String) =
+            withContext(Dispatchers.IO) {
+                val existing = userDictionaryDao.getWord(word)
+                if (existing != null) {
+                    userDictionaryDao.updatePin(word, !existing.pinned)
+                } else {
+                    userDictionaryDao.insertWord(
+                        UserDictionary(
+                            word = word,
+                            frequency = 0,
+                            pinned = true,
+                        ),
+                    )
+                }
+            }
+
+        suspend fun isWordPinned(word: String): Boolean =
+            withContext(Dispatchers.IO) {
+                userDictionaryDao.isPinned(word) ?: false
+            }
+
         private fun parseCandidates(json: String): List<CandidateItem> {
             if (json.isEmpty() || json == "[]") return emptyList()
             return try {

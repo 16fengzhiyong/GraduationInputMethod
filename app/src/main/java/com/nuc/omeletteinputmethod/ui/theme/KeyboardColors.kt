@@ -103,12 +103,15 @@ object KeyboardColors {
     // ═══════════════════════════════════════════════
     // 旧版兼容别名 (保持 KeyboardScreen 现有引用不报错)
     // ═══════════════════════════════════════════════
+    @get:JvmName("deprecatedKeyBackground")
     @Deprecated("使用 KeyBackground", ReplaceWith("KeyBackground"))
     val keyBackground = KeyBackground
     @Deprecated("使用 KeyPressed", ReplaceWith("KeyPressed"))
     val KeyBackgroundPressed = KeyPressed
+    @get:JvmName("deprecatedTextPrimary")
     @Deprecated("使用 TextPrimary", ReplaceWith("TextPrimary"))
     val textPrimary = TextPrimary
+    @get:JvmName("deprecatedTextSecondary")
     @Deprecated("使用 TextSecondary", ReplaceWith("TextSecondary"))
     val textSecondary = TextSecondary
     @Deprecated("使用 CyberBlue", ReplaceWith("CyberBlue"))
@@ -123,6 +126,7 @@ object KeyboardColors {
     val ToolbarIconBackgroundPressed = DarkGray800
     @Deprecated("使用 Ripple", ReplaceWith("Ripple"))
     val keyShadow = Ripple
+    @get:JvmName("deprecatedCandidateBackground")
     @Deprecated("使用 CandidateBackground", ReplaceWith("CandidateBackground"))
     val candidateBackground = CandidateBackground
     @Deprecated("使用 TextPrimary", ReplaceWith("TextPrimary"))

@@ -22,6 +22,10 @@ interface ClipboardDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: ClipboardItem): Long
 
+    /** 云同步用：REPLACE 策略插入（远程较新时覆盖本地） */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrReplace(item: ClipboardItem)
+
     @Query("UPDATE clipboard_history SET pinned = 1 WHERE id = :id")
     suspend fun pinItem(id: Long)
 
@@ -47,4 +51,9 @@ interface ClipboardDao {
 
     @Query("SELECT content FROM clipboard_history ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLatestContent(): String?
+
+    // ── 云同步用：返回 List 而非 Flow ──
+
+    @Query("SELECT * FROM clipboard_history")
+    suspend fun getAllItemsList(): List<ClipboardItem>
 }

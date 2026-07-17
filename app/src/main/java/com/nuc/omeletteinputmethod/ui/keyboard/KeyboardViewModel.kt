@@ -42,6 +42,23 @@ sealed class KeyboardEffect {
     object SwitchIME : KeyboardEffect()
     object OpenSettings : KeyboardEffect()
     object HideKeyboard : KeyboardEffect()
+
+    // Text editing / cursor navigation effects
+    object CursorLeft : KeyboardEffect()
+    object CursorRight : KeyboardEffect()
+    object CursorUp : KeyboardEffect()
+    object CursorDown : KeyboardEffect()
+    object Home : KeyboardEffect()
+    object End : KeyboardEffect()
+    object Copy : KeyboardEffect()
+    object Cut : KeyboardEffect()
+    object PasteFromClipboard : KeyboardEffect()
+    object SelectAll : KeyboardEffect()
+
+    // 文本编辑工具面板：撤销 / 重做 / 删除光标后字符
+    object Undo : KeyboardEffect()
+    object Redo : KeyboardEffect()
+    object DeleteForward : KeyboardEffect()
 }
 
 // Added by Agent A — T9 mapping: digit → sequence of chars to cycle through
@@ -109,6 +126,7 @@ class KeyboardViewModel
         private val dictionaryRepository: DictionaryRepository,
         @ApplicationContext private val appContext: Context,
         private val inputStatDao: InputStatDao,
+        val preferenceManager: KeyboardPreferenceManager,
     ) {
         private val _state = MutableStateFlow(KeyboardState())
         val state: StateFlow<KeyboardState> = _state.asStateFlow()
@@ -159,10 +177,12 @@ class KeyboardViewModel
 
             scope.launch {
                 val ok = dictionaryRepository.initializeDictionary()
-                if (!ok) {
-                    android.util.Log.e("KeyboardVM", "Dictionary init FAILED — candidates will be empty!")
-                } else {
+                if (ok) {
+                    _state.update { it.copy(dictionaryReady = true) }
                     android.util.Log.i("KeyboardVM", "Dictionary init OK")
+                } else {
+                    _state.update { it.copy(dictionaryReady = false) }
+                    android.util.Log.e("KeyboardVM", "Dictionary init FAILED — candidates will be empty!")
                 }
             }
         }
@@ -171,6 +191,33 @@ class KeyboardViewModel
         // Updated by Agent H — English mode: letters commit directly
         fun onKeyChar(char: Char) {
             val st = _state.value
+
+            // 五笔模式：字母累积到 wubiBuffer，查询 WubiEngine
+            if (st.mode == KeyboardMode.WUBI) {
+                if (char.isLetter()) {
+                    val newBuffer = st.wubiBuffer + char.lowercaseChar()
+                    // 五笔最多 4 码
+                    if (newBuffer.length <= 4) {
+                        val candidates = WubiEngine.query(newBuffer)
+                        _state.update {
+                            it.copy(
+                                wubiBuffer = newBuffer,
+                                wubiCandidates = candidates,
+                                inputBuffer = newBuffer,
+                                candidates = candidates,
+                            )
+                        }
+                    }
+                    emitHaptic(KeyType.NORMAL)
+                    emitSound()
+                } else {
+                    // 非字母字符直接上屏
+                    scope.launch { _effects.emit(KeyboardEffect.CommitText(char.toString())) }
+                    emitHaptic(KeyType.NORMAL)
+                    emitSound()
+                }
+                return
+            }
 
             // Added by Agent H — English mode: letters directly commit to editor
             if (st.isEnglishMode && st.mode == KeyboardMode.ALPHA && char.isLetter()) {
@@ -294,6 +341,28 @@ class KeyboardViewModel
 
         fun onDelete() {
             val st = _state.value
+
+            // 五笔模式：从 wubiBuffer 删除最后一码
+            if (st.mode == KeyboardMode.WUBI) {
+                if (st.wubiBuffer.isNotEmpty()) {
+                    val newBuffer = st.wubiBuffer.dropLast(1)
+                    val candidates = if (newBuffer.isNotEmpty()) WubiEngine.query(newBuffer) else emptyList()
+                    _state.update {
+                        it.copy(
+                            wubiBuffer = newBuffer,
+                            wubiCandidates = candidates,
+                            inputBuffer = newBuffer,
+                            candidates = candidates,
+                        )
+                    }
+                } else {
+                    scope.launch { _effects.emit(KeyboardEffect.DeleteBackward) }
+                }
+                emitHaptic(KeyType.NORMAL)
+                emitSound()
+                return
+            }
+
             if (st.doublePinyin && st.doubleBuffer.isNotEmpty()) {
                 val newDoubleBuf = st.doubleBuffer.dropLast(1)
                 _state.update { it.copy(doubleBuffer = newDoubleBuf) }
@@ -316,6 +385,13 @@ class KeyboardViewModel
 
         // Updated by Agent C — fuzzy/auto-correct/mixed-input support
         private fun updateCandidates(buffer: String) {
+            if (!_state.value.dictionaryReady) {
+                // Dictionary not initialized yet — keep buffer visible but show no candidates
+                _state.update { it.copy(inputBuffer = buffer, candidates = emptyList()) }
+                android.util.Log.w("KeyboardVM", "updateCandidates skipped: dictionary not ready")
+                return
+            }
+
             if (buffer.isEmpty()) {
                 _state.update { it.copy(inputBuffer = "", candidates = emptyList(), doubleBuffer = "") }
                 return
@@ -406,18 +482,27 @@ class KeyboardViewModel
                 }
             }
 
-            _state.update {
-                it.copy(
-                    inputBuffer = if (isDouble) it.doubleBuffer else buffer,
-                    candidates = allCandidates,
-                    expandedCandidates = false,
-                )
+                val emojiRecommendations = getEmojiRecommendations(buffer)
+                val finalCandidates = (emojiRecommendations + allCandidates).distinct()
+
+                _state.update {
+                    it.copy(
+                        inputBuffer = if (isDouble) it.doubleBuffer else buffer,
+                        candidates = finalCandidates,
+                        expandedCandidates = false,
+                    )
+                }
+                android.util.Log.i("KeyboardVM", "updateCandidates: buffer=\"$buffer\" variants=${variants.size} segVariants=${segmentedVariants.size} finalCandidates=${finalCandidates.size} first=\"${finalCandidates.firstOrNull() ?: ""}\"")
+                insertCandidatesMeta(finalCandidates)
             }
-            android.util.Log.i("KeyboardVM", "updateCandidates: buffer=\"$buffer\" variants=${variants.size} segVariants=${segmentedVariants.size} finalCandidates=${allCandidates.size} first=\"${allCandidates.firstOrNull() ?: ""}\"")
-        }
 
         fun setMode(mode: KeyboardMode) {
-            _state.update { it.copy(mode = mode) }
+            // 切换模式时清空五笔缓冲区
+            if (mode != KeyboardMode.WUBI) {
+                _state.update { it.copy(mode = mode, wubiBuffer = "", wubiCandidates = emptyList()) }
+            } else {
+                _state.update { it.copy(mode = mode) }
+            }
             emitHaptic(KeyType.SPECIAL)
         }
 
@@ -480,6 +565,31 @@ class KeyboardViewModel
             pinyinPrefKeys.mixedInput = enabled
         }
 
+        private fun getEmojiRecommendations(input: String): List<String> {
+            val emojiMap = mapOf(
+                "哈哈" to "😂", "开心" to "😄", "难过" to "😢", "生气" to "😡",
+                "爱" to "❤️", "心" to "❤️", "心碎" to "💔", "喜欢" to "🥰",
+                "笑" to "😄", "哭" to "😭", "怒" to "😡", "怕" to "😱",
+                "棒" to "👍", "赞" to "👍", "好的" to "👌", "OK" to "👌",
+                "谢谢" to "🙏", "加油" to "💪", "晚安" to "😴", "早安" to "🌅",
+                "生日" to "🎂", "庆祝" to "🎉", "礼物" to "🎁", "鲜花" to "💐",
+                "太阳" to "☀️", "月亮" to "🌙", "星星" to "⭐", "下雨" to "🌧️",
+                "吃" to "🍔", "喝" to "🥤", "饿" to "😋", "馋" to "🤤",
+                "睡" to "😴", "累" to "😩", "困" to "😪", "懒" to "🦥",
+                "帅" to "😎", "美" to "💃", "酷" to "😎", "牛" to "🐂",
+                "冲" to "🏃", "跑" to "🏃", "走" to "🚶", "飞" to "✈️",
+                "钱" to "💰", "穷" to "💸", "富" to "🤑", "买" to "🛒",
+                "家" to "🏠", "回" to "🏠", "学校" to "🏫", "公司" to "🏢",
+                "猫" to "🐱", "狗" to "🐶", "猪" to "🐷", "鸡" to "🐔",
+                "拜拜" to "👋", "再见" to "👋", "嗨" to "👋", "你好" to "👋"
+            )
+            return emojiMap.entries
+                .filter { input.contains(it.key) }
+                .map { it.value }
+                .distinct()
+                .take(3)
+        }
+
         fun onSpace() {
             val st = _state.value
             // Added by Agent H — English mode: always commit space
@@ -506,17 +616,32 @@ class KeyboardViewModel
             scope.launch {
                 dictionaryRepository.lastCommittedWord = prev
                 dictionaryRepository.recordSelection(candidate)
-                _state.update {
-                    it.copy(
-                        inputBuffer = "",
-                        candidates = emptyList(),
-                        doubleBuffer = "",
-                        lastCommittedWord = candidate,
-                    )
+                // 五笔模式：选字后清空五笔缓冲区
+                if (_state.value.mode == KeyboardMode.WUBI) {
+                    _state.update {
+                        it.copy(
+                            inputBuffer = "",
+                            candidates = emptyList(),
+                            doubleBuffer = "",
+                            wubiBuffer = "",
+                            wubiCandidates = emptyList(),
+                            lastCommittedWord = candidate,
+                        )
+                    }
+                } else {
+                    _state.update {
+                        it.copy(
+                            inputBuffer = "",
+                            candidates = emptyList(),
+                            doubleBuffer = "",
+                            lastCommittedWord = candidate,
+                        )
+                    }
                 }
                 _effects.emit(KeyboardEffect.CommitText(candidate))
             }
             recordInputStat(candidate.length, 1)
+            trackCommittedChars(candidate)
         }
 
         fun onEnter() {
@@ -590,8 +715,16 @@ class KeyboardViewModel
         private fun recordInputStat(chars: Int, words: Int) {
             sessionTotalChars += chars
             sessionTotalWords += words
+            // Track unique Chinese characters — iterate the committed text chars
             if (chars > 0) {
-                // unique chars tracking handled by candidate string chars
+                // The candidate string characters will be added via trackCommittedChars
+            }
+        }
+
+        /** Call this from onCandidateSelected to track unique chars from the committed word */
+        private fun trackCommittedChars(word: String) {
+            for (c in word) {
+                sessionUniqueChars.add(c)
             }
         }
 
@@ -602,7 +735,8 @@ class KeyboardViewModel
             val elapsedMin = (elapsedMs / 60000.0).coerceAtLeast(1.0)
             val avgSpeed = (sessionTotalChars / elapsedMin).toFloat()
 
-            scope.launch(Dispatchers.IO) {
+            // Use a separate IO context to ensure write completes even if ViewModel scope is cancelling
+            kotlinx.coroutines.runBlocking(Dispatchers.IO) {
                 inputStatDao.batchInsert(
                     listOf(
                         InputStat(
@@ -627,6 +761,32 @@ class KeyboardViewModel
             scope.launch { _effects.emit(KeyboardEffect.Paste(text)) }
         }
 
+        private suspend fun insertCandidatesMeta(candidates: List<String>) {
+            val pinnedMap = candidates.associateWith { dictionaryRepository.isWordPinned(it) }
+            val candidatesMeta = candidates.map { CandidateItem(word = it, isPinned = pinnedMap[it] == true) }
+            _state.update { it.copy(candidatesMeta = candidatesMeta) }
+        }
+
+        fun togglePinCandidate(candidate: String) {
+            scope.launch {
+                dictionaryRepository.togglePin(candidate)
+                val newMeta = _state.value.candidatesMeta.map {
+                    if (it.word == candidate) it.copy(isPinned = !it.isPinned) else it
+                }
+                _state.update { it.copy(candidatesMeta = newMeta) }
+            }
+        }
+
+        fun deleteCandidate(candidate: String) {
+            val newMeta = _state.value.candidatesMeta.filter { it.word != candidate }
+            val newCandidates = _state.value.candidates.filter { it != candidate }
+            _state.update { it.copy(candidatesMeta = newMeta, candidates = newCandidates) }
+        }
+
+        fun setExpandedCandidatesGrid(expanded: Boolean) {
+            _state.update { it.copy(expandedCandidatesGrid = expanded) }
+        }
+
         // Added by Agent H — toggle Chinese/English input mode
         fun toggleLanguageMode() {
             val newMode = !_state.value.isEnglishMode
@@ -639,8 +799,9 @@ class KeyboardViewModel
         fun onSearch() {
             val st = _state.value
             if (st.inputBuffer.isNotEmpty()) {
-                // Force commit pinyin buffer content
-                scope.launch { _effects.emit(KeyboardEffect.CommitText(st.inputBuffer)) }
+                // Commit first candidate if available, otherwise commit raw buffer
+                val commitText = st.candidates.firstOrNull() ?: st.inputBuffer
+                scope.launch { _effects.emit(KeyboardEffect.CommitText(commitText)) }
                 _state.update { it.copy(inputBuffer = "", doubleBuffer = "", candidates = emptyList()) }
             } else {
                 scope.launch { _effects.emit(KeyboardEffect.CommitText("\n")) }
@@ -687,6 +848,125 @@ class KeyboardViewModel
         fun setStrokeMode() {
             _state.update { it.copy(mode = KeyboardMode.STROKE) }
             emitHaptic(KeyType.SPECIAL)
+        }
+
+        // Text editing / cursor navigation actions
+        fun onCursorLeft() { scope.launch { _effects.emit(KeyboardEffect.CursorLeft) } }
+        fun onCursorRight() { scope.launch { _effects.emit(KeyboardEffect.CursorRight) } }
+        fun onCursorUp() { scope.launch { _effects.emit(KeyboardEffect.CursorUp) } }
+        fun onCursorDown() { scope.launch { _effects.emit(KeyboardEffect.CursorDown) } }
+        fun onHome() { scope.launch { _effects.emit(KeyboardEffect.Home) } }
+        fun onEnd() { scope.launch { _effects.emit(KeyboardEffect.End) } }
+        fun onCopy() { scope.launch { _effects.emit(KeyboardEffect.Copy) } }
+        fun onCut() { scope.launch { _effects.emit(KeyboardEffect.Cut) } }
+        fun onPaste() { scope.launch { _effects.emit(KeyboardEffect.PasteFromClipboard) } }
+        fun onSelectAll() { scope.launch { _effects.emit(KeyboardEffect.SelectAll) } }
+
+        // 文本编辑工具面板：撤销 / 重做 / 删除光标后字符
+        fun onUndo() { scope.launch { _effects.emit(KeyboardEffect.Undo) } }
+        fun onRedo() { scope.launch { _effects.emit(KeyboardEffect.Redo) } }
+        fun onDeleteForward() { scope.launch { _effects.emit(KeyboardEffect.DeleteForward) } }
+
+        fun setArrowsMode() {
+            _state.update { it.copy(mode = KeyboardMode.ARROWS) }
+            emitHaptic(KeyType.SPECIAL)
+        }
+
+        fun setSecureMode(isSecure: Boolean) {
+            _state.update { it.copy(isSecureMode = isSecure) }
+        }
+
+        fun setClipboardMode() {
+            _state.update { it.copy(mode = KeyboardMode.CLIPBOARD) }
+            emitHaptic(KeyType.SPECIAL)
+        }
+
+        // 打开文本编辑工具面板
+        fun setEditToolMode() {
+            _state.update { it.copy(mode = KeyboardMode.EDIT_TOOL) }
+            emitHaptic(KeyType.SPECIAL)
+        }
+
+        /**
+         * Cycle through available input modes: ALPHA → T9 → SYMBOL → HANDWRITING → VOICE → STROKE → EMOJI → ALPHA
+         */
+        fun cycleInputMode() {
+            val current = _state.value.mode
+            val next = when (current) {
+                KeyboardMode.ALPHA -> KeyboardMode.T9
+                KeyboardMode.T9 -> KeyboardMode.SYMBOL
+                KeyboardMode.SYMBOL -> KeyboardMode.HANDWRITING
+                KeyboardMode.HANDWRITING -> KeyboardMode.VOICE
+                KeyboardMode.VOICE -> KeyboardMode.STROKE
+                KeyboardMode.STROKE -> KeyboardMode.EMOJI
+                KeyboardMode.EMOJI -> KeyboardMode.ALPHA
+                else -> KeyboardMode.ALPHA  // NUMBER/ARROWS/CLIPBOARD fallback to ALPHA
+            }
+            _state.update { it.copy(mode = next) }
+            emitHaptic(KeyType.SPECIAL)
+        }
+
+        /**
+         * 通过 typeId 切换键盘类型 — 由 KeyboardSwitchPanel 调用
+         *
+         * @param typeId 目标键盘的 typeId（来自 KeyboardRegistry）
+         * @return 是否成功切换
+         */
+        fun switchKeyboardType(typeId: String): Boolean {
+            val target = KeyboardRegistry.findById(typeId) ?: return false
+            if (!target.enabled) return false
+
+            // 持久化到本地
+            preferenceManager.switchTo(typeId)
+
+            // 更新 KeyboardMode
+            _state.update {
+                it.copy(
+                    mode = target.mode,
+                    // 英文模式特殊处理：切换 isEnglishMode 标志
+                    isEnglishMode = (typeId == KeyboardRegistry.ID_ENGLISH),
+                    // 切换键盘时清空输入缓冲
+                    inputBuffer = "",
+                    candidates = emptyList(),
+                    expandedCandidates = false,
+                    // 五笔缓冲区清空
+                    wubiBuffer = "",
+                    wubiCandidates = emptyList(),
+                )
+            }
+            emitHaptic(KeyType.SPECIAL)
+            return true
+        }
+
+        /**
+         * 打开键盘切换面板
+         */
+        fun showSwitchPanel() {
+            _state.update { it.copy(switchPanelVisible = true) }
+            emitHaptic(KeyType.SPECIAL)
+        }
+
+        /**
+         * 关闭键盘切换面板
+         */
+        fun hideSwitchPanel() {
+            _state.update { it.copy(switchPanelVisible = false) }
+        }
+
+        /**
+         * Retry dictionary initialization. Called by IME on each onStartInput
+         * so that if the first init failed (e.g. assets not yet extracted),
+         * subsequent input sessions can recover.
+         */
+        fun retryDictionaryInit() {
+            if (_state.value.dictionaryReady) return
+            scope.launch {
+                val ok = dictionaryRepository.initializeDictionary()
+                if (ok) {
+                    _state.update { it.copy(dictionaryReady = true) }
+                    android.util.Log.i("KeyboardVM", "Dictionary retry init OK")
+                }
+            }
         }
     }
 

@@ -36,4 +36,9 @@ interface ShortcutDao {
 
     @Delete
     suspend fun deleteShortcut(item: ShortcutItem)
+
+    // ── 云同步用：返回 List 而非 Flow ──
+
+    @Query("SELECT * FROM shortcuts")
+    suspend fun getAllShortcutsList(): List<ShortcutItem>
 }

@@ -10,6 +10,12 @@ object Routes {
     const val PINYIN_SETTINGS = "pinyin_settings"
     const val CLIPBOARD_LIST = "clipboard_list"
     const val INPUT_STATS = "input_stats"
+    const val THEME_SETTINGS = "theme_settings"
+    const val ACCOUNT_LOGIN = "account_login"
+    const val ACCOUNT_REGISTER = "account_register"
+    const val ACCOUNT_PROFILE = "account_profile"
+    const val THEME_STORE = "theme_store"
+    const val CLOUD_SYNC = "cloud_sync"
 
     fun notepadEdit(noteId: Long = -1L) = "notepad_edit/$noteId"
     fun shortcutEdit(shortcutId: Long = -1L) = "shortcut_edit/$shortcutId"

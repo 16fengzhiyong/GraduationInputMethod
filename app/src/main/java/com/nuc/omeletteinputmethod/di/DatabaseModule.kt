@@ -6,6 +6,7 @@ import com.nuc.omeletteinputmethod.data.local.AppDatabase
 import com.nuc.omeletteinputmethod.data.local.ClipboardDao
 import com.nuc.omeletteinputmethod.data.local.NoteDao
 import com.nuc.omeletteinputmethod.data.local.ShortcutDao
+import com.nuc.omeletteinputmethod.data.local.UserDao
 import com.nuc.omeletteinputmethod.data.local.UserDictionaryDao
 import com.nuc.omeletteinputmethod.data.model.CategoryDictionaryDao
 import com.nuc.omeletteinputmethod.data.model.InputStatDao
@@ -30,7 +31,13 @@ object DatabaseModule {
                 context,
                 AppDatabase::class.java,
                 "omelette_db",
-            ).addMigrations(AppDatabase.MIGRATION_4_5, AppDatabase.MIGRATION_5_6, AppDatabase.MIGRATION_6_7)
+            ).addMigrations(
+                AppDatabase.MIGRATION_4_5,
+                AppDatabase.MIGRATION_5_6,
+                AppDatabase.MIGRATION_6_7,
+                AppDatabase.MIGRATION_7_8,
+                AppDatabase.MIGRATION_8_9
+            )
             .build()
     }
 
@@ -54,4 +61,7 @@ object DatabaseModule {
 
     @Provides
     fun provideCategoryDictionaryDao(database: AppDatabase): CategoryDictionaryDao = database.categoryDictionaryDao()
+
+    @Provides
+    fun provideUserDao(database: AppDatabase): UserDao = database.userDao()
 }

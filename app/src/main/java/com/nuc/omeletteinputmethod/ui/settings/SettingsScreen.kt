@@ -42,7 +42,12 @@ import com.nuc.omeletteinputmethod.ui.shortcut.ShortcutListScreen
 import com.nuc.omeletteinputmethod.ui.translate.TranslateScreen
 import com.nuc.omeletteinputmethod.ui.keyboard.KeyboardViewModel
 import com.nuc.omeletteinputmethod.ui.clipboard.ClipboardPanel
+import com.nuc.omeletteinputmethod.ui.account.LoginScreen
+import com.nuc.omeletteinputmethod.ui.account.ProfileScreen
+import com.nuc.omeletteinputmethod.ui.account.RegisterScreen
 import com.nuc.omeletteinputmethod.ui.stats.InputStatsScreen
+import com.nuc.omeletteinputmethod.ui.sync.CloudSyncScreen
+import com.nuc.omeletteinputmethod.ui.themestore.ThemeStoreScreen
 
 private val bottomNavItems = listOf(
     BottomNavItem(Routes.DASHBOARD, "首页", Icons.Filled.Home, Icons.Outlined.Home),
@@ -117,7 +122,7 @@ fun SettingsScreen(
             enterTransition = { fadeIn(tween(300)) },
             exitTransition = { fadeOut(tween(250)) }
         ) {
-composable(Routes.DASHBOARD) {
+            composable(Routes.DASHBOARD) {
                 DashboardScreen(
                     onNavigateNotepad = { navController.navigate(Routes.NOTEPAD_LIST) },
                     onNavigateShortcut = { navController.navigate(Routes.SHORTCUT_LIST) },
@@ -125,6 +130,12 @@ composable(Routes.DASHBOARD) {
                     onNavigateClipboard = { navController.navigate(Routes.CLIPBOARD_LIST) },
                     onNavigatePinyinSettings = { navController.navigate(Routes.PINYIN_SETTINGS) },
                     onNavigateInputStats = { navController.navigate(Routes.INPUT_STATS) },
+                    onNavigateThemeSettings = { navController.navigate(Routes.THEME_SETTINGS) },
+                    onNavigateAccount = {
+                        navController.navigate(Routes.ACCOUNT_PROFILE)
+                    },
+                    onNavigateThemeStore = { navController.navigate(Routes.THEME_STORE) },
+                    onNavigateCloudSync = { navController.navigate(Routes.CLOUD_SYNC) },
                     onCheckPermission = onCheckPermission,
                     keyboardViewModel = keyboardViewModel
                 )
@@ -181,6 +192,57 @@ composable(Routes.DASHBOARD) {
             }
             composable(Routes.INPUT_STATS) {
                 InputStatsScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable(Routes.THEME_SETTINGS) {
+                ThemeSettingsScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            // ── 账号系统 ──
+            composable(Routes.ACCOUNT_LOGIN) {
+                LoginScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToRegister = { navController.navigate(Routes.ACCOUNT_REGISTER) },
+                    onLoginSuccess = {
+                        navController.navigate(Routes.ACCOUNT_PROFILE) {
+                            popUpTo(Routes.ACCOUNT_LOGIN) { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable(Routes.ACCOUNT_REGISTER) {
+                RegisterScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToLogin = { navController.navigate(Routes.ACCOUNT_LOGIN) },
+                    onRegisterSuccess = {
+                        navController.navigate(Routes.ACCOUNT_PROFILE) {
+                            popUpTo(Routes.ACCOUNT_REGISTER) { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable(Routes.ACCOUNT_PROFILE) {
+                ProfileScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToSync = { navController.navigate(Routes.CLOUD_SYNC) },
+                    onNavigateToLogin = {
+                        navController.navigate(Routes.ACCOUNT_LOGIN) {
+                            popUpTo(Routes.ACCOUNT_PROFILE) { inclusive = true }
+                        }
+                    }
+                )
+            }
+            // ── 主题商店 ──
+            composable(Routes.THEME_STORE) {
+                ThemeStoreScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            // ── 云同步 ──
+            composable(Routes.CLOUD_SYNC) {
+                CloudSyncScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

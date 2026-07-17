@@ -41,6 +41,39 @@ class FakeUserDictionaryDao : UserDictionaryDao {
         flowOf(
             store.values.filter { it.frequency >= threshold }.toList(),
         )
+
+    override suspend fun isPinned(word: String): Boolean? {
+        return store.values.find { it.word == word }?.pinned
+    }
+
+    override fun getTopNWords(n: Int, minFreq: Int) =
+        flowOf(
+            store.values.filter { it.frequency >= minFreq }
+                .sortedByDescending { it.frequency }
+                .take(n)
+        )
+
+    override fun getRecentlyUsed(limit: Int) =
+        flowOf(
+            store.values.sortedByDescending { it.lastUsedTimestamp }.take(limit)
+        )
+
+    override suspend fun updatePin(word: String, pinned: Boolean) {
+        store.values.find { it.word == word }?.let { entity ->
+            store[entity.id] = entity.copy(pinned = pinned)
+        }
+    }
+
+    override suspend fun updateFrequencyByWord(word: String, timestamp: Long) {
+        store.values.find { it.word == word }?.let { entity ->
+            store[entity.id] = entity.copy(
+                frequency = entity.frequency + 1,
+                lastUsedTimestamp = timestamp
+            )
+        }
+    }
+
+    override suspend fun getAllWordsList(): List<UserDictionary> = store.values.toList()
 }
 
 class UserDictionaryDaoTest {

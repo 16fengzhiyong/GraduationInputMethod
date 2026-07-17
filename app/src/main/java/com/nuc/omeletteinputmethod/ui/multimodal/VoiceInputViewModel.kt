@@ -92,6 +92,7 @@ constructor(
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "zh-CN")
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+                putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
             }
 
         speechRecognizer?.startListening(intent)

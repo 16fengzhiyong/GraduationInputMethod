@@ -7,13 +7,14 @@ import okhttp3.Request
 import org.json.JSONArray
 import java.net.URLEncoder
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class TranslateRepository
     @Inject
     constructor(
-        private val okHttpClient: OkHttpClient,
+        @Named("plainClient") private val okHttpClient: OkHttpClient,
     ) {
         private val BASE_URL = "https://translate.google.cn/translate_a/single"
         private val USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"

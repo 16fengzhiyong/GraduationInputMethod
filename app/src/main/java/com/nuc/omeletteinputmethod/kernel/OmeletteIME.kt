@@ -18,6 +18,7 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.nuc.omeletteinputmethod.data.repository.AuthRepository
 import com.nuc.omeletteinputmethod.data.repository.ClipboardRepository
 import com.nuc.omeletteinputmethod.ui.keyboard.KeyType
 import com.nuc.omeletteinputmethod.ui.keyboard.KeyboardEffect
@@ -26,7 +27,7 @@ import com.nuc.omeletteinputmethod.ui.keyboard.KeyboardViewModel
 import com.nuc.omeletteinputmethod.ui.multimodal.HandwritingViewModel
 import com.nuc.omeletteinputmethod.ui.multimodal.StrokeInputViewModel
 import com.nuc.omeletteinputmethod.ui.multimodal.VoiceInputViewModel
-import com.nuc.omeletteinputmethod.ui.theme.OmeletteIMETheme
+import com.nuc.omeletteinputmethod.ui.theme.OmeletteIMEKeyboardTheme
 import com.nuc.omeletteinputmethod.ui.theme.ThemeManager
 import dagger.hilt.android.AndroidEntryPoint
 import com.nuc.omeletteinputmethod.R
@@ -53,6 +54,9 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
 
     @Inject
     lateinit var themeManager: ThemeManager
+
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
@@ -130,6 +134,84 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
             is KeyboardEffect.HideKeyboard -> {
                 requestHideSelf(0)
             }
+            is KeyboardEffect.CursorLeft -> {
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(
+                        android.view.KeyEvent.ACTION_DOWN,
+                        android.view.KeyEvent.KEYCODE_DPAD_LEFT,
+                    ),
+                )
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(
+                        android.view.KeyEvent.ACTION_UP,
+                        android.view.KeyEvent.KEYCODE_DPAD_LEFT,
+                    ),
+                )
+            }
+            is KeyboardEffect.CursorRight -> {
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_RIGHT),
+                )
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_DPAD_RIGHT),
+                )
+            }
+            is KeyboardEffect.CursorUp -> {
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_UP),
+                )
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_DPAD_UP),
+                )
+            }
+            is KeyboardEffect.CursorDown -> {
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_DPAD_DOWN),
+                )
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_DPAD_DOWN),
+                )
+            }
+            is KeyboardEffect.Home -> {
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_MOVE_HOME),
+                )
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_MOVE_HOME),
+                )
+            }
+            is KeyboardEffect.End -> {
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_MOVE_END),
+                )
+                inputConnection?.sendKeyEvent(
+                    android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_MOVE_END),
+                )
+            }
+            is KeyboardEffect.Copy -> {
+                inputConnection?.performContextMenuAction(android.R.id.copy)
+            }
+            is KeyboardEffect.Cut -> {
+                inputConnection?.performContextMenuAction(android.R.id.cut)
+            }
+            is KeyboardEffect.PasteFromClipboard -> {
+                inputConnection?.performContextMenuAction(android.R.id.paste)
+            }
+            is KeyboardEffect.SelectAll -> {
+                inputConnection?.performContextMenuAction(android.R.id.selectAll)
+            }
+            is KeyboardEffect.Undo -> {
+                // Android 8.0+ 支持系统撤销栈，通过 context menu action 触发
+                inputConnection?.performContextMenuAction(android.R.id.undo)
+            }
+            is KeyboardEffect.Redo -> {
+                // Android 8.0+ 支持系统重做栈
+                inputConnection?.performContextMenuAction(android.R.id.redo)
+            }
+            is KeyboardEffect.DeleteForward -> {
+                // 删除光标后一个字符（前删已在 DeleteBackward 中处理）
+                inputConnection?.deleteSurroundingText(0, 1)
+            }
         }
     }
 
@@ -154,7 +236,7 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
         applyOwnerToWindow()
 
         cv.setContent {
-            OmeletteIMETheme {
+            OmeletteIMEKeyboardTheme(themeManager) {
                 KeyboardScreen(
                     viewModel = viewModel,
                     handwritingViewModel = handwritingViewModel,
@@ -197,7 +279,24 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
         super.onStartInput(attribute, restarting)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
 
-        clipboardRepository.startMonitoring()
+        val isPasswordField = attribute?.let {
+            val inputType = it.inputType
+            (inputType and android.text.InputType.TYPE_MASK_CLASS) == android.text.InputType.TYPE_CLASS_TEXT &&
+            (inputType and android.text.InputType.TYPE_MASK_VARIATION).let { variation ->
+                variation == android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                variation == android.text.InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
+                variation == android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            }
+        } ?: false
+
+        viewModel.setSecureMode(isPasswordField)
+
+        if (!isPasswordField) {
+            clipboardRepository.startMonitoring()
+        }
+
+        // Retry dictionary init on every input session in case first attempt failed
+        viewModel.retryDictionaryInit()
 
         effectCollectionJob?.cancel()
         effectCollectionJob =

@@ -1,12 +1,20 @@
 package com.nuc.omeletteinputmethod.data.repository
 
+import com.nuc.omeletteinputmethod.data.local.CellDictManager
+import com.nuc.omeletteinputmethod.data.local.DictDeployer
 import com.nuc.omeletteinputmethod.data.local.UserDictionaryDao
+import com.nuc.omeletteinputmethod.data.model.UserBigramDao
 import com.nuc.omeletteinputmethod.data.model.UserDictionary
 import com.nuc.omeletteinputmethod.inputC.DictEngine
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -16,11 +24,22 @@ class DictionaryRepositoryTest {
     private lateinit var repository: DictionaryRepository
     private lateinit var dictEngine: DictEngine
     private lateinit var dao: UserDictionaryDao
+    private lateinit var dictDeployer: DictDeployer
+    private lateinit var cellDictManager: CellDictManager
+    private lateinit var userBigramDao: UserBigramDao
 
     @Before
     fun setUp() {
+        mockkStatic(android.util.Log::class)
+        every { android.util.Log.i(any(), any()) } returns 0
+        every { android.util.Log.e(any(), any()) } returns 0
+
         dictEngine = mockk()
         dao = mockk()
+        dictDeployer = mockk()
+        cellDictManager = mockk()
+        userBigramDao = mockk(relaxed = true)
+
         coEvery { dictEngine.initialize(any()) } returns true
         coEvery { dictEngine.search(any()) } returns """[{"w":"好","f":100},{"w":"号","f":50}]"""
         coEvery { dictEngine.associate(any()) } returns """[{"w":"好人","f":80},{"w":"好吃","f":60}]"""
@@ -28,6 +47,21 @@ class DictionaryRepositoryTest {
         coEvery { dao.insertWord(any()) } returns Unit
         coEvery { dao.updateFrequency(any(), any()) } returns Unit
         coEvery { dao.getFrequencies(any()) } returns emptyList()
+
+        // Mock deployer
+        justRun { dictDeployer.deployIfNeeded() }
+        every { dictDeployer.filesDirPath } returns "/data/test"
+
+        // Mock cell dict manager
+        every { cellDictManager.getEnabledCategories() } returns flowOf(emptyList())
+        every { cellDictManager.isCategoryEnabled(any()) } returns true
+
+        repository = DictionaryRepository(dictEngine, dao, dictDeployer, cellDictManager, userBigramDao)
+    }
+
+    @After
+    fun tearDown() {
+        io.mockk.unmockkStatic(android.util.Log::class)
     }
 
     @Test

@@ -10,4 +10,6 @@ data class UserDictionary(
     val word: String,
     val frequency: Int = 0,
     val lastUsedTimestamp: Long = System.currentTimeMillis(),
+    val pinned: Boolean = false,
+    val createdTime: Long = System.currentTimeMillis(),
 )
