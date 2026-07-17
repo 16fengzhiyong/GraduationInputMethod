@@ -308,19 +308,56 @@ object PinyinProcessor {
 
     private val pinyinInitChars = "abcdefghijklmnopqrstuvwxyz".toSet()
 
+    // QWERTY 邻接键表：误按大概率落在物理相邻键上，用这张表把纠错候选从
+    // 理论上 ~26N 降到 ~3×4N 量级，明确缩小候选噪声。
+    private val QWERTY_NEIGHBORS: Map<Char, List<Char>> =
+        mapOf(
+            'q' to listOf('w', 'a', 's'),
+            'w' to listOf('q', 'a', 's', 'd', 'e'),
+            'e' to listOf('w', 's', 'd', 'r'),
+            'r' to listOf('e', 'd', 'f', 't'),
+            't' to listOf('r', 'f', 'g', 'y'),
+            'y' to listOf('t', 'g', 'h', 'u'),
+            'u' to listOf('y', 'h', 'j', 'i'),
+            'i' to listOf('u', 'j', 'k', 'o'),
+            'o' to listOf('i', 'k', 'l', 'p'),
+            'p' to listOf('o', 'l'),
+            'a' to listOf('q', 'w', 's', 'z', 'x'),
+            's' to listOf('a', 'w', 'd', 'e', 'z', 'x'),
+            'd' to listOf('s', 'e', 'r', 'f', 'c', 'x'),
+            'f' to listOf('d', 'r', 't', 'g', 'c', 'v'),
+            'g' to listOf('f', 't', 'y', 'h', 'b', 'v'),
+            'h' to listOf('g', 'y', 'u', 'j', 'n', 'b'),
+            'j' to listOf('h', 'u', 'i', 'k', 'm', 'n'),
+            'k' to listOf('j', 'i', 'o', 'l', 'm'),
+            'l' to listOf('k', 'o', 'p'),
+            'z' to listOf('a', 's', 'x'),
+            'x' to listOf('z', 's', 'd', 'c'),
+            'c' to listOf('x', 'd', 'f', 'v'),
+            'v' to listOf('c', 'f', 'g', 'b'),
+            'b' to listOf('v', 'g', 'h', 'n'),
+            'n' to listOf('b', 'h', 'j', 'm'),
+            'm' to listOf('n', 'j', 'k'),
+        )
+
     /**
-     * 基于编辑距离=1的拼音纠错
-     * 返回所有可能的纠正候选列表，需要调用方通过字典引擎过滤
+     * 基于键盘邻接 + 编辑距离的拼音纠错。
+     * - 替换: 仅替换为同位或物理相邻的字母 (QWERTY 邻接表)，避免 26 字母暴力枚举。
+     * - 删除: 保留 (错按多打字情况)。
+     * 插入分支本次不做，以减小候选量；后续如需漏字容错可补。
+     * 返回所有可能的纠正候选列表，由调用方通过字典引擎过滤。
      */
     fun correctPinyinTypo(raw: String): List<String> {
         if (raw.isEmpty()) return emptyList()
         val results = mutableListOf<String>()
         val lower = raw.lowercase()
 
-        // 替换 (substitution): 每个位置替换为任意字母
+        // 替换: 每个位置替换为自身或邻接键
         for (i in lower.indices) {
-            for (c in pinyinInitChars) {
-                if (lower[i] != c) {
+            val orig = lower[i]
+            val neighbors = QWERTY_NEIGHBORS[orig] ?: emptyList()
+            for (c in neighbors) {
+                if (c != orig) {
                     results.add(lower.replaceRange(i, i + 1, c.toString()))
                 }
             }
@@ -331,13 +368,6 @@ object PinyinProcessor {
             val deleted = lower.removeRange(i, i + 1)
             if (deleted.isNotEmpty()) {
                 results.add(deleted)
-            }
-        }
-
-        // 插入 (insertion): 在每个位置插入任意字母
-        for (i in 0..lower.length) {
-            for (c in pinyinInitChars) {
-                results.add(lower.substring(0, i) + c + lower.substring(i))
             }
         }
 

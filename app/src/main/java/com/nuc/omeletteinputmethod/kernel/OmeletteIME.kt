@@ -1,5 +1,6 @@
 package com.nuc.omeletteinputmethod.kernel
 
+import android.graphics.Color as AndroidColor
 import android.inputmethodservice.InputMethodService
 import android.media.AudioAttributes
 import android.media.SoundPool
@@ -97,12 +98,23 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
         val inputConnection = currentInputConnection
         when (effect) {
             is KeyboardEffect.CommitText -> {
+                // 先收尾 composing 段，避免遗留的下划线文本与 commit 合并时错位
+                inputConnection?.finishComposingText()
                 inputConnection?.commitText(effect.text, 1)
             }
+            is KeyboardEffect.SetComposing -> {
+                inputConnection?.setComposingText(effect.text, 1)
+            }
+            is KeyboardEffect.FinishComposing -> {
+                inputConnection?.finishComposingText()
+            }
             is KeyboardEffect.DeleteBackward -> {
+                // 编辑框可能有未确认的 composing 段，删除前先收尾避免误删 commit 文本
+                inputConnection?.finishComposingText()
                 inputConnection?.deleteSurroundingText(1, 0)
             }
             is KeyboardEffect.Paste -> {
+                inputConnection?.finishComposingText()
                 inputConnection?.commitText(effect.text, 1)
             }
             is KeyboardEffect.Vibrate -> {
@@ -228,12 +240,12 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
         // enough vertical space for the IME window.
         cv.minimumHeight = 240.dpToPx()
 
-        // Eagerly apply lifecycle owners to the IME window root decor view.
-        // InputMethodService creates its Dialog lazily — touching `window`
-        // here forces creation so decorView exists before setInputView→addView
-        // triggers ComposeView.onAttachedToWindow, which traverses the
-        // ancestor chain looking for ViewTreeLifecycleOwner.
+        // Eagerly apply lifecycle owners to the IME window root decor view,
+        // and set its background to deep-space black so that the default white
+        // windowBackground from the inherited Material Light theme never flashes
+        // through during content height changes (e.g. candidate bar ↔ toolbar swap).
         applyOwnerToWindow()
+        window?.window?.decorView?.setBackgroundColor(AndroidColor.parseColor("#FF0A0E1A"))
 
         cv.setContent {
             OmeletteIMEKeyboardTheme(themeManager) {
@@ -270,6 +282,7 @@ class OmeletteIME : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, S
     override fun onWindowShown() {
         super.onWindowShown()
         applyOwnerToWindow()
+        window?.window?.decorView?.setBackgroundColor(AndroidColor.parseColor("#FF0A0E1A"))
     }
 
     override fun onStartInput(

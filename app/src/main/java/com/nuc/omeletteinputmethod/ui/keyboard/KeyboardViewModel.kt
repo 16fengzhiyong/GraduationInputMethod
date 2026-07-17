@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -29,6 +30,10 @@ sealed class KeyboardEffect {
     data class CommitText(val text: String) : KeyboardEffect()
 
     object DeleteBackward : KeyboardEffect()
+
+    // Composing 输入态预览：把 buffer/首候选写入编辑框带下划线，确认前持续替换
+    data class SetComposing(val text: String) : KeyboardEffect()
+    object FinishComposing : KeyboardEffect()
 
     // Added by Agent B — haptic feedback effect
     data class Vibrate(val keyType: KeyType) : KeyboardEffect()
@@ -134,13 +139,16 @@ class KeyboardViewModel
         private val _effects = MutableSharedFlow<KeyboardEffect>(replay = 0, extraBufferCapacity = 64)
         val effects: SharedFlow<KeyboardEffect> = _effects.asSharedFlow()
 
-        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
         private val prefs = appContext.getSharedPreferences("omelette_keyboard_prefs", Context.MODE_PRIVATE)
 
         private var t9LastDigit: Char? = null
         private var t9TapCount: Int = 0
         private var t9LastTapTime: Long = 0L
+
+        // 候选查询去抖：连续打键时只保留最后一次真实查库
+        private var candidateQueryJob: Job? = null
 
         private val pinyinPrefKeys = PinyinPrefKeys(prefs)
 
@@ -394,10 +402,16 @@ class KeyboardViewModel
 
             if (buffer.isEmpty()) {
                 _state.update { it.copy(inputBuffer = "", candidates = emptyList(), doubleBuffer = "") }
+                // buffer 清空收尾 composing 段，删掉编辑框里的预览
+                scope.launch { _effects.emit(KeyboardEffect.FinishComposing) }
                 return
             }
 
-            scope.launch {
+            // 去抖：连续按键取消上一次尚未执行的查库协程，12ms 窗口内的
+            // n→ni→nih→niha→nihao 只会真正查库一次
+            candidateQueryJob?.cancel()
+            candidateQueryJob = scope.launch {
+                delay(12)
                 val st = _state.value
                 val isDouble = st.doublePinyin
 
@@ -417,6 +431,17 @@ class KeyboardViewModel
 
                 updateCandidatesInner(buffer, st)
             }
+        }
+
+        /**
+         * 把当前缓冲候选状态映射到编辑框 composing 预览：
+         * 优先用首候选（编辑框显示"你好"带下划线），无候选时显示原始 buffer。
+         */
+        private fun emitComposingFromState() {
+            val st = _state.value
+            val text = st.candidates.firstOrNull()
+                ?: if (st.doublePinyin) st.doubleBuffer else st.inputBuffer
+            scope.launch { _effects.emit(KeyboardEffect.SetComposing(text)) }
         }
 
         private suspend fun updateCandidatesInner(
@@ -459,8 +484,16 @@ class KeyboardViewModel
 
             val allCandidates = mutableListOf<String>()
             val seenCandidates = mutableSetOf<String>()
+            // 上下文 bigram：上次上屏过词时走 bigram 路径，把首选排序融入候选
+            val prevWord = st.lastCommittedWord
+            val useBigram = prevWord.isNotEmpty()
             for (variant in allQueryVariants) {
-                val candidates = dictionaryRepository.getInitialCandidates(variant)
+                val candidates =
+                    if (useBigram) {
+                        dictionaryRepository.getCandidatesWithBigram(variant, prevWord)
+                    } else {
+                        dictionaryRepository.getInitialCandidates(variant)
+                    }
                 for (c in candidates) {
                     if (seenCandidates.add(c)) {
                         allCandidates.add(c)
@@ -490,10 +523,15 @@ class KeyboardViewModel
                         inputBuffer = if (isDouble) it.doubleBuffer else buffer,
                         candidates = finalCandidates,
                         expandedCandidates = false,
+                        // 重新打键进入拼音候选，联想不再是当前关注焦点，清掉
+                        associatedCandidates = emptyList(),
                     )
                 }
-                android.util.Log.i("KeyboardVM", "updateCandidates: buffer=\"$buffer\" variants=${variants.size} segVariants=${segmentedVariants.size} finalCandidates=${finalCandidates.size} first=\"${finalCandidates.firstOrNull() ?: ""}\"")
                 insertCandidatesMeta(finalCandidates)
+                // 编辑框 composing 预览：优先显示首候选词（带下划线），无候选时显示 buffer
+                val composingPreview = finalCandidates.firstOrNull()
+                    ?: if (isDouble) st.doubleBuffer else buffer
+                _effects.emit(KeyboardEffect.SetComposing(composingPreview))
             }
 
         fun setMode(mode: KeyboardMode) {
@@ -594,7 +632,15 @@ class KeyboardViewModel
             val st = _state.value
             // Added by Agent H — English mode: always commit space
             if (st.isEnglishMode) {
-                _state.update { it.copy(inputBuffer = "", doubleBuffer = "", lastCommittedWord = " ") }
+                // 空格不算"已上屏词"，清空 lastCommittedWord 让下一字不走 bigram 上下文
+                _state.update {
+                    it.copy(
+                        inputBuffer = "",
+                        doubleBuffer = "",
+                        lastCommittedWord = "",
+                        associatedCandidates = emptyList(),
+                    )
+                }
                 scope.launch { _effects.emit(KeyboardEffect.CommitText(" ")) }
                 emitHaptic(KeyType.NORMAL)
                 emitSound()
@@ -603,7 +649,14 @@ class KeyboardViewModel
             if (st.candidates.isNotEmpty()) {
                 onCandidateSelected(st.candidates[0])
             } else {
-                _state.update { it.copy(inputBuffer = "", doubleBuffer = "", lastCommittedWord = " ") }
+                _state.update {
+                    it.copy(
+                        inputBuffer = "",
+                        doubleBuffer = "",
+                        lastCommittedWord = "",
+                        associatedCandidates = emptyList(),
+                    )
+                }
                 scope.launch { _effects.emit(KeyboardEffect.CommitText(" ")) }
             }
             emitHaptic(KeyType.NORMAL)
@@ -626,6 +679,7 @@ class KeyboardViewModel
                             wubiBuffer = "",
                             wubiCandidates = emptyList(),
                             lastCommittedWord = candidate,
+                            associatedCandidates = emptyList(),
                         )
                     }
                 } else {
@@ -635,10 +689,17 @@ class KeyboardViewModel
                             candidates = emptyList(),
                             doubleBuffer = "",
                             lastCommittedWord = candidate,
+                            associatedCandidates = emptyList(),
                         )
                     }
                 }
                 _effects.emit(KeyboardEffect.CommitText(candidate))
+
+                // 续词联想：以刚上屏字/词为前缀，拉取下文候选词
+                val next = dictionaryRepository.getAssociatedWords(candidate)
+                if (next.isNotEmpty()) {
+                    _state.update { it.copy(associatedCandidates = next) }
+                }
             }
             recordInputStat(candidate.length, 1)
             trackCommittedChars(candidate)
@@ -685,8 +746,24 @@ class KeyboardViewModel
         fun onSwipeInput(path: List<Char>) {
             if (_state.value.mode != KeyboardMode.ALPHA) return
             if (path.isEmpty()) return
-            val pinyin = path.joinToString("")
-            updateCandidates(pinyin)
+
+            // 去抖 1: 连续同键只保留一次（手指在原键上抖动不应变成重复字母）
+            val cleaned = mutableListOf<Char>()
+            var prev: Char? = null
+            for (c in path) {
+                if (c != prev) {
+                    cleaned.add(c)
+                    prev = c
+                }
+            }
+            if (cleaned.isEmpty()) return
+
+            val pinyin = cleaned.joinToString("")
+            // 去抖 2: 经 segmentPinyin 校验为合法拼音音节组合，否则退化为原串保底
+            // （避免滑过噪音键产生的乱码冲击词库前缀查询，但保留用户合法输入）
+            val segs = PinyinProcessor.segmentPinyin(pinyin)
+            val validated = if (segs.isNotEmpty()) pinyin else cleaned.joinToString("")
+            updateCandidates(validated)
         }
 
         // Added by Agent B — toggle haptic feedback
@@ -790,7 +867,17 @@ class KeyboardViewModel
         // Added by Agent H — toggle Chinese/English input mode
         fun toggleLanguageMode() {
             val newMode = !_state.value.isEnglishMode
-            _state.update { it.copy(isEnglishMode = newMode) }
+            _state.update {
+                it.copy(
+                    isEnglishMode = newMode,
+                    // 切中/英文清掉联想并收尾可能的 composing 段
+                    associatedCandidates = emptyList(),
+                    inputBuffer = "",
+                    doubleBuffer = "",
+                    candidates = emptyList(),
+                )
+            }
+            scope.launch { _effects.emit(KeyboardEffect.FinishComposing) }
             emitHaptic(KeyType.SPECIAL)
             // Toast will be shown by KeyboardScreen observing state change
         }
@@ -801,8 +888,23 @@ class KeyboardViewModel
             if (st.inputBuffer.isNotEmpty()) {
                 // Commit first candidate if available, otherwise commit raw buffer
                 val commitText = st.candidates.firstOrNull() ?: st.inputBuffer
-                scope.launch { _effects.emit(KeyboardEffect.CommitText(commitText)) }
-                _state.update { it.copy(inputBuffer = "", doubleBuffer = "", candidates = emptyList()) }
+                scope.launch {
+                    _effects.emit(KeyboardEffect.CommitText(commitText))
+                    _state.update {
+                        it.copy(
+                            inputBuffer = "",
+                            doubleBuffer = "",
+                            candidates = emptyList(),
+                            lastCommittedWord = commitText,
+                            associatedCandidates = emptyList(),
+                        )
+                    }
+                    // 联想续词
+                    val next = dictionaryRepository.getAssociatedWords(commitText)
+                    if (next.isNotEmpty()) {
+                        _state.update { it.copy(associatedCandidates = next) }
+                    }
+                }
             } else {
                 scope.launch { _effects.emit(KeyboardEffect.CommitText("\n")) }
             }
@@ -932,8 +1034,11 @@ class KeyboardViewModel
                     // 五笔缓冲区清空
                     wubiBuffer = "",
                     wubiCandidates = emptyList(),
+                    // 联想候选清空，并收尾上一键盘可能遗留的 composing 段
+                    associatedCandidates = emptyList(),
                 )
             }
+            scope.launch { _effects.emit(KeyboardEffect.FinishComposing) }
             emitHaptic(KeyType.SPECIAL)
             return true
         }

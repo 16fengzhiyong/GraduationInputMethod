@@ -2,6 +2,7 @@ package com.nuc.omeletteinputmethod.ui.multimodal
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import com.nuc.omeletteinputmethod.ui.theme.KeyboardColors
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -42,7 +43,6 @@ fun VoiceInputPanel(
     onBackToAlpha: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
-    val colors = MaterialTheme.colorScheme
 
     val infiniteTransition = rememberInfiniteTransition(label = "voicePulse")
     val pulseScale by
@@ -64,14 +64,14 @@ fun VoiceInputPanel(
             Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(colors.surface),
+                .background(KeyboardColors.Background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         if (state.errorMessage != null) {
             Text(
                 text = state.errorMessage ?: "",
-                color = colors.error,
+                color = KeyboardColors.Error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
@@ -83,8 +83,8 @@ fun VoiceInputPanel(
                     .size(80.dp)
                     .clip(CircleShape)
                     .background(
-                        if (state.isListening) colors.primary.copy(alpha = 0.3f)
-                        else colors.surfaceVariant,
+                        if (state.isListening) KeyboardColors.CyberBlue.copy(alpha = 0.3f)
+                        else KeyboardColors.DarkGray900,
                     ).pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
@@ -109,7 +109,7 @@ fun VoiceInputPanel(
             Text(
                 text = state.recognizedText,
                 style = MaterialTheme.typography.bodyLarge,
-                color = colors.onSurface,
+                color = KeyboardColors.TextPrimary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
@@ -117,7 +117,7 @@ fun VoiceInputPanel(
             Text(
                 text = "正在聆听...",
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant,
+                color = KeyboardColors.TextSecondary,
             )
         }
 
@@ -129,7 +129,7 @@ fun VoiceInputPanel(
             TextButton(onClick = {
                 viewModel.cancelListening()
             }) {
-                Text("取消", color = colors.onSurfaceVariant)
+                Text("取消", color = KeyboardColors.TextSecondary)
             }
 
             Button(
@@ -137,8 +137,8 @@ fun VoiceInputPanel(
                 enabled = state.recognizedText.isNotEmpty(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = colors.primary,
-                        disabledContainerColor = colors.surfaceVariant,
+                        containerColor = KeyboardColors.CyberBlue,
+                        disabledContainerColor = KeyboardColors.DarkGray900,
                     ),
             ) {
                 Text("插入")
@@ -148,7 +148,7 @@ fun VoiceInputPanel(
                 viewModel.cancelListening()
                 onBackToAlpha()
             }) {
-                Text("拼音", color = colors.primary)
+                Text("拼音", color = KeyboardColors.CyberBlue)
             }
         }
     }

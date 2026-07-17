@@ -3,6 +3,7 @@ package com.nuc.omeletteinputmethod.ui.multimodal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import com.nuc.omeletteinputmethod.ui.theme.KeyboardColors
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,20 +33,19 @@ fun StrokeInputPanel(
     onBackToAlpha: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
-    val colors = MaterialTheme.colorScheme
 
     Column(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .background(colors.surface),
+                .background(KeyboardColors.Background),
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .height(36.dp)
-                    .background(colors.surfaceVariant)
+                    .background(KeyboardColors.DarkGray900)
                     .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -53,11 +53,11 @@ fun StrokeInputPanel(
             Text(
                 text = if (state.strokeSequence.isEmpty()) "笔画" else state.strokeSequence.map { viewModel.getStrokeLabel(it) }.joinToString(""),
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant,
+                color = KeyboardColors.TextSecondary,
             )
             Spacer(modifier = Modifier.weight(1f))
             TextButton(onClick = onBackToAlpha) {
-                Text("拼音", style = MaterialTheme.typography.labelMedium, color = colors.primary)
+                Text("拼音", style = MaterialTheme.typography.labelMedium, color = KeyboardColors.CyberBlue)
             }
         }
 
@@ -67,7 +67,7 @@ fun StrokeInputPanel(
                     Modifier
                         .fillMaxWidth()
                         .height(40.dp)
-                        .background(colors.surfaceVariant)
+                        .background(KeyboardColors.DarkGray900)
                         .padding(horizontal = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -77,13 +77,13 @@ fun StrokeInputPanel(
                     Surface(
                         onClick = { viewModel.onCandidateSelected(candidate) },
                         shape = RoundedCornerShape(6.dp),
-                        color = if (isFirst) colors.primaryContainer else colors.surface,
+                        color = if (isFirst) KeyboardColors.CyberBlue.copy(alpha = 0.2f) else KeyboardColors.DarkGray800,
                         tonalElevation = if (isFirst) 2.dp else 0.dp,
                     ) {
                         Text(
                             text = candidate,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                            color = if (isFirst) colors.onPrimaryContainer else colors.onSurface,
+                            color = if (isFirst) KeyboardColors.CyberBlue else KeyboardColors.TextPrimary,
                             style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -117,7 +117,7 @@ fun StrokeInputPanel(
                     Surface(
                         onClick = { viewModel.onStrokeKey(key.id) },
                         shape = RoundedCornerShape(8.dp),
-                        color = colors.surfaceVariant,
+                        color = KeyboardColors.DarkGray900,
                         modifier = Modifier.height(keySize).width(keySize),
                     ) {
                         Box(
@@ -128,13 +128,13 @@ fun StrokeInputPanel(
                                 Text(
                                     text = key.label,
                                     style = MaterialTheme.typography.headlineSmall,
-                                    color = colors.onSurfaceVariant,
+                                    color = KeyboardColors.TextSecondary,
                                     textAlign = TextAlign.Center,
                                 )
                                 Text(
                                     text = key.id.toString(),
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = colors.onSurfaceVariant.copy(alpha = 0.5f),
+                                    color = KeyboardColors.TextSecondary.copy(alpha = 0.5f),
                                     textAlign = TextAlign.Center,
                                 )
                             }
@@ -150,7 +150,7 @@ fun StrokeInputPanel(
                 Surface(
                     onClick = { viewModel.onWildcardKey() },
                     shape = RoundedCornerShape(8.dp),
-                    color = colors.surfaceVariant,
+                    color = KeyboardColors.DarkGray900,
                     modifier = Modifier.height(keySize).width(keySize),
                 ) {
                     Box(
@@ -161,13 +161,13 @@ fun StrokeInputPanel(
                             Text(
                                 text = "*",
                                 style = MaterialTheme.typography.headlineSmall,
-                                color = colors.onSurfaceVariant,
+                                color = KeyboardColors.TextSecondary,
                                 textAlign = TextAlign.Center,
                             )
                             Text(
                                 text = "通配",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = colors.onSurfaceVariant.copy(alpha = 0.5f),
+                                color = KeyboardColors.TextSecondary.copy(alpha = 0.5f),
                                 textAlign = TextAlign.Center,
                             )
                         }
@@ -177,7 +177,7 @@ fun StrokeInputPanel(
                 Surface(
                     onClick = { viewModel.onDeleteStroke() },
                     shape = RoundedCornerShape(8.dp),
-                    color = colors.surfaceVariant,
+                    color = KeyboardColors.DarkGray900,
                     modifier = Modifier.height(keySize).weight(1f),
                 ) {
                     Box(
@@ -187,7 +187,7 @@ fun StrokeInputPanel(
                         Text(
                             text = "⌫",
                             style = MaterialTheme.typography.headlineSmall,
-                            color = colors.onSurfaceVariant,
+                            color = KeyboardColors.TextSecondary,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -196,7 +196,7 @@ fun StrokeInputPanel(
                 Surface(
                     onClick = { viewModel.onSpace() },
                     shape = RoundedCornerShape(8.dp),
-                    color = colors.surfaceVariant,
+                    color = KeyboardColors.DarkGray900,
                     modifier = Modifier.height(keySize).weight(1f),
                 ) {
                     Box(
@@ -206,7 +206,7 @@ fun StrokeInputPanel(
                         Text(
                             text = "空格",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = colors.onSurfaceVariant,
+                            color = KeyboardColors.TextSecondary,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -215,7 +215,7 @@ fun StrokeInputPanel(
                 Surface(
                     onClick = { viewModel.commitEnter() },
                     shape = RoundedCornerShape(8.dp),
-                    color = colors.surfaceVariant,
+                    color = KeyboardColors.DarkGray900,
                     modifier = Modifier.height(keySize).weight(0.7f),
                 ) {
                     Box(
@@ -225,7 +225,7 @@ fun StrokeInputPanel(
                         Text(
                             text = "↵",
                             style = MaterialTheme.typography.headlineSmall,
-                            color = colors.onSurfaceVariant,
+                            color = KeyboardColors.TextSecondary,
                             textAlign = TextAlign.Center,
                         )
                     }

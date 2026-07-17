@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import com.nuc.omeletteinputmethod.ui.theme.KeyboardColors
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
@@ -41,45 +42,44 @@ fun HandwritingPanel(
     onBackToAlpha: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
-    val colors = MaterialTheme.colorScheme
 
     Column(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .background(colors.surface),
+                .background(KeyboardColors.Background),
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .height(36.dp)
-                    .background(colors.surfaceVariant)
+                    .background(KeyboardColors.DarkGray900)
                     .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextButton(onClick = viewModel::clearStrokes) {
-                Text("清除", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+                Text("清除", style = MaterialTheme.typography.labelMedium, color = KeyboardColors.TextSecondary)
             }
             TextButton(onClick = { viewModel.recognize() }) {
-                Text("识别", style = MaterialTheme.typography.labelMedium, color = colors.primary)
+                Text("识别", style = MaterialTheme.typography.labelMedium, color = KeyboardColors.CyberBlue)
             }
             if (state.isRecognizing) {
-                Text("识别中...", style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
+                Text("识别中...", style = MaterialTheme.typography.labelSmall, color = KeyboardColors.TextSecondary)
             }
             Spacer(modifier = Modifier.weight(1f))
             TextButton(onClick = { viewModel.deleteLastStroke() }) {
-                Text("撤销", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+                Text("撤销", style = MaterialTheme.typography.labelMedium, color = KeyboardColors.TextSecondary)
             }
             TextButton(onClick = { viewModel.commitSpace() }) {
-                Text("空格", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+                Text("空格", style = MaterialTheme.typography.labelMedium, color = KeyboardColors.TextSecondary)
             }
             TextButton(onClick = { viewModel.commitEnter() }) {
-                Text("回车", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+                Text("回车", style = MaterialTheme.typography.labelMedium, color = KeyboardColors.TextSecondary)
             }
             TextButton(onClick = onBackToAlpha) {
-                Text("拼音", style = MaterialTheme.typography.labelMedium, color = colors.primary)
+                Text("拼音", style = MaterialTheme.typography.labelMedium, color = KeyboardColors.CyberBlue)
             }
         }
 
@@ -137,7 +137,7 @@ fun HandwritingPanel(
                     Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .background(colors.surfaceVariant)
+                        .background(KeyboardColors.DarkGray900)
                         .padding(horizontal = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -147,13 +147,13 @@ fun HandwritingPanel(
                     Surface(
                         onClick = { viewModel.onCandidateSelected(candidate) },
                         shape = RoundedCornerShape(6.dp),
-                        color = if (isFirst) colors.primaryContainer else colors.surface,
+                        color = if (isFirst) KeyboardColors.CyberBlue.copy(alpha = 0.2f) else KeyboardColors.DarkGray800,
                         tonalElevation = if (isFirst) 2.dp else 0.dp,
                     ) {
                         Text(
                             text = candidate,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            color = if (isFirst) colors.onPrimaryContainer else colors.onSurface,
+                            color = if (isFirst) KeyboardColors.CyberBlue else KeyboardColors.TextPrimary,
                             style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,

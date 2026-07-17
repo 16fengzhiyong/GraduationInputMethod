@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nuc.omeletteinputmethod.ui.theme.KeyboardColors
 import com.nuc.omeletteinputmethod.ui.theme.ThemeManager
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -71,23 +73,22 @@ fun EmojiPanel(
     val categories = remember { loadEmojiCategories(context) }
     val pagerState = rememberPagerState(pageCount = { categories.size })
     val scope = rememberCoroutineScope()
-    val colors = skin.toColorScheme()
 
     Column(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .background(colors.surface),
+                .background(KeyboardColors.Background),
     ) {
         TabRow(
             selectedTabIndex = pagerState.currentPage,
-            containerColor = colors.surfaceVariant,
-            contentColor = colors.primary,
+            containerColor = KeyboardColors.DarkGray900,
+            contentColor = KeyboardColors.CyberBlue,
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                    color = colors.primary,
+                    color = KeyboardColors.CyberBlue,
                 )
             },
         ) {
@@ -103,8 +104,8 @@ fun EmojiPanel(
                             overflow = TextOverflow.Ellipsis,
                         )
                     },
-                    selectedContentColor = colors.primary,
-                    unselectedContentColor = colors.onSurfaceVariant.copy(alpha = 0.6f),
+                    selectedContentColor = KeyboardColors.CyberBlue,
+                    unselectedContentColor = KeyboardColors.TextSecondary.copy(alpha = 0.6f),
                 )
             }
         }
@@ -131,7 +132,7 @@ fun EmojiPanel(
                         Text(
                             text = "${innerPagerState.currentPage + 1}/$totalPages",
                             fontSize = 10.sp,
-                            color = colors.onSurfaceVariant.copy(alpha = 0.5f),
+                            color = KeyboardColors.TextSecondary.copy(alpha = 0.5f),
                         )
                     }
                 }
@@ -146,7 +147,7 @@ fun EmojiPanel(
 
                     if (pageEmojis.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("暂无表情", color = colors.onSurfaceVariant)
+                            Text("暂无表情", color = KeyboardColors.TextSecondary)
                         }
                     } else {
                         LazyVerticalGrid(
@@ -168,11 +169,11 @@ fun EmojiPanel(
                                     modifier =
                                         Modifier
                                             .fillMaxWidth()
-                                            .height(40.dp)
-                                            .clip(RoundedCornerShape(4.dp))
+                                            .height(48.dp)
+                                            .clip(RoundedCornerShape(8.dp))
                                             .background(
-                                                color = colors.surfaceVariant.copy(alpha = 0.3f),
-                                                shape = RoundedCornerShape(4.dp),
+                                                color = KeyboardColors.DarkGray800,
+                                                shape = RoundedCornerShape(8.dp),
                                             ).clickable { onEmojiSelected(emoji) },
                                     contentAlignment = Alignment.Center,
                                 ) {
@@ -197,30 +198,53 @@ fun EmojiPanel(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            KeyButton(
-                label = "ABC",
-                width = 56.dp,
-                height = 36.dp,
-                action = { onBack() },
-            )
-            KeyButton(
-                label = "符",
-                width = 56.dp,
-                height = 36.dp,
-                action = { onBack() },
-            )
-            KeyButton(
-                label = "空格",
-                modifier = Modifier.weight(1f),
-                height = 36.dp,
-                action = { onEmojiSelected(" ") },
-            )
-            KeyButton(
-                label = "↵",
-                width = 48.dp,
-                height = 36.dp,
-                action = { onEmojiSelected("\n") },
-            )
+            Box(
+                modifier = Modifier
+                    .width(48.dp)
+                    .height(40.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { onBack() }
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                KeyRenderer(label = "ABC", width = 48.dp, height = 40.dp, capsuleShape = true)
+            }
+            Box(
+                modifier = Modifier
+                    .width(48.dp)
+                    .height(40.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { onBack() }
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                KeyRenderer(label = "符", width = 48.dp, height = 40.dp, capsuleShape = true)
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { onEmojiSelected(" ") }
+                    },
+            ) {
+                KeyRenderer(label = "空格", height = 40.dp, customBgColor = KeyboardColors.KeyBackgroundPressed.copy(alpha = 0.6f))
+            }
+            Box(
+                modifier = Modifier
+                    .width(48.dp)
+                    .height(40.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures { onEmojiSelected("\n") }
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                KeyRenderer(
+                    label = "↵", width = 48.dp, height = 40.dp, capsuleShape = true,
+                    customBgColor = KeyboardColors.PrimaryAction,
+                    customContentColor = KeyboardColors.PrimaryActionText,
+                )
+            }
         }
     }
 }

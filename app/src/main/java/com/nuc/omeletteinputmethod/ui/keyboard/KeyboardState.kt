@@ -85,6 +85,8 @@ data class KeyboardState(
     val wubiBuffer: String = "",
     // 五笔：当前编码对应的候选字词列表
     val wubiCandidates: List<String> = emptyList(),
+    // 续词联想：上屏后通过字前缀联想出的下文候选词
+    val associatedCandidates: List<String> = emptyList(),
 )
 
 data class CandidateItem(

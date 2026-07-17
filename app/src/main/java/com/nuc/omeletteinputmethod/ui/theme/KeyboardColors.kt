@@ -81,8 +81,8 @@ object KeyboardColors {
     val KeyBackground = DarkGray800
     /** 输入框背景 */
     val InputBackground = DarkGray900
-    /** 候选栏背景（毛玻璃） */
-    val CandidateBackground = Color.White.copy(alpha = 0.08f)
+    /** 候选栏背景（深色半透明，避免闪白） */
+    val CandidateBackground = DarkGray800.copy(alpha = 0.6f)
     /** 工具栏背景 */
     val ToolbarBackground = DarkGray900
 
@@ -201,4 +201,12 @@ object KeyboardColors {
 
     /** 阴影颜色 */
     val ShadowColor = Color.Black.copy(alpha = ALPHA_LOW)
+
+    // ═══════════════════════════════════════════════
+    // 工具栏专用色 (Toolbar Colors)
+    // ═══════════════════════════════════════════════
+    /** 工具栏活跃图标颜色 */
+    val ToolbarActiveIcon = CyberBlue.copy(alpha = 0.7f)
+    /** 工具栏分隔线颜色 */
+    val ToolbarDivider = DarkGray700.copy(alpha = 0.3f)
 }
